@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">GlobalBiblion</string>
+    <string name="eslogan">One book. A thousand worlds to discover.</string>
+    <string name="inicar_sesion">LOG IN</string>
+    <string name="registrarse">SIGN UP</string>
+    <string name="conticomoinvitado">CONTINUE AS GUEST</string>
+    <string name="idiomaPantPri">ES | EN | FR | PT</string>
+    <string name="usuario">Username</string>
+    <string name="contrasenia">Password</string>
+    <string name="Iniciar_sesion">Log in</string>
+    <string name="Registrarse">Sign up</string>
+    <string name="nombre">Name</string>
+    <string name="apellidos">Last name</string>
+    <string name="fenacim">Date of birth</string>
+    <string name="direcci">Address</string>
+    <string name="localidad">City</string>
+    <string name="Municipio">Municipality</string>
+    <string name="pais">Country</string>
+    <string name="correo">Email</string>
+    <string name="rep_correo">Repeat email</string>
+    <string name="rep_contrasenia">Repeat password</string>
+    <string name="guardar">Save</string>
+    <string name="buscar_libro">Search book</string>
+    <string name="contileyen">Continue reading</string>
+    <string name="portada">Cover</string>
+    <string name="titulo">Title</string>
+    <string name="autor">Author</string>
+    <string name="pagina">Page 5 of 240</string>
+    <string name="biblioteca">Library</string>
+    <string name="puntuaciones">Ratings</string>
+    <string name="instrucciones_busqueda">Enter 4 characters of the book</string>
+    <string name="info_personal">Personal information</string>
+    <string name="invitado">Guest</string>
+    <string name="perfil">Profile</string>
+    <string name="volver">Back</string>
+    <string name="idiomas">languages</string>
+    <string name="certificado">certificate</string>
+    <string name="catalogo">Catallog</string>
+
+</resources>

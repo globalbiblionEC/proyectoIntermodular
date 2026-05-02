@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/llLinea"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#73F2C94C"
+    android:padding="2dp">
+
+    <View
+        android:id="@+id/vLinea1"
+        android:layout_width="match_parent"
+        android:layout_height="10dp"
+        android:layout_marginTop="24dp"
+        android:background="#1E3A5F"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <View
+        android:id="@+id/vLinea2"
+        android:layout_width="match_parent"
+        android:layout_height="20dp"
+        android:layout_marginTop="4dp"
+        android:background="#1E3A5F"
+        app:layout_constraintTop_toBottomOf="@id/vLinea1" />
+
+    <View
+        android:id="@+id/vLinea3"
+        android:layout_width="match_parent"
+        android:layout_height="10dp"
+        android:layout_marginTop="4dp"
+        android:background="#1E3A5F"
+        app:layout_constraintTop_toBottomOf="@id/vLinea2" />
+
+    <ImageView
+        android:id="@+id/ivLogo"
+        android:layout_width="360dp"
+        android:layout_height="240dp"
+        android:adjustViewBounds="true"
+        android:src="@drawable/logogbsinfondo"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/vLinea3" />
+
+    <TextView
+        android:id="@+id/tvSlogan"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:fontFamily="serif"
+        android:gravity="center"
+        android:text="@string/eslogan"
+        android:textColor="#000000"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/ivLogo" />
+
+    <View
+        android:id="@+id/vLinea6"
+        android:layout_width="match_parent"
+        android:layout_height="10dp"
+        android:layout_marginTop="18dp"
+        android:background="#1E3A5F"
+        app:layout_constraintTop_toBottomOf="@id/tvSlogan" />
+
+    <View
+        android:id="@+id/vLinea7"
+        android:layout_width="match_parent"
+        android:layout_height="20dp"
+        android:layout_marginTop="4dp"
+        android:background="#1E3A5F"
+        app:layout_constraintTop_toBottomOf="@id/vLinea6" />
+
+    <View
+        android:id="@+id/vLinea8"
+        android:layout_width="match_parent"
+        android:layout_height="10dp"
+        android:layout_marginTop="4dp"
+        android:background="#1E3A5F"
+        app:layout_constraintTop_toBottomOf="@id/vLinea7" />
+
+    <Button
+        android:id="@+id/btnIniciarSesion"
+        android:layout_width="0dp"
+        android:layout_height="65dp"
+        android:layout_marginStart="18dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="18dp"
+        android:backgroundTint="#F5EEDC"
+        android:fontFamily="serif"
+        android:text="@string/inicar_sesion"
+        android:textAllCaps="false"
+        android:textColor="#000000"
+        android:textSize="18sp"
+        app:cornerRadius="12dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/vLinea8"
+        app:rippleColor="@null"
+        app:strokeColor="#1E3A5F"
+        app:strokeWidth="1dp" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnRegistrarse"
+        android:layout_width="0dp"
+        android:layout_height="65dp"
+        android:layout_marginStart="18dp"
+        android:layout_marginTop="6dp"
+        android:layout_marginEnd="18dp"
+        android:backgroundTint="#F5EEDC"
+        android:fontFamily="serif"
+        android:text="@string/registrarse"
+        android:textAllCaps="false"
+        android:textColor="#000000"
+        android:textSize="18sp"
+        app:cornerRadius="12dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btnIniciarSesion"
+        app:rippleColor="@null"
+        app:strokeColor="#1E3A5F"
+        app:strokeWidth="1dp" />
+
+    <Button
+        android:id="@+id/btnInvitado"
+        android:layout_width="0dp"
+        android:layout_height="65dp"
+        android:layout_marginStart="18dp"
+        android:layout_marginTop="6dp"
+        android:layout_marginEnd="18dp"
+        android:backgroundTint="#F5EEDC"
+        android:fontFamily="serif"
+        android:text="@string/conticomoinvitado"
+        android:textAllCaps="false"
+        android:textColor="#000000"
+        android:textSize="18sp"
+        app:cornerRadius="12dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btnRegistrarse"
+        app:rippleColor="@null"
+        app:strokeColor="#1E3A5F"
+        app:strokeWidth="1dp" />
+
+    <View
+        android:id="@+id/vLinea13"
+        android:layout_width="0dp"
+        android:layout_height="2dp"
+        android:layout_marginStart="100dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="100dp"
+        android:background="#04080F"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btnInvitado" />
+
+    <LinearLayout
+        android:id="@+id/btnIdiomas"
+        android:layout_width="179dp"
+        android:layout_height="56dp"
+        android:layout_marginTop="14dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="4dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/vLinea13">
+
+        <ImageView
+            android:id="@+id/ivMundo"
+            android:layout_width="51dp"
+            android:layout_height="56dp"
+            android:contentDescription="Mundo"
+            android:src="@drawable/mundosinfondo" />
+
+        <TextView
+            android:id="@+id/tvIdiomas"
+            android:layout_width="104dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="@string/idiomaPantPri"
+            android:textColor="#000000"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+    <View
+        android:id="@+id/vLinea14"
+        android:layout_width="match_parent"
+        android:layout_height="10dp"
+        android:layout_marginTop="8dp"
+        android:background="#1E3A5F"
+        app:layout_constraintTop_toBottomOf="@id/btnIdiomas" />
+
+    <View
+        android:id="@+id/vLinea15"
+        android:layout_width="match_parent"
+        android:layout_height="20dp"
+        android:layout_marginTop="4dp"
+        android:background="#1E3A5F"
+        app:layout_constraintTop_toBottomOf="@id/vLinea14" />
+
+    <View
+        android:id="@+id/vLinea4"
+        android:layout_width="match_parent"
+        android:layout_height="10dp"
+        android:layout_marginTop="4dp"
+        android:background="#1E3A5F"
+        app:layout_constraintTop_toBottomOf="@id/vLinea15" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

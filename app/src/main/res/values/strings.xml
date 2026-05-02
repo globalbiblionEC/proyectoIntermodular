@@ -1,0 +1,40 @@
+<resources>
+    <string name="app_name">GlobalBiblion</string>
+    <string name="eslogan">Un libro. Mil mundos por descubrir.</string>
+    <string name="inicar_sesion">INICIAR SESIÓN</string>
+    <string name="registrarse">REGISTRARSE</string>
+    <string name="conticomoinvitado">CONTINUAR COMO INVITADO</string>
+    <string name="idiomaPantPri">ES | EN | FR | PT</string>
+    <string name="usuario">Usuario</string>
+    <string name="contrasenia">Contraseña</string>
+    <string name="Iniciar_sesion">Iniciar sesión</string>
+    <string name="Registrarse">Registrarse</string>
+    <string name="nombre">Nombre</string>
+    <string name="apellidos">Apellido</string>
+    <string name="fenacim">Fecha de nacimiento</string>
+    <string name="direcci">Dirección</string>
+    <string name="localidad">Localidad</string>
+    <string name="Municipio">Municipio</string>
+    <string name="pais">País</string>
+    <string name="correo">Correo</string>
+    <string name="rep_correo">Repetir correo</string>
+    <string name="rep_contrasenia">Repetir contraseña</string>
+    <string name="guardar">Guardar</string>
+    <string name="buscar_libro">Buscar Libro</string>
+    <string name="contileyen">Continuar leyendo</string>
+    <string name="portada">Portada</string>
+    <string name="titulo">Título</string>
+    <string name="autor">Autor</string>
+    <string name="pagina">Página 5 de 240</string>
+    <string name="biblioteca">Biblioteca</string>
+    <string name="puntuaciones">Puntuaciones</string>
+    <string name="instrucciones_busqueda">Introduce 4 caracteres del libro</string>
+    <string name="info_personal">Información Personal</string>
+    <string name="invitado">Invitado</string>
+    <string name="perfil">Perfil</string>
+    <string name="volver">Volver</string>
+    <string name="idiomas">idiomas</string>
+    <string name="certificado">certificado</string>
+    <string name="catalogo">Catálogo</string>
+
+</resources>
