@@ -80,7 +80,7 @@ class Registro : AppCompatActivity() {
         spinnerNativeLanguage = findViewById(R.id.spinnerNativeLanguage)
         btnUploadCertificate = findViewById(R.id.btn_UploadCertificate)
 
-        val roles = listOf("reader", "translator", "editor")
+        val roles = listOf("reader", "translator", "proofreader")
         spinnerRole.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, roles)
 
         val idiomas = listOf("Spanish", "English", "French", "Portuguese")
@@ -154,6 +154,14 @@ class Registro : AppCompatActivity() {
             return
         }
 
+        if ((rol == "translator" || rol == "proofreader") && certificateUri == null) {
+            Toast.makeText(
+                this,
+                "Debes subir un certificado PDF",
+                Toast.LENGTH_LONG
+            ).show()
+            return
+        }
         btnRegistrar.isEnabled = false
 
         auth.createUserWithEmailAndPassword(correo, contrasenia1)
@@ -175,7 +183,7 @@ class Registro : AppCompatActivity() {
 
                         //We add this for the validation part
                         val estadoVerificacion = if (
-                            rol == "translator" || rol == "editor"
+                            rol == "translator" || rol == "proofreader"
                         ) {
                             "pending_review"
                         } else {
@@ -192,7 +200,7 @@ class Registro : AppCompatActivity() {
                             "rol" to rol,
 
                             "roleCertificatePath" to certificatePath,
-                            "certificateUrl" to (certificadoUrl ?: ""),
+                            "certificateUrl" to "",
 
                             "roleVerificationStatus" to estadoVerificacion,
                             "certificateValidation" to null,
@@ -218,6 +226,7 @@ class Registro : AppCompatActivity() {
                                     "Usuario creado, pero error al guardar datos: ${e.message}",
                                     Toast.LENGTH_LONG
                                 ).show()
+
                                 btnRegistrar.isEnabled = true
                             }
                     }
@@ -230,19 +239,18 @@ class Registro : AppCompatActivity() {
                         storage.reference.child(certificatePath)
                             .putFile(uriCertificado)
                             .addOnSuccessListener {
-                                storage.reference.child(certificatePath)
-                                    .downloadUrl
-                                    .addOnSuccessListener { downloadUri ->
-                                        guardarUsuarioEnFirestore(downloadUri.toString())
-                                    }
-                                    .addOnFailureListener { e ->
-                                        Toast.makeText(
-                                            this,
-                                            "Error al obtener URL del certificado: ${e.message}",
-                                            Toast.LENGTH_LONG
-                                        ).show()
-                                        btnRegistrar.isEnabled = true
-                                    }
+                                guardarUsuarioEnFirestore(null)
+                            }
+                            .addOnFailureListener { e ->
+                                Toast.makeText(
+                                    this,
+                                    "Error al subir certificado: ${e.message}",
+                                    Toast.LENGTH_LONG
+                                ).show()
+
+                                auth.currentUser?.delete()
+                                btnRegistrar.isEnabled = true
+
                             }
                             .addOnFailureListener { e ->
                                 Toast.makeText(
