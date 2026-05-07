@@ -55,7 +55,7 @@
 
             </RelativeLayout>
 
-            <!-- INFO PERSONAL -->
+            <!-- INFO PERSONALL -->
             <TextView
                 android:id="@+id/tvInfoPersonal"
                 android:layout_width="180dp"
