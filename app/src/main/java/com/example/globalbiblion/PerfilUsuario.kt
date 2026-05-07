@@ -1,7 +1,7 @@
 package com.example.globalbiblion
 
 import android.os.Bundle
-import android.content.Intent
+import android.view.View //Para poder mostrar los campos según el rol
 import android.widget.*
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -13,14 +13,14 @@ class PerfilUsuario : BottomBar() {
 
     //Variables de la interfaz de usuario
     private lateinit var tvNombre: TextView
-    private lateinit var tvApellido: TextView
-    private lateinit var tvFechaNacimiento: TextView
-    private lateinit var tvLocalidad: TextView
-    private lateinit var tvMunicipio: TextView
-    private lateinit var tvPais: TextView
+    private lateinit var tvEmail: TextView
+    private lateinit var tvRol: TextView
+    private lateinit var tvIdiomaNativo: TextView
+    private lateinit var tvEstadoVerificacion: TextView
+    private lateinit var tvRolTitulo: TextView
 
+    private lateinit var cardTraducciones: LinearLayout
 
-    // Botón volver
     private lateinit var btnVolver: ImageButton
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -34,15 +34,17 @@ class PerfilUsuario : BottomBar() {
 
         // --- FindViewById ---
         tvNombre = findViewById(R.id.tvNombre)
-        tvApellido = findViewById(R.id.tvApellido)
-        tvFechaNacimiento = findViewById(R.id.tvFechaNacimiento)
-        tvLocalidad = findViewById(R.id.tvLocalidad)
-        tvMunicipio = findViewById(R.id.tvMunicipio)
-        tvPais = findViewById(R.id.tvPais)
+        tvEmail = findViewById(R.id.tvEmail)
+        tvRol = findViewById(R.id.tvRol)
+        tvIdiomaNativo = findViewById(R.id.tvIdiomaNativo)
+        tvEstadoVerificacion = findViewById(R.id.tvEstadoVerificacion)
+        tvRolTitulo = findViewById(R.id.tvRolTitulo)
 
-       // tvNumeroPuntuaciones = findViewById(R.id.tvNumeroPuntuaciones)
 
         btnVolver = findViewById(R.id.btnVolver)
+
+        cardTraducciones = findViewById(R.id.cardTraducciones)
+
 
         // --- Botón volver (solo cerrar Activity) ---
         btnVolver.setOnClickListener {
@@ -51,15 +53,18 @@ class PerfilUsuario : BottomBar() {
 
         // Cargar datos desde Firebase
         cargarDatosUsuario()
-        //cargarNumeroPuntuaciones()
     }
 
     // ------------------ INFO PERSONAL ------------------
 
     private fun cargarDatosUsuario() {
         val uid = auth.currentUser?.uid //Obtenemos la uid del usuario actual
+
         if (uid == null) {
-            Toast.makeText(this, "Debes iniciar sesión para ver tu perfil", Toast.LENGTH_LONG).show()
+            Toast.makeText(
+                this,
+                "Debes iniciar sesión para ver tu perfil",
+                Toast.LENGTH_LONG).show()
             finish()
             return
         }
@@ -70,23 +75,42 @@ class PerfilUsuario : BottomBar() {
             .addOnSuccessListener { doc ->
                 if (doc != null && doc.exists()) {
                     val nombre = doc.getString("nombre") ?: ""
-                    val apellidos = doc.getString("apellidos") ?: ""
-                    val fechaNac = doc.getString("fechaNacimiento") ?: ""
-                    val localidad = doc.getString("localidad") ?: ""
-                    val municipio = doc.getString("municipio") ?: ""
-                    val pais = doc.getString("pais") ?: ""
+                    val email = doc.getString("email") ?: auth.currentUser?.email ?: ""
+                    val rol = doc.getString("rol") ?: ""
+                    val idiomaNativo = doc.getString("nativeLanguage") ?: ""
+                    val estadoVerificacion = doc.getString("roleVerificationStatus") ?: ""
 
-                    //asignamos los nombres, sino, un valor por defecto
                     tvNombre.text = if (nombre.isNotEmpty()) nombre else "Nombre"
-                    tvApellido.text = if (apellidos.isNotEmpty()) apellidos else "Apellido"
+                    tvEmail.text = if (email.isNotEmpty()) email else "Email"
 
-                    tvFechaNacimiento.text =
-                        if (fechaNac.isNotEmpty()) "Fecha de nacimiento : $fechaNac"
-                        else "Fecha de nacimiento :"
+                    if (rol == "reader") {
+                        tvRol.visibility = View.GONE
+                        tvRolTitulo.visibility = View.GONE
+                        tvIdiomaNativo.visibility = View.GONE
+                        tvEstadoVerificacion.visibility = View.GONE
 
-                    tvLocalidad.text = if (localidad.isNotEmpty()) localidad else "Localidad"
-                    tvMunicipio.text = if (municipio.isNotEmpty()) municipio else "Municipio"
-                    tvPais.text = if (pais.isNotEmpty()) pais else "País"
+                        cardTraducciones.visibility = View.GONE
+                    } else {
+                        tvRol.visibility = View.VISIBLE
+                        tvRolTitulo.visibility = View.VISIBLE
+                        tvIdiomaNativo.visibility = View.VISIBLE
+                        tvEstadoVerificacion.visibility = View.VISIBLE
+
+                        cardTraducciones.visibility = View.VISIBLE
+
+                        tvRol.text = "Rol: $rol"
+                        tvIdiomaNativo.text =
+                            if (idiomaNativo.isNotEmpty()) "Idioma nativo: $idiomaNativo"
+                            else "Idioma nativo"
+
+                        tvEstadoVerificacion.text =
+                            if (estadoVerificacion.isNotEmpty()) {
+                                "Estado de verificación: $estadoVerificacion"
+                            } else {
+                                "Estado de verificación"
+                            }
+                    }
+
                 } else {
                     Toast.makeText(this, "No se encontraron datos de usuario", Toast.LENGTH_SHORT).show()
                 }
@@ -95,5 +119,4 @@ class PerfilUsuario : BottomBar() {
                 Toast.makeText(this, "Error al cargar usuario: ${e.message}", Toast.LENGTH_LONG).show()
             }
     }
-
 }
