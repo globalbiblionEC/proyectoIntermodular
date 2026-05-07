@@ -37,8 +37,11 @@ open class BottomBar : AppCompatActivity() {
         }
 
         llMicrofono?.setOnClickListener {
-            // AÑADIIIIR
-        }
+            if (this !is BuscarPorVoz) {
+                startActivity(Intent(this, BuscarPorVoz::class.java))
+            } else {
+                Toast.makeText(this, "Ya estás en búsqueda por voz", Toast.LENGTH_SHORT).show()
+            }        }
     }
 
     private fun abrirUltimaLectura() {

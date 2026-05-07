@@ -18,7 +18,10 @@ class PerfilUsuario : BottomBar() {
     private lateinit var tvIdiomaNativo: TextView
     private lateinit var tvEstadoVerificacion: TextView
     private lateinit var tvRolTitulo: TextView
-
+    private lateinit var tvNumeroResenas: TextView
+    private lateinit var tvNumeroSolicitudes: TextView
+    private lateinit var tvNumeroTraducciones: TextView
+    private lateinit var cardSolicitudes: LinearLayout
     private lateinit var cardTraducciones: LinearLayout
 
     private lateinit var btnVolver: ImageButton
@@ -39,11 +42,14 @@ class PerfilUsuario : BottomBar() {
         tvIdiomaNativo = findViewById(R.id.tvIdiomaNativo)
         tvEstadoVerificacion = findViewById(R.id.tvEstadoVerificacion)
         tvRolTitulo = findViewById(R.id.tvRolTitulo)
-
+        tvNumeroResenas = findViewById(R.id.tvNumeroResenas)
+        tvNumeroSolicitudes = findViewById(R.id.tvNumeroSolicitudes)
+        tvNumeroTraducciones = findViewById(R.id.tvNumeroTraducciones)
 
         btnVolver = findViewById(R.id.btnVolver)
 
         cardTraducciones = findViewById(R.id.cardTraducciones)
+        cardSolicitudes = findViewById(R.id.cardSolicitudes)
 
 
         // --- Botón volver (solo cerrar Activity) ---
@@ -53,6 +59,7 @@ class PerfilUsuario : BottomBar() {
 
         // Cargar datos desde Firebase
         cargarDatosUsuario()
+        cargarContribuciones()
     }
 
     // ------------------ INFO PERSONAL ------------------
@@ -119,4 +126,47 @@ class PerfilUsuario : BottomBar() {
                 Toast.makeText(this, "Error al cargar usuario: ${e.message}", Toast.LENGTH_LONG).show()
             }
     }
+
+
+    private fun cargarContribuciones() {
+        val uid = auth.currentUser?.uid
+
+        if (uid == null) {
+            tvNumeroResenas.text = "0"
+            tvNumeroSolicitudes.text = "0"
+            tvNumeroTraducciones.text = "0"
+            return
+        }
+
+        // Reseñas: books/{idLibro}/reviews/{uid}
+        db.collectionGroup("reviews")
+            .whereEqualTo("userId", uid)
+            .get()
+            .addOnSuccessListener { documentos ->
+                tvNumeroResenas.text = documentos.size().toString()
+            }
+            .addOnFailureListener {
+                tvNumeroResenas.text = "0"
+            }
+
+        db.collection("translationRequests")
+            .whereEqualTo("userId", uid)
+            .get()
+            .addOnSuccessListener { documentos ->
+                tvNumeroSolicitudes.text = documentos.size().toString()
+            }
+            .addOnFailureListener {
+                tvNumeroSolicitudes.text = "0"
+            }
+
+        db.collection("translations")
+            .whereEqualTo("userId", uid)
+            .get()
+            .addOnSuccessListener { documentos ->
+                tvNumeroTraducciones.text = documentos.size().toString()
+            }
+            .addOnFailureListener {
+                tvNumeroTraducciones.text = "0"
+            }
+}
 }
