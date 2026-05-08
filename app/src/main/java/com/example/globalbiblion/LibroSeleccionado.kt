@@ -10,6 +10,7 @@ import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 
+
 class LibroSeleccionado : BottomBar() {
 
     private lateinit var db: FirebaseFirestore
@@ -28,6 +29,7 @@ class LibroSeleccionado : BottomBar() {
     private lateinit var tvFechaActualizacion: TextView
     private lateinit var btnEscribirResena: Button
     private lateinit var btnLeerLibro: Button
+    private lateinit var btnTraducir: Button
     private lateinit var llReviewsContainer: LinearLayout
     private var idLibro = ""
     private var tituloLibro = ""
@@ -56,6 +58,7 @@ class LibroSeleccionado : BottomBar() {
         tvExtension = findViewById(R.id.tvExtension)
         tvFechaActualizacion = findViewById(R.id.tvFechaActualizacion)
         btnEscribirResena = findViewById(R.id.btnEscribirResena)
+        btnTraducir = findViewById(R.id.btnTraducir)
         llReviewsContainer = findViewById(R.id.llReviewsContainer)
 
         idLibro = intent.getStringExtra("idLibro") ?: ""
@@ -104,7 +107,14 @@ class LibroSeleccionado : BottomBar() {
             startActivity(intent)
         }
 
-
+        btnTraducir.setOnClickListener {
+            val intent = Intent(this, SolicitudTraduccion::class.java).apply {
+                putExtra("bookId", idLibro)
+                putExtra("bookTitle", tituloLibro)
+                putExtra("sourceLanguage", "Spanish")
+            }
+            startActivity(intent)
+        }
     }
 
     private fun cargarPortada() {

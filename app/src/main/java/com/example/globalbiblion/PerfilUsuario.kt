@@ -138,16 +138,26 @@ class PerfilUsuario : BottomBar() {
             return
         }
 
-        // Reseñas: books/{idLibro}/reviews/{uid}
         db.collectionGroup("reviews")
             .whereEqualTo("userId", uid)
             .get()
             .addOnSuccessListener { documentos ->
                 val totalResenas = documentos.size()
                 tvNumeroResenas.text = totalResenas.toString()
+
+                Toast.makeText(
+                    this,
+                    "Reseñas encontradas: $totalResenas",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
-            .addOnFailureListener {
+            .addOnFailureListener { e ->
                 tvNumeroResenas.text = "0"
+                Toast.makeText(
+                    this,
+                    "Error reseñas: ${e.message}",
+                    Toast.LENGTH_LONG
+                ).show()
             }
 
         db.collection("translationRequests")
@@ -169,5 +179,5 @@ class PerfilUsuario : BottomBar() {
             .addOnFailureListener {
                 tvNumeroTraducciones.text = "0"
             }
-}
+    }
 }
