@@ -28,10 +28,7 @@ class LibroSeleccionado : BottomBar() {
     private lateinit var tvFechaActualizacion: TextView
     private lateinit var btnEscribirResena: Button
     private lateinit var btnLeerLibro: Button
-
-    private lateinit var tvReview1: TextView
-    private lateinit var tvReview2: TextView
-
+    private lateinit var llReviewsContainer: LinearLayout
     private var idLibro = ""
     private var tituloLibro = ""
     private var autorLibro = ""
@@ -59,8 +56,7 @@ class LibroSeleccionado : BottomBar() {
         tvExtension = findViewById(R.id.tvExtension)
         tvFechaActualizacion = findViewById(R.id.tvFechaActualizacion)
         btnEscribirResena = findViewById(R.id.btnEscribirResena)
-        tvReview1 = findViewById(R.id.tvReview1)
-        tvReview2 = findViewById(R.id.tvReview2)
+        llReviewsContainer = findViewById(R.id.llReviewsContainer)
 
         idLibro = intent.getStringExtra("idLibro") ?: ""
         tituloLibro = intent.getStringExtra("tituloLibro") ?: "Título"
@@ -271,40 +267,84 @@ class LibroSeleccionado : BottomBar() {
         db.collection("books")
             .document(idLibro)
             .collection("reviews")
-            .limit(2)
+            .orderBy("updatedAt", com.google.firebase.firestore.Query.Direction.DESCENDING)
             .get()
             .addOnSuccessListener { result ->
-                val reviews = result.documents
 
-                if (reviews.isEmpty()) {
-                    tvReview1.text = "Sin reseñas todavía"
-                    tvReview2.text = ""
+                llReviewsContainer.removeAllViews()
+
+                if (result.isEmpty) {
+                    val tvSinResenas = TextView(this)
+                    tvSinResenas.text = "Sin reseñas todavía"
+                    tvSinResenas.textSize = 14f
+                    tvSinResenas.setPadding(16, 12, 16, 12)
+
+                    llReviewsContainer.addView(tvSinResenas)
                     return@addOnSuccessListener
                 }
 
-                if (reviews.size >= 1) {
-                    val doc = reviews[0]
+                for (doc in result.documents) {
                     val userName = doc.getString("userName") ?: "Usuario"
                     val comment = doc.getString("comment") ?: "Sin comentario"
-                    val rating = doc.getLong("rating") ?: 0L
+                    val rating = doc.getLong("rating")?.toInt() ?: 0
 
-                    tvReview1.text = "${"★".repeat(rating.toInt())}${"☆".repeat(5 - rating.toInt())}    $rating/5\n$userName\n$comment"
-                }
-
-                if (reviews.size >= 2) {
-                    val doc = reviews[1]
-                    val userName = doc.getString("userName") ?: "Usuario"
-                    val comment = doc.getString("comment") ?: "Sin comentario"
-                    val rating = doc.getLong("rating") ?: 0L
-
-                    tvReview2.text = "${"★".repeat(rating.toInt())}${"☆".repeat(5 - rating.toInt())}    $rating/5\n$userName\n$comment"
-                } else {
-                    tvReview2.text = ""
+                    val cardReview = crearCardReview(userName, comment, rating)
+                    llReviewsContainer.addView(cardReview)
                 }
             }
             .addOnFailureListener { e ->
-                Toast.makeText(this, "Error al cargar reseñas: ${e.message}", Toast.LENGTH_LONG).show()
+                Toast.makeText(
+                    this,
+                    "Error al cargar reseñas: ${e.message}",
+                    Toast.LENGTH_LONG
+                ).show()
             }
+
+}
+    private fun crearCardReview(
+        userName: String,
+        comment: String,
+        rating: Int
+    ): LinearLayout {
+
+        val card = LinearLayout(this)
+        card.orientation = LinearLayout.VERTICAL
+        card.setPadding(18, 18, 18, 18)
+        card.setBackgroundColor(android.graphics.Color.WHITE)
+
+        val params = LinearLayout.LayoutParams(
+            dp(220),
+            LinearLayout.LayoutParams.WRAP_CONTENT
+        )
+        params.setMargins(0, 0, dp(12), 0)
+        card.layoutParams = params
+
+        val tvEstrellas = TextView(this)
+        tvEstrellas.text = "${"★".repeat(rating)}${"☆".repeat(5 - rating)}   $rating/5"
+        tvEstrellas.textSize = 15f
+        tvEstrellas.setTextColor(android.graphics.Color.parseColor("#1E3A5F"))
+        tvEstrellas.setTypeface(null, android.graphics.Typeface.BOLD)
+
+        val tvUsuario = TextView(this)
+        tvUsuario.text = userName
+        tvUsuario.textSize = 14f
+        tvUsuario.setTypeface(null, android.graphics.Typeface.BOLD)
+        tvUsuario.setPadding(0, 8, 0, 4)
+
+        val tvComentario = TextView(this)
+        tvComentario.text = comment
+        tvComentario.textSize = 13f
+        tvComentario.maxLines = 4
+        tvComentario.setTextColor(android.graphics.Color.DKGRAY)
+
+        card.addView(tvEstrellas)
+        card.addView(tvUsuario)
+        card.addView(tvComentario)
+
+        return card
     }
 
+    private fun dp(valor: Int): Int {
+        return (valor * resources.displayMetrics.density).toInt()
+    }
 }

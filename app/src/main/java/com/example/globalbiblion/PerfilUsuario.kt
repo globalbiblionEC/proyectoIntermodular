@@ -143,7 +143,8 @@ class PerfilUsuario : BottomBar() {
             .whereEqualTo("userId", uid)
             .get()
             .addOnSuccessListener { documentos ->
-                tvNumeroResenas.text = documentos.size().toString()
+                val totalResenas = documentos.size()
+                tvNumeroResenas.text = totalResenas.toString()
             }
             .addOnFailureListener {
                 tvNumeroResenas.text = "0"

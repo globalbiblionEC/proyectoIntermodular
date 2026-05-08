@@ -342,29 +342,23 @@
                 android:paddingStart="20dp"
                 android:paddingEnd="20dp">
 
-                <TextView
-                    android:id="@+id/tvReview1"
-                    android:layout_width="0dp"
-                    android:layout_height="120dp"
-                    android:layout_weight="1"
-                    android:layout_marginEnd="8dp"
-                    android:background="#B9C3E5"
-                    android:padding="8dp"
-                    android:text="Sin reseñas"
-                    android:textColor="#000000"
-                    android:textSize="13sp" />
+                <HorizontalScrollView
+                    android:id="@+id/hsvReviews"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:scrollbars="none">
 
-                <TextView
-                    android:id="@+id/tvReview2"
-                    android:layout_width="0dp"
-                    android:layout_height="120dp"
-                    android:layout_weight="1"
-                    android:layout_marginStart="8dp"
-                    android:background="#B9C3E5"
-                    android:padding="8dp"
-                    android:text=""
-                    android:textColor="#000000"
-                    android:textSize="13sp" />
+                    <LinearLayout
+                        android:id="@+id/llReviewsContainer"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp"
+                        android:paddingBottom="12dp" />
+
+                </HorizontalScrollView>
             </LinearLayout>
 
             <TextView
