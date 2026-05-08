@@ -1,6 +1,7 @@
 package com.example.globalbiblion
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View //Para poder mostrar los campos según el rol
 import android.widget.*
 import com.google.firebase.auth.FirebaseAuth
@@ -138,29 +139,25 @@ class PerfilUsuario : BottomBar() {
             return
         }
 
+        // Reseñas
         db.collectionGroup("reviews")
             .whereEqualTo("userId", uid)
             .get()
             .addOnSuccessListener { documentos ->
-                val totalResenas = documentos.size()
-                tvNumeroResenas.text = totalResenas.toString()
-
-                Toast.makeText(
-                    this,
-                    "Reseñas encontradas: $totalResenas",
-                    Toast.LENGTH_SHORT
-                ).show()
+                tvNumeroResenas.text = documentos.size().toString()
             }
-            .addOnFailureListener { e ->
+            .addOnFailureListener {e ->
                 tvNumeroResenas.text = "0"
                 Toast.makeText(
                     this,
-                    "Error reseñas: ${e.message}",
+                    "Error al contar reseñas: ${e.message}",
                     Toast.LENGTH_LONG
                 ).show()
+                Log.e("FIREBASE_REVIEWS", "Error completo", e)
             }
 
-        db.collection("translationRequests")
+        // Solicitudes hechas por el usuario
+        db.collection("contribution_requests")
             .whereEqualTo("userId", uid)
             .get()
             .addOnSuccessListener { documentos ->
@@ -170,14 +167,21 @@ class PerfilUsuario : BottomBar() {
                 tvNumeroSolicitudes.text = "0"
             }
 
-        db.collection("translations")
+        // Traducciones/correcciones subidas
+        db.collection("contribution_requests")
             .whereEqualTo("userId", uid)
+            .whereEqualTo("status", "uploaded")
             .get()
             .addOnSuccessListener { documentos ->
                 tvNumeroTraducciones.text = documentos.size().toString()
             }
-            .addOnFailureListener {
+            .addOnFailureListener {e ->
                 tvNumeroTraducciones.text = "0"
+                Toast.makeText(
+                    this,
+                    "Error al contar reseñas: ${e.message}",
+                    Toast.LENGTH_LONG
+                ).show()
             }
     }
 }
