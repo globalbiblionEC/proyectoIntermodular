@@ -13,7 +13,7 @@ class Menuprincipal : BottomBar () {
     private lateinit var db: FirebaseFirestore
     private lateinit var storage: FirebaseStorage
 
-    private val libros = listOf(
+    /*private val libros = listOf(
         Libro(
             "book_03",
             "Una Habitación propia",
@@ -45,12 +45,17 @@ class Menuprincipal : BottomBar () {
         "book_03" to "books/covers/Habitacion_propia.jpg",
         "book_01" to "books/covers/El_principito.jpg",
         "book_02" to "books/covers/Rebelion_en_la_granja.jpg"
-    )
+    )*/
+    private val libros=mutableListOf<Libro>()
+    private val portadasStorage=mutableMapOf<String,String>()
+
+    private lateinit var gridBiblioteca: LinearLayout
 
     private lateinit var tvNombreUsuario: TextView
     private lateinit var ivPerfil: ImageView
 
-    private var libroActual: Libro = libros[0]
+    //private var libroActual: Libro = libros[0]
+    private var libroActual: Libro? =null
 
     private lateinit var tvTituloContinuar: TextView
     private lateinit var tvAutorContinuar: TextView
@@ -58,7 +63,7 @@ class Menuprincipal : BottomBar () {
     private lateinit var btnContiLeyend: ImageButton
     private lateinit var ivPortadaLibroActual: ImageView
 
-    private lateinit var llLibro1: LinearLayout
+    /*private lateinit var llLibro1: LinearLayout
     private lateinit var llLibro2: LinearLayout
     private lateinit var llLibro3: LinearLayout
     private lateinit var tvLibro1Titulo: TextView
@@ -66,7 +71,8 @@ class Menuprincipal : BottomBar () {
     private lateinit var tvLibro3Titulo: TextView
     private lateinit var ivPortadaL1: ImageView
     private lateinit var ivPortadaL2: ImageView
-    private lateinit var ivPortadaL3: ImageView
+    private lateinit var ivPortadaL3: ImageView*/
+
     private lateinit var etBuscarLibro: EditText
     private lateinit var btnVolver: ImageButton
     private lateinit var ivLupa: ImageView
@@ -94,7 +100,7 @@ class Menuprincipal : BottomBar () {
         ivLupa = findViewById(R.id.ivLupa)
         btnVolver = findViewById(R.id.btnVolver)
 
-        llLibro1 = findViewById(R.id.llLibro1)
+        /*llLibro1 = findViewById(R.id.llLibro1)
         llLibro2 = findViewById(R.id.llLibro2)
         llLibro3 = findViewById(R.id.llLibro3)
 
@@ -104,7 +110,7 @@ class Menuprincipal : BottomBar () {
 
         ivPortadaL1 = findViewById(R.id.ivPortadaL1)
         ivPortadaL2 = findViewById(R.id.ivPortadaL2)
-        ivPortadaL3 = findViewById(R.id.ivPortadaL3)
+        ivPortadaL3 = findViewById(R.id.ivPortadaL3)*/
 
         tvNombreUsuario = findViewById(R.id.tvNombreUsuario)
         ivPerfil = findViewById(R.id.ivPerfil)
@@ -112,9 +118,12 @@ class Menuprincipal : BottomBar () {
         llTop1Ranking = findViewById(R.id.llTop1Ranking)
         llTop5Ranking = findViewById(R.id.llTop5Ranking)
 
-        cargarDatosBiblioteca()
-        cargarPortadasDesdeStorage()
-        actualizarContinuarLeyendo()
+        gridBiblioteca = findViewById(R.id.gridBiblioteca)
+
+        //cargarDatosBiblioteca()
+        //cargarPortadasDesdeStorage()
+        ///actualizarContinuarLeyendo()
+        cargarLibrosDesdeFirebase()
         cargarNombreUsuario()
         configurarBottomBar()
         findViewById<LinearLayout>(R.id.llContileyendo).setOnClickListener {
@@ -154,7 +163,7 @@ class Menuprincipal : BottomBar () {
             buscarPor4Letras(texto)
         }
 
-        llLibro1.setOnClickListener {
+       /* llLibro1.setOnClickListener {
             irALibroSeleccionado(libros[0])
         }
 
@@ -164,7 +173,7 @@ class Menuprincipal : BottomBar () {
 
         llLibro3.setOnClickListener {
             irALibroSeleccionado(libros[2])
-        }
+        }*/
 
         etBuscarLibro.setOnEditorActionListener { _, _, _ ->
             val texto = etBuscarLibro.text.toString().trim()
@@ -182,8 +191,114 @@ class Menuprincipal : BottomBar () {
         cargarRankingLibros()
     }
 
+    private fun cargarLibrosDesdeFirebase() {
+        db.collection("books")
+            .get()
+            .addOnSuccessListener { snapshot ->
+                libros.clear()
+                portadasStorage.clear()
+                gridBiblioteca.removeAllViews()
+
+                for (doc in snapshot.documents) {
+                    val idLibro = doc.id
+                    val titulo = doc.getString("title") ?: "Sin título"
+
+                    val authors = doc.get("authors") as? List<*>
+                    val autor = authors
+                        ?.mapNotNull { it as? String }
+                        ?.joinToString(", ")
+                        ?: "Autor desconocido"
+
+                    val pdfPath = doc.getString("pdfPath") ?: ""
+                    val coverPath = doc.getString("coverPath") ?: ""
+
+                    val libro = Libro(
+                        idLibro,
+                        titulo,
+                        autor,
+                        pdfPath,
+                        0,
+                        R.drawable.logogbsinfondo
+                    )
+
+                    libros.add(libro)
+
+                    if (coverPath.isNotBlank()) {
+                        portadasStorage[idLibro] = coverPath
+                    }
+
+                    gridBiblioteca.addView(crearVistaLibroBiblioteca(libro))
+                }
+
+                if (libros.isNotEmpty() && libroActual == null) {
+                    libroActual = libros[0]
+                    portadaActualPath = portadasStorage[libros[0].idLibro] ?: ""
+                    actualizarContinuarLeyendo()
+                }
+
+                cargarDatosDesdeFirebase()
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(
+                    this,
+                    "Error cargando libros: ${e.message}",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+    }
+
+    private fun crearVistaLibroBiblioteca(libro: Libro): LinearLayout {
+        val contenedor = LinearLayout(this)
+        contenedor.orientation = LinearLayout.VERTICAL
+        contenedor.gravity = android.view.Gravity.CENTER_HORIZONTAL
+        contenedor.setPadding(dp(8), dp(8), dp(8), dp(8))
+
+        val paramsContenedor = LinearLayout.LayoutParams(
+            dp(120),
+            LinearLayout.LayoutParams.WRAP_CONTENT
+        )
+        paramsContenedor.setMargins(0, 0, dp(12), 0)
+        contenedor.layoutParams = paramsContenedor
+
+        val imagen = ImageView(this)
+        imagen.layoutParams = LinearLayout.LayoutParams(dp(85), dp(89))
+        imagen.scaleType = ImageView.ScaleType.CENTER_CROP
+        imagen.setImageResource(R.drawable.logogbsinfondo)
+
+        val rutaPortada = portadasStorage[libro.idLibro]
+        if (!rutaPortada.isNullOrBlank()) {
+            storage.reference.child(rutaPortada).downloadUrl
+                .addOnSuccessListener { uri ->
+                    Glide.with(this)
+                        .load(uri.toString())
+                        .placeholder(R.drawable.logogbsinfondo)
+                        .error(R.drawable.logogbsinfondo)
+                        .into(imagen)
+                }
+        }
+
+        val titulo = TextView(this)
+        titulo.layoutParams = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT
+        )
+        titulo.text = libro.titulo
+        titulo.gravity = android.view.Gravity.CENTER
+        titulo.maxLines = 2
+        titulo.textSize = 12f
+
+        contenedor.addView(imagen)
+        contenedor.addView(titulo)
+
+        contenedor.setOnClickListener {
+            irALibroSeleccionado(libro)
+        }
+
+        return contenedor
+    }
+
     private fun buscarPor4Letras(query: String) {
-        val consulta = normalizar(query).take(4)
+       /* val consulta = normalizar(query).take(4)
         val libroEcontrado = libros.firstOrNull { libro ->
             normalizar(libro.titulo).contains(consulta)
         }
@@ -192,7 +307,23 @@ class Menuprincipal : BottomBar () {
             irALibroSeleccionado(libroEcontrado)
         } else {
             Toast.makeText(this, "No se ha encontrado el libro con: $consulta", Toast.LENGTH_SHORT).show()
+        }*/
+        val consulta = normalizar(query).take(4)
+
+        val libroEncontrado = libros.firstOrNull { libro ->
+            normalizar(libro.titulo).contains(consulta)
         }
+
+        if (libroEncontrado != null) {
+            irALibroSeleccionado(libroEncontrado)
+        } else {
+            Toast.makeText(
+                this,
+                "No se ha encontrado el libro con: $consulta",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+
     }
 
     private fun normalizar(texto: String): String {
@@ -228,25 +359,32 @@ class Menuprincipal : BottomBar () {
             }
     }
 
-    private fun cargarDatosBiblioteca() {
+    /*private fun cargarDatosBiblioteca() {
         tvLibro1Titulo.text = libros[0].titulo
         tvLibro2Titulo.text = libros[1].titulo
         tvLibro3Titulo.text = libros[2].titulo
-    }
+    }*/
 
     private fun actualizarContinuarLeyendo() {
-        tvTituloContinuar.text = libroActual.titulo
+        /*tvTituloContinuar.text = libroActual.titulo
         tvAutorContinuar.text = libroActual.autor
 
         // AHORA: portada desde Firebase Storage
-        cargarPortadaDesdeStorage(libroActual, ivPortadaLibroActual)
+        cargarPortadaDesdeStorage(libroActual, ivPortadaLibroActual)*/
+
+        val libro = libroActual ?: return
+
+        tvTituloContinuar.text = libro.titulo
+        tvAutorContinuar.text = libro.autor
+
+        cargarPortadaDesdeStorage(libro, ivPortadaLibroActual)
     }
 
-    private fun cargarPortadasDesdeStorage() {
+   /* private fun cargarPortadasDesdeStorage() {
         cargarPortadaDesdeStorage(libros[0], ivPortadaL1)
         cargarPortadaDesdeStorage(libros[1], ivPortadaL2)
         cargarPortadaDesdeStorage(libros[2], ivPortadaL3)
-    }
+    }*/
 
     private fun cargarPortadaDesdeStorage(libro: Libro, imageView: ImageView) {
         val rutaPortada = portadasStorage[libro.idLibro]
@@ -345,21 +483,26 @@ class Menuprincipal : BottomBar () {
     }
 
     private fun irAContinuarLeyendo() {
+        val libro = libroActual ?: run {
+            Toast.makeText(this, "No hay libro actual", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         if (navegando) return
         navegando = true
 
-        val rutaPdfStorage = libroActual.nombrePDF
+        val rutaPdfStorage = libro.nombrePDF
 
         storage.reference.child(rutaPdfStorage).downloadUrl
             .addOnSuccessListener { pdfUri ->
 
                 val intent = Intent(this, ContinuarLeyendo::class.java).apply {
-                    putExtra("idLibro", libroActual.idLibro)
+                    putExtra("idLibro", libro.idLibro)
                     putExtra("pdfUrl", pdfUri.toString())
                     putExtra("pdfStoragePath", rutaPdfStorage)
-                    putExtra("tituloLibro", libroActual.titulo)
-                    putExtra("autorLibro", libroActual.autor)
-                    putExtra("portadaResId", libroActual.portadaResId)
+                    putExtra("tituloLibro", libro.titulo)
+                    putExtra("autorLibro", libro.autor)
+                    putExtra("portadaResId", libro.portadaResId)
                     putExtra("portadaStoragePath", portadaActualPath)
                 }
 
