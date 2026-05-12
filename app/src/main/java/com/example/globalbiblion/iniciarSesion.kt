@@ -7,6 +7,7 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.button.MaterialButton
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 class iniciarSesion : AppCompatActivity() {
 
@@ -20,6 +21,7 @@ class iniciarSesion : AppCompatActivity() {
     private  lateinit var btnRegistrarse: Button
     private var btnVolver: ImageButton? = null //la variable puede ser null
     private var btnIdiomas: LinearLayout? = null
+    private lateinit var db: FirebaseFirestore
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,6 +30,7 @@ class iniciarSesion : AppCompatActivity() {
 
         // Inicializar Firebase Auth
         auth = FirebaseAuth.getInstance()
+        db = FirebaseFirestore.getInstance()
 
         //Find views by id
         etCorreo = findViewById(R.id.etCorreo)
@@ -64,12 +67,7 @@ class iniciarSesion : AppCompatActivity() {
                             "Inicio de sesión correcto",
                             Toast.LENGTH_SHORT
                         ).show()
-
-                        // Accedemos al Menú Princiñpal (botón Biblioteca)
-                       val intent = Intent(this, Menuprincipal::class.java)
-                        intent.putExtra("uid", auth.currentUser?.uid)
-                        startActivity(intent)
-                        finish()
+                        comprobarRolUsuario()
                     } else {
                         // Error de autenticación
                         Toast.makeText(
@@ -99,5 +97,37 @@ class iniciarSesion : AppCompatActivity() {
                 startActivity(Intent(Settings.ACTION_SETTINGS))
             }
         }
+    }
+
+    private fun comprobarRolUsuario() {
+        val uid = auth.currentUser?.uid
+
+        if (uid == null) {
+            Toast.makeText(this, "No se pudo identificar al usuario", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        db.collection("users")
+            .document(uid)
+            .get()
+            .addOnSuccessListener { documento ->
+
+                val rol = documento.getString("rol")
+
+                if (rol == "admin") {
+                    val intent = Intent(this, PanelAdministrador::class.java)
+                    startActivity(intent)
+                    finish()
+                } else {
+                    val intent = Intent(this, Menuprincipal::class.java)
+                    intent.putExtra("uid", uid)
+                    intent.putExtra("isGuest", false)
+                    startActivity(intent)
+                    finish()
+                }
+            }
+            .addOnFailureListener {
+                Toast.makeText(this, "Error al comprobar el rol", Toast.LENGTH_SHORT).show()
+            }
     }
 }
