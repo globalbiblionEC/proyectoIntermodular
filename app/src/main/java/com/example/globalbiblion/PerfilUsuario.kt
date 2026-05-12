@@ -111,21 +111,25 @@ class PerfilUsuario : BottomBar() {
                     tvEmail.text = if (email.isNotEmpty()) email else "Email"
 
                     if (rol == "reader") {
+                        tvRolTitulo.visibility = View.VISIBLE
+                        tvRolTitulo.text = obtenerNombreRol(rol)
+
                         tvRol.visibility = View.GONE
-                        tvRolTitulo.visibility = View.GONE
                         tvIdiomaNativo.visibility = View.GONE
                         tvEstadoVerificacion.visibility = View.GONE
+                        btnSubirCertificadoNuevo.visibility = View.GONE
 
                         cardTraducciones.visibility = View.GONE
                     } else {
-                        tvRol.visibility = View.VISIBLE
                         tvRolTitulo.visibility = View.VISIBLE
+                        tvRolTitulo.text = obtenerNombreRol(rol)
+
+                        tvRol.visibility = View.GONE
                         tvIdiomaNativo.visibility = View.VISIBLE
                         tvEstadoVerificacion.visibility = View.VISIBLE
 
                         cardTraducciones.visibility = View.VISIBLE
 
-                        tvRol.text = "Rol: $rol"
                         tvIdiomaNativo.text =
                             if (idiomaNativo.isNotEmpty()) "Idioma nativo: $idiomaNativo"
                             else "Idioma nativo"
@@ -280,5 +284,15 @@ class PerfilUsuario : BottomBar() {
                     Toast.LENGTH_LONG
                 ).show()
             }
+    }
+
+    private fun obtenerNombreRol(rol: String): String {
+        return when (rol) {
+            "reader" -> "Lector"
+            "translator" -> "Traductor"
+            "proofreader" -> "Corrector"
+            "admin" -> "Administrador"
+            else -> rol
+        }
     }
 }
