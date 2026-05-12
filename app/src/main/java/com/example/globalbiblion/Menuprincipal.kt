@@ -12,40 +12,6 @@ class Menuprincipal : BottomBar () {
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseFirestore
     private lateinit var storage: FirebaseStorage
-
-    /*private val libros = listOf(
-        Libro(
-            "book_03",
-            "Una Habitación propia",
-            "Virginia Woolf",
-            "books/pdf/Habitacion_Propia.pdf",
-            86,
-            R.drawable.logogbsinfondo
-        ),
-        Libro(
-            "book_01",
-            "El Principito",
-            "Antoine de Saint-Exupéry",
-            "books/pdf/El principito.pdf",
-            88,
-            R.drawable.logogbsinfondo
-        ),
-        Libro(
-            "book_02",
-            "Rebelión en la granja",
-            "George Orwell",
-            "books/pdf/Rebelión_en_la_Granja.pdf",
-            64,
-            R.drawable.logogbsinfondo
-        )
-    )
-
-    // Rutas de portadas en Firebase Storage
-    private val portadasStorage = mapOf(
-        "book_03" to "books/covers/Habitacion_propia.jpg",
-        "book_01" to "books/covers/El_principito.jpg",
-        "book_02" to "books/covers/Rebelion_en_la_granja.jpg"
-    )*/
     private val libros=mutableListOf<Libro>()
     private val portadasStorage=mutableMapOf<String,String>()
 
@@ -54,7 +20,6 @@ class Menuprincipal : BottomBar () {
     private lateinit var tvNombreUsuario: TextView
     private lateinit var ivPerfil: ImageView
 
-    //private var libroActual: Libro = libros[0]
     private var libroActual: Libro? =null
 
     private lateinit var tvTituloContinuar: TextView
@@ -62,16 +27,6 @@ class Menuprincipal : BottomBar () {
     private lateinit var llContiLeyendo: LinearLayout
     private lateinit var btnContiLeyend: ImageButton
     private lateinit var ivPortadaLibroActual: ImageView
-
-    /*private lateinit var llLibro1: LinearLayout
-    private lateinit var llLibro2: LinearLayout
-    private lateinit var llLibro3: LinearLayout
-    private lateinit var tvLibro1Titulo: TextView
-    private lateinit var tvLibro2Titulo: TextView
-    private lateinit var tvLibro3Titulo: TextView
-    private lateinit var ivPortadaL1: ImageView
-    private lateinit var ivPortadaL2: ImageView
-    private lateinit var ivPortadaL3: ImageView*/
 
     private lateinit var etBuscarLibro: EditText
     private lateinit var btnVolver: ImageButton
@@ -100,18 +55,6 @@ class Menuprincipal : BottomBar () {
         ivLupa = findViewById(R.id.ivLupa)
         btnVolver = findViewById(R.id.btnVolver)
 
-        /*llLibro1 = findViewById(R.id.llLibro1)
-        llLibro2 = findViewById(R.id.llLibro2)
-        llLibro3 = findViewById(R.id.llLibro3)
-
-        tvLibro1Titulo = findViewById(R.id.tvLibro1Titulo)
-        tvLibro2Titulo = findViewById(R.id.tvLibro2Titulo)
-        tvLibro3Titulo = findViewById(R.id.tvLibro4Titulo)
-
-        ivPortadaL1 = findViewById(R.id.ivPortadaL1)
-        ivPortadaL2 = findViewById(R.id.ivPortadaL2)
-        ivPortadaL3 = findViewById(R.id.ivPortadaL3)*/
-
         tvNombreUsuario = findViewById(R.id.tvNombreUsuario)
         ivPerfil = findViewById(R.id.ivPerfil)
 
@@ -120,9 +63,6 @@ class Menuprincipal : BottomBar () {
 
         gridBiblioteca = findViewById(R.id.gridBiblioteca)
 
-        //cargarDatosBiblioteca()
-        //cargarPortadasDesdeStorage()
-        ///actualizarContinuarLeyendo()
         cargarLibrosDesdeFirebase()
         cargarNombreUsuario()
         configurarBottomBar()
@@ -162,18 +102,6 @@ class Menuprincipal : BottomBar () {
             }
             buscarPor4Letras(texto)
         }
-
-       /* llLibro1.setOnClickListener {
-            irALibroSeleccionado(libros[0])
-        }
-
-        llLibro2.setOnClickListener {
-            irALibroSeleccionado(libros[1])
-        }
-
-        llLibro3.setOnClickListener {
-            irALibroSeleccionado(libros[2])
-        }*/
 
         etBuscarLibro.setOnEditorActionListener { _, _, _ ->
             val texto = etBuscarLibro.text.toString().trim()
@@ -298,16 +226,6 @@ class Menuprincipal : BottomBar () {
     }
 
     private fun buscarPor4Letras(query: String) {
-       /* val consulta = normalizar(query).take(4)
-        val libroEcontrado = libros.firstOrNull { libro ->
-            normalizar(libro.titulo).contains(consulta)
-        }
-
-        if (libroEcontrado != null) {
-            irALibroSeleccionado(libroEcontrado)
-        } else {
-            Toast.makeText(this, "No se ha encontrado el libro con: $consulta", Toast.LENGTH_SHORT).show()
-        }*/
         val consulta = normalizar(query).take(4)
 
         val libroEncontrado = libros.firstOrNull { libro ->
@@ -359,19 +277,7 @@ class Menuprincipal : BottomBar () {
             }
     }
 
-    /*private fun cargarDatosBiblioteca() {
-        tvLibro1Titulo.text = libros[0].titulo
-        tvLibro2Titulo.text = libros[1].titulo
-        tvLibro3Titulo.text = libros[2].titulo
-    }*/
-
     private fun actualizarContinuarLeyendo() {
-        /*tvTituloContinuar.text = libroActual.titulo
-        tvAutorContinuar.text = libroActual.autor
-
-        // AHORA: portada desde Firebase Storage
-        cargarPortadaDesdeStorage(libroActual, ivPortadaLibroActual)*/
-
         val libro = libroActual ?: return
 
         tvTituloContinuar.text = libro.titulo
@@ -379,12 +285,6 @@ class Menuprincipal : BottomBar () {
 
         cargarPortadaDesdeStorage(libro, ivPortadaLibroActual)
     }
-
-   /* private fun cargarPortadasDesdeStorage() {
-        cargarPortadaDesdeStorage(libros[0], ivPortadaL1)
-        cargarPortadaDesdeStorage(libros[1], ivPortadaL2)
-        cargarPortadaDesdeStorage(libros[2], ivPortadaL3)
-    }*/
 
     private fun cargarPortadaDesdeStorage(libro: Libro, imageView: ImageView) {
         val rutaPortada = portadasStorage[libro.idLibro]

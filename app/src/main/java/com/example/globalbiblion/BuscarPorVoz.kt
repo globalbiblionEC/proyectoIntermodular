@@ -6,18 +6,24 @@ import android.os.Bundle
 import android.speech.RecognizerIntent
 import android.widget.*
 import com.bumptech.glide.Glide
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import java.util.Locale
 
 class BuscarPorVoz : BottomBar() {
+    private lateinit var db: FirebaseFirestore
     private lateinit var storage: FirebaseStorage
 
     private lateinit var btnVolver: ImageButton
     private lateinit var ivPerfil: ImageView
     private lateinit var btnHablar: Button
     private lateinit var tvResultadoVoz: TextView
+    private lateinit var gridBiblioteca: GridLayout
+    private val libros =mutableListOf<Libro>()
+    private val portadasStorage = mutableMapOf<String, String>()
 
-    private lateinit var llLibro1: LinearLayout
+
+   /* private lateinit var llLibro1: LinearLayout
     private lateinit var llLibro2: LinearLayout
     private lateinit var llLibro3: LinearLayout
 
@@ -27,11 +33,11 @@ class BuscarPorVoz : BottomBar() {
 
     private lateinit var tvLibro1Titulo: TextView
     private lateinit var tvLibro2Titulo: TextView
-    private lateinit var tvLibro3Titulo: TextView
+    private lateinit var tvLibro3Titulo: TextView*/
 
     private val codigoVoz = 100
 
-    private val libros = listOf(
+   /* private val libros = listOf(
         Libro(
             "book_03",
             "Una Habitación propia",
@@ -62,7 +68,7 @@ class BuscarPorVoz : BottomBar() {
         "book_03" to "books/covers/Habitacion_propia.jpg",
         "book_01" to "books/covers/El_principito.jpg",
         "book_02" to "books/covers/Rebelion_en_la_granja.jpg"
-    )
+    )*/
 
     private var navegando = false
 
@@ -71,14 +77,16 @@ class BuscarPorVoz : BottomBar() {
         setContentView(R.layout.activity_buscar_por_voz)
         configurarBottomBar()
 
+        db = FirebaseFirestore.getInstance()
         storage = FirebaseStorage.getInstance()
 
         btnVolver = findViewById(R.id.btnVolver)
         ivPerfil = findViewById(R.id.ivPerfil)
         btnHablar = findViewById(R.id.btnHablar)
         tvResultadoVoz = findViewById(R.id.tvResultadoVoz)
+        gridBiblioteca = findViewById(R.id.gridBibliotecaVoz)
 
-        llLibro1 = findViewById(R.id.llLibro1)
+       /* llLibro1 = findViewById(R.id.llLibro1)
         llLibro2 = findViewById(R.id.llLibro2)
         llLibro3 = findViewById(R.id.llLibro3)
 
@@ -88,10 +96,12 @@ class BuscarPorVoz : BottomBar() {
 
         tvLibro1Titulo = findViewById(R.id.tvLibro1Titulo)
         tvLibro2Titulo = findViewById(R.id.tvLibro2Titulo)
-        tvLibro3Titulo = findViewById(R.id.tvLibro3Titulo)
+        tvLibro3Titulo = findViewById(R.id.tvLibro3Titulo)*/
 
-        cargarDatosBiblioteca()
-        cargarPortadasDesdeStorage()
+        //cargarDatosBiblioteca()
+        //cargarPortadasDesdeStorage()
+
+        cargarLibrosDesdeFirebase()
 
         btnVolver.setOnClickListener {
             finish()
@@ -105,10 +115,113 @@ class BuscarPorVoz : BottomBar() {
             iniciarReconocimientoVoz()
         }
 
-        llLibro1.setOnClickListener { irALibroSeleccionado(libros[0]) }
+        /*llLibro1.setOnClickListener { irALibroSeleccionado(libros[0]) }
         llLibro2.setOnClickListener { irALibroSeleccionado(libros[1]) }
-        llLibro3.setOnClickListener { irALibroSeleccionado(libros[2]) }
+        llLibro3.setOnClickListener { irALibroSeleccionado(libros[2]) }*/
     }
+
+    private fun cargarLibrosDesdeFirebase() {
+        db.collection("books")
+            .get()
+            .addOnSuccessListener { snapshot ->
+                libros.clear()
+                portadasStorage.clear()
+                gridBiblioteca.removeAllViews()
+
+                for (doc in snapshot.documents) {
+                    val idLibro = doc.id
+                    val titulo = doc.getString("title") ?: "Sin título"
+
+                    val authors = doc.get("authors") as? List<*>
+                    val autor = authors
+                        ?.mapNotNull { it as? String }
+                        ?.joinToString(", ")
+                        ?: "Autor desconocido"
+
+                    val pdfPath = doc.getString("pdfPath") ?: ""
+                    val coverPath = doc.getString("coverPath") ?: ""
+
+                    val libro = Libro(
+                        idLibro,
+                        titulo,
+                        autor,
+                        pdfPath,
+                        0,
+                        R.drawable.logogbsinfondo
+                    )
+
+                    libros.add(libro)
+
+                    if (coverPath.isNotBlank()) {
+                        portadasStorage[idLibro] = coverPath
+                    }
+
+                    gridBiblioteca.addView(crearVistaLibro(libro))
+                }
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(
+                    this,
+                    "Error cargando libros: ${e.message}",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+    }
+
+    private fun crearVistaLibro(libro: Libro): LinearLayout {
+        val contenedor = LinearLayout(this)
+        contenedor.orientation = LinearLayout.VERTICAL
+        contenedor.gravity = android.view.Gravity.CENTER_HORIZONTAL
+        contenedor.setPadding(dp(8), dp(8), dp(8), dp(8))
+
+        val params = GridLayout.LayoutParams()
+        params.width = dp(150)
+        params.height = GridLayout.LayoutParams.WRAP_CONTENT
+        params.setMargins(dp(8), dp(8), dp(8), dp(16))
+        contenedor.layoutParams = params
+
+        val imagen = ImageView(this)
+        imagen.layoutParams = LinearLayout.LayoutParams(dp(120), dp(170))
+        imagen.scaleType = ImageView.ScaleType.CENTER_CROP
+        imagen.setImageResource(R.drawable.logogbsinfondo)
+
+        val rutaPortada = portadasStorage[libro.idLibro]
+
+        if (!rutaPortada.isNullOrBlank()) {
+            storage.reference.child(rutaPortada).downloadUrl
+                .addOnSuccessListener { uri ->
+                    Glide.with(this)
+                        .load(uri.toString())
+                        .placeholder(R.drawable.logogbsinfondo)
+                        .error(R.drawable.logogbsinfondo)
+                        .into(imagen)
+                }
+                .addOnFailureListener {
+                    imagen.setImageResource(R.drawable.logogbsinfondo)
+                }
+        }
+
+        val titulo = TextView(this)
+        titulo.layoutParams = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT
+        )
+        titulo.text = libro.titulo
+        titulo.gravity = android.view.Gravity.CENTER
+        titulo.maxLines = 2
+        titulo.textSize = 14f
+        titulo.setTypeface(null, android.graphics.Typeface.BOLD)
+
+        contenedor.addView(imagen)
+        contenedor.addView(titulo)
+
+        contenedor.setOnClickListener {
+            irALibroSeleccionado(libro)
+        }
+
+        return contenedor
+    }
+
 
     private fun iniciarReconocimientoVoz() {
         val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
@@ -161,7 +274,7 @@ class BuscarPorVoz : BottomBar() {
         return sinAcentos.lowercase().replace(" ", "")
     }
 
-    private fun cargarDatosBiblioteca() {
+   /*private fun cargarDatosBiblioteca() {
         tvLibro1Titulo.text = libros[0].titulo
         tvLibro2Titulo.text = libros[1].titulo
         tvLibro3Titulo.text = libros[2].titulo
@@ -171,9 +284,9 @@ class BuscarPorVoz : BottomBar() {
         cargarPortadaDesdeStorage(libros[0], ivPortadaL1)
         cargarPortadaDesdeStorage(libros[1], ivPortadaL2)
         cargarPortadaDesdeStorage(libros[2], ivPortadaL3)
-    }
+    }*/
 
-    private fun cargarPortadaDesdeStorage(libro: Libro, imageView: ImageView) {
+    /*private fun cargarPortadaDesdeStorage(libro: Libro, imageView: ImageView) {
         val rutaPortada = portadasStorage[libro.idLibro]
 
         if (rutaPortada == null) {
@@ -192,7 +305,7 @@ class BuscarPorVoz : BottomBar() {
             .addOnFailureListener {
                 imageView.setImageResource(libro.portadaResId)
             }
-    }
+    }*/
 
     private fun irALibroSeleccionado(libro: Libro) {
         if (navegando) return
@@ -217,12 +330,19 @@ class BuscarPorVoz : BottomBar() {
             }
             .addOnFailureListener { e ->
                 navegando = false
-                Toast.makeText(this, "Error al obtener PDF: ${e.message}", Toast.LENGTH_LONG).show()
+                Toast.makeText(
+                    this,
+                    "Error al obtener PDF: ${e.message}",
+                    Toast.LENGTH_LONG
+                ).show()
             }
     }
 
     override fun onResume() {
         super.onResume()
         navegando = false
+    }
+    private fun dp(valor: Int): Int {
+        return (valor * resources.displayMetrics.density).toInt()
     }
 }

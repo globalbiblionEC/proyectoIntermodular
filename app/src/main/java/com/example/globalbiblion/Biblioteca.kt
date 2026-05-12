@@ -13,58 +13,11 @@ class Biblioteca : BottomBar (){
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseFirestore
     private lateinit var storage: FirebaseStorage
-
-   /* private val libros = listOf(
-        Libro(
-            "book_03",
-            "Una Habitación propia",
-            "Virginia Woolf",
-            "books/pdf/Habitacion_Propia.pdf",
-            86,
-            R.drawable.logogbsinfondo
-        ),
-        Libro(
-            "book_01",
-            "El Principito",
-            "Antoine de Saint-Exupéry",
-            "books/pdf/El principito.pdf",
-            88,
-            R.drawable.logogbsinfondo
-        ),
-        Libro(
-            "book_02",
-            "Rebelión en la granja",
-            "George Orwell",
-            "books/pdf/Rebelión_en_la_Granja.pdf",
-            64,
-            R.drawable.logogbsinfondo
-        )
-    )
-
-    private val portadasStorage = mapOf(
-        "book_03" to "books/covers/Habitacion_propia.jpg",
-        "book_01" to "books/covers/El_principito.jpg",
-        "book_02" to "books/covers/Rebelion_en_la_granja.jpg"
-    )*/
-
     private val libros= mutableListOf<Libro>()
     private val portadasStorage= mutableMapOf<String, String>()
 
     private lateinit var tvNombreUsuario: TextView
     private lateinit var ivPerfil: ImageView
-
-   /* private lateinit var llLibro1: LinearLayout
-    private lateinit var llLibro2: LinearLayout
-    private lateinit var llLibro3: LinearLayout
-
-    private lateinit var tvLibro1Titulo: TextView
-    private lateinit var tvLibro2Titulo: TextView
-    private lateinit var tvLibro3Titulo: TextView
-
-    private lateinit var ivPortadaL1: ImageView
-    private lateinit var ivPortadaL2: ImageView
-    private lateinit var ivPortadaL3: ImageView*/
-
     private lateinit var etBuscarLibro: EditText
     private lateinit var ivLupa: ImageView
     private lateinit var btnVolver: ImageButton
@@ -90,22 +43,8 @@ class Biblioteca : BottomBar (){
 
         gridBiblioteca=findViewById(R.id.gridBiblioteca)
 
-        /*llLibro1 = findViewById(R.id.llLibro1)
-        llLibro2 = findViewById(R.id.llLibro2)
-        llLibro3 = findViewById(R.id.llLibro3)
-
-        tvLibro1Titulo = findViewById(R.id.tvLibro1Titulo)
-        tvLibro2Titulo = findViewById(R.id.tvLibro2Titulo)
-        tvLibro3Titulo = findViewById(R.id.tvLibro4Titulo)
-
-        ivPortadaL1 = findViewById(R.id.ivPortadaL1)
-        ivPortadaL2 = findViewById(R.id.ivPortadaL2)
-        ivPortadaL3 = findViewById(R.id.ivPortadaL3)*/
-
         cargarNombreUsuario()
         cargarLibrosDesdeFirebase()
-        //cargarDatosBiblioteca()
-        //cargarPortadasDesdeStorage()
 
         ivPerfil.setOnClickListener {
             startActivity(Intent(this, PerfilUsuario::class.java))
@@ -114,18 +53,6 @@ class Biblioteca : BottomBar (){
         btnVolver.setOnClickListener {
             finish()
         }
-
-        /*llLibro1.setOnClickListener {
-            irALibroSeleccionado(libros[0])
-        }
-
-        llLibro2.setOnClickListener {
-            irALibroSeleccionado(libros[1])
-        }
-
-        llLibro3.setOnClickListener {
-            irALibroSeleccionado(libros[2])
-        }*/
 
         ivLupa.setOnClickListener {
             val texto = etBuscarLibro.text.toString().trim()
@@ -151,39 +78,6 @@ class Biblioteca : BottomBar (){
         }
 
     }
-
-   /* private fun cargarDatosBiblioteca() {
-        tvLibro1Titulo.text = libros[0].titulo
-        tvLibro2Titulo.text = libros[1].titulo
-        tvLibro3Titulo.text = libros[2].titulo
-    }
-
-    private fun cargarPortadasDesdeStorage() {
-        cargarPortadaDesdeStorage(libros[0], ivPortadaL1)
-        cargarPortadaDesdeStorage(libros[1], ivPortadaL2)
-        cargarPortadaDesdeStorage(libros[2], ivPortadaL3)
-    }*/
-
-  /*  private fun cargarPortadaDesdeStorage(libro: Libro, imageView: ImageView) {
-        val rutaPortada = portadasStorage[libro.idLibro]
-
-        if (rutaPortada == null) {
-            imageView.setImageResource(libro.portadaResId)
-            return
-        }
-
-        storage.reference.child(rutaPortada).downloadUrl
-            .addOnSuccessListener { uri ->
-                Glide.with(this)
-                    .load(uri.toString())
-                    .placeholder(libro.portadaResId)
-                    .error(libro.portadaResId)
-                    .into(imageView)
-            }
-            .addOnFailureListener {
-                imageView.setImageResource(libro.portadaResId)
-            }
-    }*/
 
     private fun cargarLibrosDesdeFirebase() {
         db.collection("books")
