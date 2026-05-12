@@ -6,7 +6,10 @@ import android.view.View //Para poder mostrar los campos según el rol
 import android.widget.*
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-
+import android.net.Uri
+import androidx.activity.result.contract.ActivityResultContracts
+import com.google.firebase.firestore.FieldValue
+import com.google.firebase.storage.FirebaseStorage
 class PerfilUsuario : BottomBar() {
     //Variables de Firebase
     private lateinit var auth: FirebaseAuth
@@ -26,6 +29,18 @@ class PerfilUsuario : BottomBar() {
     private lateinit var cardTraducciones: LinearLayout
 
     private lateinit var btnVolver: ImageButton
+    private lateinit var btnSubirCertificadoNuevo: Button
+    private lateinit var storage: FirebaseStorage
+    private var uriCertificadoNuevo: Uri? = null
+    private val seleccionarNuevoCertificado =
+        registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+            if (uri != null) {
+                uriCertificadoNuevo = uri
+                subirNuevoCertificado(uri)
+            } else {
+                Toast.makeText(this, "No seleccionaste ningún PDF", Toast.LENGTH_SHORT).show()
+            }
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,6 +50,7 @@ class PerfilUsuario : BottomBar() {
         // Firebase
         auth = FirebaseAuth.getInstance()
         db = FirebaseFirestore.getInstance()
+        storage = FirebaseStorage.getInstance()
 
         // --- FindViewById ---
         tvNombre = findViewById(R.id.tvNombre)
@@ -46,16 +62,19 @@ class PerfilUsuario : BottomBar() {
         tvNumeroResenas = findViewById(R.id.tvNumeroResenas)
         tvNumeroSolicitudes = findViewById(R.id.tvNumeroSolicitudes)
         tvNumeroTraducciones = findViewById(R.id.tvNumeroTraducciones)
+        btnSubirCertificadoNuevo = findViewById(R.id.btnSubirCertificadoNuevo)
+        btnSubirCertificadoNuevo.visibility = View.GONE
 
         btnVolver = findViewById(R.id.btnVolver)
 
         cardTraducciones = findViewById(R.id.cardTraducciones)
         cardSolicitudes = findViewById(R.id.cardSolicitudes)
 
-
-        // --- Botón volver (solo cerrar Activity) ---
         btnVolver.setOnClickListener {
             finish()
+        }
+        btnSubirCertificadoNuevo.setOnClickListener {
+            seleccionarNuevoCertificado.launch("application/pdf")
         }
 
         // Cargar datos desde Firebase
@@ -111,12 +130,7 @@ class PerfilUsuario : BottomBar() {
                             if (idiomaNativo.isNotEmpty()) "Idioma nativo: $idiomaNativo"
                             else "Idioma nativo"
 
-                        tvEstadoVerificacion.text =
-                            if (estadoVerificacion.isNotEmpty()) {
-                                "Estado de verificación: $estadoVerificacion"
-                            } else {
-                                "Estado de verificación"
-                            }
+                        mostrarEstadoVerificacion(estadoVerificacion)
                     }
 
                 } else {
@@ -180,6 +194,89 @@ class PerfilUsuario : BottomBar() {
                 Toast.makeText(
                     this,
                     "Error al contar reseñas: ${e.message}",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+    }
+    private fun mostrarEstadoVerificacion(estado: String) {
+        when (estado) {
+            "rejected" -> {
+                tvEstadoVerificacion.text = "Estado de verificación: rechazado"
+                tvEstadoVerificacion.setTextColor(android.graphics.Color.RED)
+                btnSubirCertificadoNuevo.visibility = View.VISIBLE
+            }
+
+            "verified" -> {
+                tvEstadoVerificacion.text = "Estado de verificación: verificado"
+                tvEstadoVerificacion.setTextColor(android.graphics.Color.parseColor("#2E7D32"))
+                btnSubirCertificadoNuevo.visibility = View.GONE
+            }
+
+            "pending_review", "prevalidated" -> {
+                tvEstadoVerificacion.text = "Estado de verificación: pendiente de revisión"
+                tvEstadoVerificacion.setTextColor(android.graphics.Color.parseColor("#F9A825"))
+                btnSubirCertificadoNuevo.visibility = View.GONE
+            }
+
+            else -> {
+                tvEstadoVerificacion.text = "Estado de verificación"
+                tvEstadoVerificacion.setTextColor(android.graphics.Color.DKGRAY)
+                btnSubirCertificadoNuevo.visibility = View.GONE
+            }
+        }
+    }
+
+    private fun subirNuevoCertificado(uri: Uri) {
+        val uid = auth.currentUser?.uid
+
+        if (uid == null) {
+            Toast.makeText(this, "No se pudo identificar al usuario", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val certificatePath = "users/$uid/certificates/certificado_nuevo_${System.currentTimeMillis()}.pdf"
+        val ref = storage.reference.child(certificatePath)
+
+        Toast.makeText(this, "Subiendo certificado...", Toast.LENGTH_SHORT).show()
+
+        ref.putFile(uri)
+            .addOnSuccessListener {
+                ref.downloadUrl
+                    .addOnSuccessListener { url ->
+
+                        db.collection("users").document(uid)
+                            .update(
+                                mapOf(
+                                    "certificateUrl" to url.toString(),
+                                    "roleCertificatePath" to certificatePath,
+                                    "roleVerificationStatus" to "pending_review",
+                                    "reviewNotes" to "",
+                                    "certificateUpdatedAt" to FieldValue.serverTimestamp()
+                                )
+                            )
+                            .addOnSuccessListener {
+                                Toast.makeText(
+                                    this,
+                                    "Certificado subido. Queda pendiente de revisión.",
+                                    Toast.LENGTH_LONG
+                                ).show()
+
+                                btnSubirCertificadoNuevo.visibility = View.GONE
+                                cargarDatosUsuario()
+                            }
+                            .addOnFailureListener { e ->
+                                Toast.makeText(
+                                    this,
+                                    "Error al actualizar usuario: ${e.message}",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            }
+                    }
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(
+                    this,
+                    "Error al subir certificado: ${e.message}",
                     Toast.LENGTH_LONG
                 ).show()
             }

@@ -54,7 +54,6 @@ class PanelAdministrador : BottomBar() {
         btnHistorial = findViewById(R.id.btnHistorial)
 
         rvAdmin.layoutManager = LinearLayoutManager(this)
-        val roleCertificatePath: String
 
         comprobarSiEsAdmin()
 

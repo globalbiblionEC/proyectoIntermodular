@@ -166,6 +166,13 @@
                     android:paddingHorizontal="10dp"
                     android:text="Estado de verificación"
                     android:textColor="#1E3A5F" />
+                <Button
+                    android:id="@+id/btnSubirCertificadoNuevo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Subir nuevamente certificado"
+                    android:visibility="gone"
+                    android:layout_marginTop="8dp" />
 
             </LinearLayout>
 
