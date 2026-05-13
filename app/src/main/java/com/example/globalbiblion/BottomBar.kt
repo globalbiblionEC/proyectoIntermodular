@@ -6,6 +6,8 @@ import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
+import android.widget.TextView
+import android.widget.FrameLayout
 
 //Activity base for reuse
 open class BottomBar : AppCompatActivity() {
@@ -17,6 +19,9 @@ open class BottomBar : AppCompatActivity() {
         val llCatalogo = findViewById<LinearLayout?>(R.id.llCatalogo)
         val llContinuarLeyendo = findViewById<LinearLayout?>(R.id.llContileyendo)
         val llMicrofono = findViewById<LinearLayout?>(R.id.llMicrofono)
+        val llNotificaciones = findViewById<LinearLayout?>(R.id.llNotificaciones)
+        val tvBadgeNotificaciones = findViewById<TextView?>(R.id.tvBadgeNotificaciones)
+        val flNotificaciones = findViewById<FrameLayout?>(R.id.flNotificaciones)
 
         llMenuPrincipal?.setOnClickListener {
             if (this !is Menuprincipal) {
@@ -42,6 +47,17 @@ open class BottomBar : AppCompatActivity() {
             } else {
                 Toast.makeText(this, "Ya estás en búsqueda por voz", Toast.LENGTH_SHORT).show()
             }        }
+
+        llNotificaciones?.setOnClickListener {
+            if (this !is Notificaciones) {
+                startActivity(Intent(this, Notificaciones::class.java))
+            } else {
+                Toast.makeText(this, "Ya estás en notificaciones", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        controlarBotonNotificaciones(flNotificaciones,llNotificaciones,tvBadgeNotificaciones)
+
     }
 
     private fun abrirUltimaLectura() {
@@ -100,6 +116,43 @@ open class BottomBar : AppCompatActivity() {
             }
             .addOnFailureListener { e ->
                 Toast.makeText(this, "Error Firestore: ${e.message}", Toast.LENGTH_LONG).show()
+            }
+    }
+
+    private fun controlarBotonNotificaciones(
+        flNotificaciones: FrameLayout?,
+        llNotificaciones: LinearLayout?,
+        tvBadge: TextView?
+    ) {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid
+
+        if (uid == null) {
+            flNotificaciones?.visibility = android.view.View.GONE
+            return
+        }
+
+        FirebaseFirestore.getInstance()
+            .collection("users")
+            .document(uid)
+            .get()
+            .addOnSuccessListener { doc ->
+
+                val rol = doc.getString("rol") ?: ""
+                val hayNotificacion = doc.getBoolean("notificationPending") ?: false
+
+                if (rol == "reader") {
+                    flNotificaciones?.visibility = android.view.View.GONE
+                } else {
+                    flNotificaciones?.visibility = android.view.View.VISIBLE
+                    llNotificaciones?.visibility = android.view.View.VISIBLE
+
+                    tvBadge?.visibility =
+                        if (hayNotificacion) android.view.View.VISIBLE
+                        else android.view.View.GONE
+                }
+            }
+            .addOnFailureListener {
+                flNotificaciones?.visibility = android.view.View.GONE
             }
     }
 }

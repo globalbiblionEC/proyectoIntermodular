@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F2F2F2">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/bottomBar">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- CABECERA COMO MENU PRINCIPAL -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/header"
+                android:layout_width="match_parent"
+                android:layout_height="146dp"
+                android:background="#1E3A5F">
+
+                <ImageView
+                    android:id="@+id/ivLogoMenu"
+                    android:layout_width="91dp"
+                    android:layout_height="49dp"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginTop="15dp"
+                    android:contentDescription="@string/app_name"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:srcCompat="@drawable/logocfmenuprin" />
+
+                <ImageView
+                    android:id="@+id/ivPerfil"
+                    android:layout_width="85dp"
+                    android:layout_height="76dp"
+                    android:layout_marginTop="6dp"
+                    android:layout_marginEnd="10dp"
+                    android:contentDescription="@string/perfil"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:srcCompat="@drawable/usuarioleyendocfmenuprinc" />
+
+                <TextView
+                    android:id="@+id/tvNombreUsuario"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="Usuario"
+                    android:textColor="@android:color/white"
+                    android:textSize="12sp"
+                    app:layout_constraintEnd_toEndOf="@id/ivPerfil"
+                    app:layout_constraintStart_toStartOf="@id/ivPerfil"
+                    app:layout_constraintTop_toBottomOf="@id/ivPerfil" />
+
+                <ImageButton
+                    android:id="@+id/btnVolver"
+                    android:layout_width="57dp"
+                    android:layout_height="57dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="82dp"
+                    android:background="@null"
+                    android:contentDescription="@string/volver"
+                    android:src="@android:drawable/ic_menu_revert"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/tvTituloNotificaciones"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="100dp"
+                    android:text="Notificaciones"
+                    android:textColor="@android:color/white"
+                    android:textSize="24sp"
+                    android:textStyle="bold"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="5dp"
+                android:background="#F2C94C" />
+
+            <TextView
+                android:id="@+id/tvNotificaciones"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="24dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginEnd="24dp"
+                android:background="@android:color/white"
+                android:padding="16dp"
+                android:text="Cargando notificaciones..."
+                android:textColor="#222222"
+                android:textSize="16sp" />
+
+            <Button
+                android:id="@+id/btnSubirCertificadoNuevo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Subir nuevamente certificado"
+                android:visibility="gone"
+                android:layout_marginStart="24dp"
+                android:layout_marginTop="12dp"
+                android:layout_marginEnd="24dp" />
+
+        </LinearLayout>
+    </ScrollView>
+
+    <include
+        android:id="@+id/bottomBar"
+        layout="@layout/bottom_bar"
+        android:layout_width="match_parent"
+        android:layout_height="88dp"
+        android:layout_alignParentBottom="true" />
+
+</RelativeLayout>
