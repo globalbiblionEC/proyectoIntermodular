@@ -140,7 +140,7 @@
                     android:id="@+id/ivPortadaLibroactual"
                     android:layout_width="75dp"
                     android:layout_height="88dp"
-                    android:contentDescription="Portada libro continuar"
+                    android:contentDescription="@string/portada_libro_continuar"
                     android:scaleType="centerCrop"
                     tools:srcCompat="@tools:sample/avatars" />
 
@@ -172,7 +172,7 @@
                     android:layout_width="48dp"
                     android:layout_height="48dp"
                     android:backgroundTint="#00FFFFFF"
-                    android:contentDescription="Continuar lectura"
+                    android:contentDescription="@string/continuar_lectura"
                     app:srcCompat="@android:drawable/ic_media_play"
                     app:tint="#1E3A5F" />
 
@@ -184,7 +184,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="33dp"
                 android:layout_marginTop="12dp"
-                android:text="TOP 1 - Mejor valorado"
+                android:text="@string/top_1_mejor"
                 android:textStyle="bold" />
 
             <LinearLayout
@@ -202,7 +202,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="33dp"
                 android:layout_marginTop="12dp"
-                android:text="TOP 5 - Mejores valorados"
+                android:text="@string/top_5_mejor"
                 android:textStyle="bold" />
 
             <HorizontalScrollView
@@ -318,7 +318,7 @@
                             android:layout_height="wrap_content"
                             android:gravity="center"
                             android:maxLines="2"
-                            android:text="Título"
+                            android:text="@string/titulo"
                             android:textSize="12sp" />
                     </LinearLayout>
 

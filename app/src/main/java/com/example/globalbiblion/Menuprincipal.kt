@@ -470,98 +470,78 @@ class Menuprincipal : BottomBar () {
             }
     }
     private fun cargarRankingLibros() {
-        db.collection("books")
+        cargarTop1DesdeFirebase()
+        cargarTop5DesdeFirebase()
+    }
+
+    private fun cargarTop1DesdeFirebase() {
+        db.collection("rankings_books")
+            .document("top1")
             .get()
-            .addOnSuccessListener { snapshot ->
-
-                val librosRanking = snapshot.documents.mapNotNull { doc ->
-                    val titulo = doc.getString("title") ?: doc.id
-
-                    val authors = doc.get("authors") as? List<*>
-                    val autor = authors
-                        ?.mapNotNull { it as? String }
-                        ?.joinToString(", ")
-                        ?.takeIf { it.isNotBlank() }
-                        ?: "Autor desconocido"
-
-                    val pdfPath = doc.getString("pdfPath") ?: ""
-                    val coverPath = doc.getString("coverPath") ?: ""
-
-                    val averageRating = doc.getDouble("averageRating") ?: 0.0
-                    val reviewsCount = doc.getLong("reviewsCount") ?: 0L
-
-                    LibroRanking(
-                        id = doc.id,
-                        titulo = titulo,
-                        autor = autor,
-                        pdfPath = pdfPath,
-                        coverPath = coverPath,
-                        positivos = reviewsCount.toInt(),
-                        negativos = 0,
-                        valor = (averageRating * 100)
-                    )
-                }
-
-                val librosOrdenados = librosRanking
-                    .sortedWith(
-                        compareByDescending<LibroRanking> { it.valor }
-                            .thenByDescending { it.positivos }
-                    )
-
-                val top1 = librosOrdenados.take(1)
-                val top5 = librosOrdenados.take(5)
-
-                guardarRanking("top1_mejor_valorado", top1)
-                guardarRanking("top5_mejor_valorados", top5)
-
-                pintarTop1(top1)
-                pintarTop5(top5)
+            .addOnSuccessListener { doc ->
+                val librosMap = doc.get("books") as? List<Map<String, Any>> ?: emptyList()
+                val lista = convertirRanking(librosMap)
+                pintarTop1(lista)
             }
             .addOnFailureListener { e ->
-                Toast.makeText(
-                    this,
-                    "Error leyendo ranking: ${e.message}",
-                    Toast.LENGTH_LONG
-                ).show()
+                Toast.makeText(this, "Error leyendo Top 1: ${e.message}", Toast.LENGTH_LONG).show()
             }
     }
 
-    private fun ordenarPorPuntuacion(libros: List<LibroRanking>): List<LibroRanking> {
-        return libros.sortedByDescending { it.valor }
+    private fun cargarTop5DesdeFirebase() {
+        db.collection("rankings_books")
+            .document("top5")
+            .get()
+            .addOnSuccessListener { doc ->
+                val librosMap = doc.get("books") as? List<Map<String, Any>> ?: emptyList()
+                val lista = convertirRanking(librosMap)
+                pintarTop5(lista)
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(this, "Error leyendo Top 5: ${e.message}", Toast.LENGTH_LONG).show()
+            }
     }
 
-    private fun top1MejorValorado(libros: List<LibroRanking>): List<LibroRanking> {
-        return libros.take(1)
-    }
+    private fun convertirRanking(librosMap: List<Map<String, Any>>): List<LibroRanking> {
+        return librosMap.map { libro ->
+            val id = libro["id"]?.toString() ?: ""
 
-    private fun top5MejorValorados(libros: List<LibroRanking>): List<LibroRanking> {
-        return libros.take(5)
-    }
+            val titulo = libro["title"]?.toString()
+                ?: libro["titulo"]?.toString()
+                ?: "Sin título"
 
-    private fun guardarRanking(tipo: String, listaLibros: List<LibroRanking>) {
-        val librosMap = listaLibros.map { libro ->
-            hashMapOf(
-                "id" to libro.id,
-                "titulo" to libro.titulo,
-                "autor" to libro.autor,
-                "positivos" to libro.positivos,
-                "negativos" to libro.negativos,
-                "valor" to libro.valor,
-                "pdfPath" to libro.pdfPath,
-                "coverPath" to libro.coverPath
+            val authors = libro["authors"] as? List<*>
+            val autor = authors
+                ?.mapNotNull { it as? String }
+                ?.joinToString(", ")
+                ?: libro["autor"]?.toString()
+                ?: "Autor desconocido"
+
+            val pdfPath = libro["pdfPath"]?.toString() ?: ""
+            val coverPath = libro["coverPath"]?.toString() ?: ""
+
+            val averageRating = when (val valor = libro["averageRating"]) {
+                is Number -> valor.toDouble()
+                else -> 0.0
+            }
+
+            val reviewsCount = when (val valor = libro["reviewsCount"]) {
+                is Number -> valor.toInt()
+                else -> 0
+            }
+
+            LibroRanking(
+                id = id,
+                titulo = titulo,
+                autor = autor,
+                pdfPath = pdfPath,
+                coverPath = coverPath,
+                positivos = reviewsCount,
+                negativos = 0,
+                valor = averageRating * 100
             )
         }
-
-        db.collection("rankings_libros")
-            .document(tipo)
-            .set(
-                hashMapOf(
-                    "tipo" to tipo,
-                    "libros" to librosMap
-                )
-            )
     }
-
 
     private fun pintarTop1(top1: List<LibroRanking>) {
         llTop1Ranking.removeAllViews()

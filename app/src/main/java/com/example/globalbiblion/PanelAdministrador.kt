@@ -255,7 +255,7 @@ class PanelAdministrador : BottomBar() {
         listaSolicitudes.clear()
 
         db.collection("contribution_requests")
-            .whereEqualTo("status", "pending")
+            .whereIn("status", listOf("proofreader_approved", "proofreader_rejected"))
             .get()
             .addOnSuccessListener { documentos ->
                 for (doc in documentos) {
@@ -263,7 +263,8 @@ class PanelAdministrador : BottomBar() {
                         SolicitudPendiente(
                             id = doc.id,
                             bookTitle = doc.getString("bookTitle") ?: "",
-                            userName = doc.getString("userName") ?: "",
+                           // userName = doc.getString("userName") ?: "",
+                            userName = doc.getString("translatorName") ?: "",
                             requestType = doc.getString("requestType") ?: "",
                             sourceLanguage = doc.getString("sourceLanguage") ?: "",
                             targetLanguage = doc.getString("targetLanguage") ?: "",
@@ -473,7 +474,8 @@ class PanelAdministrador : BottomBar() {
                             id = doc.id,
                             tipo = "Solicitud",
                             titulo = doc.getString("bookTitle") ?: "Solicitud",
-                            usuario = doc.getString("userName") ?: "",
+                            usuario = doc.getString("translatorName") ?: "",
+                            //usuario = doc.getString("userName") ?: "",
                             estado = doc.getString("status") ?: "",
                             motivo = doc.getString("reviewNotes") ?: "Sin motivo registrado"
                         )

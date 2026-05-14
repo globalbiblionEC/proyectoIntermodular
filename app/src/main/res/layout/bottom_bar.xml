@@ -26,7 +26,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Biblioteca"
+            android:text="@string/biblioteca"
             android:textColor="#FFFFFF"
             android:textSize="12sp" />
     </LinearLayout>
@@ -92,7 +92,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Buscar"
+            android:text="@string/buscar"
             android:textColor="#FFFFFF"
             android:textSize="12sp" />
     </LinearLayout>
@@ -119,7 +119,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Avisos"
+                android:text="@string/avisos"
                 android:textColor="#FFFFFF"
                 android:textSize="12sp" />
         </LinearLayout>

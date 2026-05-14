@@ -19,14 +19,14 @@
             android:layout_height="40dp"
             android:background="@android:color/transparent"
             android:src="@android:drawable/ic_media_previous"
-            android:contentDescription="Volver" />
+            android:contentDescription="@string/volver" />
 
         <TextView
             android:id="@+id/tvTituloPanel"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Panel Administrador"
+            android:text="@string/panel_admin"
             android:textSize="24sp"
             android:textStyle="bold"
             android:textColor="#222222"
@@ -45,21 +45,21 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Certificados" />
+            android:text="@string/certificados" />
 
         <Button
             android:id="@+id/btnSolicitudes"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Solicitudes"
+            android:text="@string/solicitudes"
             android:layout_marginStart="8dp" />
         <Button
             android:id="@+id/btnHistorial"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Historial"
+            android:text="@string/historial"
             android:layout_marginStart="8dp" />
 
     </LinearLayout>
@@ -68,7 +68,7 @@
         android:id="@+id/tvTituloSeccion"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Pendientes"
+        android:text="@string/pendientes"
         android:textSize="18sp"
         android:textStyle="bold"
         android:textColor="#333333"

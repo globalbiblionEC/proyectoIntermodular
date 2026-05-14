@@ -81,7 +81,7 @@
                 android:layout_height="281dp"
                 android:layout_marginTop="24dp"
                 android:background="#C9CDE5"
-                android:contentDescription="Portada libro actual"
+                android:contentDescription="@string/portada_libro_actual"
                 android:scaleType="centerCrop"
                 tools:srcCompat="@tools:sample/avatars" />
 
@@ -101,7 +101,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
-                android:text="Pulsa la portada para abrir el libro"
+                android:text="@string/pulsar_portada"
                 android:textColor="#666666"
                 android:textSize="14sp" />
         <Button
@@ -110,7 +110,7 @@
             android:layout_height="48dp"
             android:layout_marginTop="24dp"
             android:backgroundTint="#1E3A5F"
-            android:text="Escribir reseña"
+            android:text="@string/escribir_resenia"
             android:textAllCaps="false"
             android:textColor="@android:color/white"
             android:textSize="15sp" />

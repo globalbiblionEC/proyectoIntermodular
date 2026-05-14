@@ -50,7 +50,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
-                    android:text="Usuario"
+                    android:text="@string/usuario"
                     android:textColor="@android:color/white"
                     android:textSize="12sp"
                     app:layout_constraintEnd_toEndOf="@id/ivPerfil"
@@ -74,7 +74,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="100dp"
-                    android:text="Notificaciones"
+                    android:text="@string/notficaciones"
                     android:textColor="@android:color/white"
                     android:textSize="24sp"
                     android:textStyle="bold"
@@ -98,15 +98,22 @@
                 android:layout_marginEnd="24dp"
                 android:background="@android:color/white"
                 android:padding="16dp"
-                android:text="Cargando notificaciones..."
+                android:text="@string/cargando_notficaciones"
                 android:textColor="#222222"
                 android:textSize="16sp" />
+
+            <LinearLayout
+                android:id="@+id/llAvisosCorrector"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp" />
 
             <Button
                 android:id="@+id/btnSubirCertificadoNuevo"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Subir nuevamente certificado"
+                android:text="@string/subir_nuevamete_cert"
                 android:visibility="gone"
                 android:layout_marginStart="24dp"
                 android:layout_marginTop="12dp"

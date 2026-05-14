@@ -157,47 +157,76 @@ class PerfilUsuario : BottomBar() {
             return
         }
 
-        // Reseñas
+        // RESEÑAS
+        // Esto se mantiene igual si tus reviews siguen guardando userId = uid
         db.collectionGroup("reviews")
             .whereEqualTo("userId", uid)
             .get()
             .addOnSuccessListener { documentos ->
                 tvNumeroResenas.text = documentos.size().toString()
             }
-            .addOnFailureListener {e ->
+            .addOnFailureListener { e ->
                 tvNumeroResenas.text = "0"
+                Log.e("FIREBASE_REVIEWS", "Error contando reseñas", e)
                 Toast.makeText(
                     this,
                     "Error al contar reseñas: ${e.message}",
                     Toast.LENGTH_LONG
                 ).show()
-                Log.e("FIREBASE_REVIEWS", "Error completo", e)
             }
 
-        // Solicitudes hechas por el usuario
+        // SOLICITUDES COMO TRADUCTOR
         db.collection("contribution_requests")
-            .whereEqualTo("userId", uid)
+            .whereEqualTo("translatorId", uid)
             .get()
-            .addOnSuccessListener { documentos ->
-                tvNumeroSolicitudes.text = documentos.size().toString()
+            .addOnSuccessListener { solicitudesTraductor ->
+
+                val totalSolicitudesTraductor = solicitudesTraductor.size()
+
+                // SOLICITUDES COMO CORRECTOR
+                db.collection("contribution_requests")
+                    .whereEqualTo("proofreaderId", uid)
+                    .get()
+                    .addOnSuccessListener { solicitudesCorrector ->
+
+                        val totalSolicitudesCorrector = solicitudesCorrector.size()
+                        val totalSolicitudes = totalSolicitudesTraductor + totalSolicitudesCorrector
+
+                        tvNumeroSolicitudes.text = totalSolicitudes.toString()
+                    }
+                    .addOnFailureListener {
+                        tvNumeroSolicitudes.text = totalSolicitudesTraductor.toString()
+                    }
             }
             .addOnFailureListener {
                 tvNumeroSolicitudes.text = "0"
             }
 
-        // Traducciones/correcciones subidas
+        // TRADUCCIONES SUBIDAS POR EL TRADUCTOR
         db.collection("contribution_requests")
-            .whereEqualTo("userId", uid)
-            .whereEqualTo("status", "uploaded")
+            .whereEqualTo("translatorId", uid)
+            .whereIn(
+                "status",
+                listOf(
+                    "waiting_for_proofreader",
+                    "proofreader_approved",
+                    "proofreader_rejected",
+                    "waiting_for_admin",
+                    "published",
+                    "changes_requested",
+                    "translation_vacancy_open"
+                )
+            )
             .get()
             .addOnSuccessListener { documentos ->
                 tvNumeroTraducciones.text = documentos.size().toString()
             }
-            .addOnFailureListener {e ->
+            .addOnFailureListener { e ->
                 tvNumeroTraducciones.text = "0"
+                Log.e("FIREBASE_TRANSLATIONS", "Error contando traducciones", e)
                 Toast.makeText(
                     this,
-                    "Error al contar reseñas: ${e.message}",
+                    "Error al contar traducciones: ${e.message}",
                     Toast.LENGTH_LONG
                 ).show()
             }

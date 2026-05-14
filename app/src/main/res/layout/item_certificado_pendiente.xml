@@ -11,7 +11,7 @@
         android:id="@+id/tvNombre"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Nombre usuario"
+        android:text="@string/nom_usuar"
         android:textStyle="bold"
         android:textSize="18sp"
         android:textColor="#222222" />
@@ -20,7 +20,7 @@
         android:id="@+id/tvEmail"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="email"
+        android:text="@string/correo"
         android:textSize="14sp"
         android:textColor="#555555"
         android:layout_marginTop="4dp" />
@@ -29,7 +29,7 @@
         android:id="@+id/tvRolEstado"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Rol y estado"
+        android:text="@string/rol_y_edo"
         android:textSize="14sp"
         android:textColor="#555555"
         android:layout_marginTop="4dp" />
@@ -38,7 +38,7 @@
         android:id="@+id/tvCertificado"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Datos certificado"
+        android:text="@string/datos_cert"
         android:textSize="14sp"
         android:textColor="#555555"
         android:layout_marginTop="4dp" />

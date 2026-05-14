@@ -76,7 +76,7 @@
                 android:layout_gravity="center_horizontal"
                 android:layout_marginTop="8dp"
                 android:gravity="center"
-                android:text="Rol"
+                android:text="@string/rol"
                 android:textColor="#000000"
                 android:textSize="16sp" />
 
@@ -94,7 +94,7 @@
                     android:id="@+id/tvLabelNombre"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Nombre"
+                    android:text="@string/nombre"
                     android:textStyle="bold" />
 
                 <TextView
@@ -115,7 +115,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
-                    android:text="Email"
+                    android:text="@string/correo"
                     android:textStyle="bold" />
 
                 <TextView
@@ -126,7 +126,7 @@
                     android:background="@android:color/white"
                     android:gravity="center_vertical"
                     android:paddingHorizontal="10dp"
-                    android:text="Email"
+                    android:text="@string/correo"
                     android:textColor="#1E3A5F"
                     android:textSize="16sp" />
 
@@ -139,7 +139,7 @@
                     android:background="@android:color/white"
                     android:gravity="center_vertical"
                     android:paddingHorizontal="10dp"
-                    android:text="Rol"
+                    android:text="@string/rol"
                     android:textColor="#1E3A5F"
                     android:textSize="16sp" />
 
@@ -152,7 +152,7 @@
                     android:background="@android:color/white"
                     android:gravity="center_vertical"
                     android:paddingHorizontal="10dp"
-                    android:text="Idioma nativo"
+                    android:text="@string/idioma_nativo"
                     android:textColor="#1E3A5F" />
 
                 <!-- ESTADO -->
@@ -164,13 +164,13 @@
                     android:background="@android:color/white"
                     android:gravity="center_vertical"
                     android:paddingHorizontal="10dp"
-                    android:text="Estado de verificación"
+                    android:text="@string/estado_verif"
                     android:textColor="#1E3A5F" />
                 <Button
                     android:id="@+id/btnSubirCertificadoNuevo"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Subir nuevamente certificado"
+                    android:text="@string/subir_nuevamete_cert"
                     android:visibility="gone"
                     android:layout_marginTop="8dp" />
 
@@ -191,7 +191,7 @@
                     android:id="@+id/tvContribuciones"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Contribuciones"
+                    android:text="@string/contribuciones"
                     android:textColor="#000000"
                     android:textStyle="bold" />
 
@@ -237,7 +237,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Reseñas"
+                        android:text="@string/resenias"
                         android:textColor="#000000"
                         android:textSize="13sp" />
                 </LinearLayout>
@@ -266,7 +266,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Traducciones"
+                        android:text="@string/traducciones"
                         android:textColor="#000000"
                         android:textSize="13sp" />
                 </LinearLayout>
@@ -294,7 +294,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Solicitudes"
+                        android:text="@string/solicitudes"
                         android:textColor="#000000"
                         android:textSize="13sp" />
                 </LinearLayout>

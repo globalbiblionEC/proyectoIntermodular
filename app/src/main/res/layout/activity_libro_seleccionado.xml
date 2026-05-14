@@ -79,7 +79,7 @@
             android:layout_marginStart="8dp"
             android:layout_weight="1"
             android:background="@android:color/transparent"
-            android:hint="Buscar libro"
+            android:hint="@string/buscar_libro"
             android:singleLine="true"
             android:textColorHint="#999999"
             android:textSize="18sp" />
@@ -135,7 +135,7 @@
                         android:id="@+id/tvTituloLibroSeleccionado"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Título"
+                        android:text="@string/titulo"
                         android:textColor="#000000"
                         android:textSize="28sp"
                         android:textStyle="bold" />
@@ -144,7 +144,7 @@
                         android:id="@+id/tvAutorLibroSeleccionado"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Autor"
+                        android:text="@string/autor"
                         android:textColor="#000000"
                         android:textSize="18sp" />
 
@@ -162,7 +162,7 @@
                         android:layout_height="42dp"
                         android:layout_marginTop="10dp"
                         android:backgroundTint="#1E3A5F"
-                        android:text="Escribir reseña"
+                        android:text="@string/escribir_resenia"
                         android:textAllCaps="false"
                         android:textColor="@android:color/white"
                         android:textSize="13sp" />
@@ -173,7 +173,7 @@
                         android:layout_height="42dp"
                         android:layout_marginStart="8dp"
                         android:backgroundTint="#F2C94C"
-                        android:text="Leer libro"
+                        android:text="@string/leer_libro"
                         android:textAllCaps="false"
                         android:textColor="#1E3A5F"
                         android:textSize="14sp" />
@@ -186,7 +186,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="28dp"
                 android:layout_marginTop="4dp"
-                android:text="Disponible para:"
+                android:text="@string/disponible_para"
                 android:textColor="#000000"
                 android:textSize="18sp" />
 
@@ -202,7 +202,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="42dp"
                     android:backgroundTint="#C8C8C8"
-                    android:text="Para escuchar"
+                    android:text="@string/para_escuchar"
                     android:textAllCaps="false"
                     android:textColor="@android:color/white"
                     android:textSize="16sp" />
@@ -213,7 +213,7 @@
                     android:layout_height="42dp"
                     android:layout_marginStart="28dp"
                     android:backgroundTint="#1E3A5F"
-                    android:text="Para traducir"
+                    android:text="@string/para_traducir"
                     android:textAllCaps="false"
                     android:textColor="@android:color/white"
                     android:textSize="16sp" />
@@ -225,7 +225,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="28dp"
                 android:layout_marginTop="8dp"
-                android:text="SINOPSIS"
+                android:text="@string/SINOPSIS"
                 android:textColor="#000000"
                 android:textSize="12sp"
                 android:textStyle="bold" />
@@ -238,7 +238,7 @@
                 android:layout_marginTop="4dp"
                 android:layout_marginEnd="28dp"
                 android:minHeight="80dp"
-                android:text="Descripción del libro"
+                android:text="@string/descripcion_libro"
                 android:textColor="#000000"
                 android:textSize="14sp" />
 
@@ -260,7 +260,7 @@
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:gravity="center"
-                    android:text="GÉNERO\n-"
+                    android:text="@string/genero"
                     android:textColor="@android:color/white"
                     android:textSize="12sp" />
 
@@ -275,7 +275,7 @@
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:gravity="center"
-                    android:text="PUBLICADO\nAño"
+                    android:text="@string/publicado"
                     android:textColor="@android:color/white"
                     android:textSize="12sp" />
 
@@ -290,7 +290,7 @@
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:gravity="center"
-                    android:text="IDIOMAS\n-"
+                    android:text="@string/idiomas"
                     android:textColor="@android:color/white"
                     android:textSize="12sp" />
 
@@ -305,7 +305,7 @@
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:gravity="center"
-                    android:text="EXTENSIÓN\nNº páginas"
+                    android:text="@string/paginas"
                     android:textColor="@android:color/white"
                     android:textSize="12sp" />
             </LinearLayout>
@@ -321,7 +321,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="28dp"
                 android:layout_marginTop="10dp"
-                android:text="Explorar opiniones"
+                android:text="@string/explorar_opiniones"
                 android:textColor="#000000"
                 android:textSize="24sp" />
 
@@ -330,7 +330,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="28dp"
-                android:text="Ordenar por:"
+                android:text="@string/ordennar_por"
                 android:textColor="#000000"
                 android:textSize="14sp" />
 
@@ -367,7 +367,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="28dp"
                 android:layout_marginTop="10dp"
-                android:text="Historial Actualización"
+                android:text="@string/historial_actualizacion"
                 android:textColor="#000000"
                 android:textSize="24sp" />
 
@@ -380,7 +380,7 @@
                 android:layout_marginBottom="24dp"
                 android:background="#F2C94C"
                 android:gravity="center"
-                android:text="Última actualización\nFecha"
+                android:text="@string/ultima_actualizacion"
                 android:textColor="#000000"
                 android:textSize="16sp" />
         </LinearLayout>

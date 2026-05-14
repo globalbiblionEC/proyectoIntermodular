@@ -46,7 +46,7 @@
             android:id="@+id/tvNombreUsuario"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Usuario"
+            android:text="@string/usuario"
             android:textColor="@android:color/white"
             android:textSize="12sp"
             android:layout_marginTop="2dp"
@@ -114,7 +114,7 @@
                         android:id="@+id/tvTituloLibro"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Título"
+                        android:text="@string/titulo"
                         android:textColor="#000000"
                         android:textSize="24sp"
                         android:textStyle="bold" />
@@ -123,7 +123,7 @@
                         android:id="@+id/tvAutorLibro"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Autor"
+                        android:text="@string/autor"
                         android:textColor="#000000"
                         android:textSize="17sp" />
 
@@ -143,7 +143,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
                 android:gravity="center"
-                android:text="Escribe o edita tu reseña"
+                android:text="@string/escribir_edita_resenia"
                 android:textColor="#000000"
                 android:textSize="22sp"
                 android:textStyle="bold" />
@@ -153,7 +153,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="18dp"
-                android:text="Califica el libro:"
+                android:text="@string/califica_libro"
                 android:textColor="#000000"
                 android:textSize="16sp" />
 
@@ -175,7 +175,7 @@
                 android:layout_marginTop="14dp"
                 android:background="@android:color/white"
                 android:gravity="top|start"
-                android:hint="Escribe aquí tu reseña..."
+                android:hint="@string/escribe_aca_resenia"
                 android:inputType="textMultiLine"
                 android:padding="12dp"
                 android:textColor="#000000"
@@ -188,7 +188,7 @@
                 android:layout_gravity="center_horizontal"
                 android:layout_marginTop="10dp"
                 android:backgroundTint="#F2C94C"
-                android:text="Dejar mi opinión"
+                android:text="@string/dejar_opinion"
                 android:textAllCaps="false"
                 android:textColor="#1E3A5F"
                 android:textStyle="bold" />
@@ -198,7 +198,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="28dp"
-                android:text="Mis reseñas de este libro"
+                android:text="@string/mis_resenias"
                 android:textColor="#000000"
                 android:textSize="20sp"
                 android:textStyle="bold" />

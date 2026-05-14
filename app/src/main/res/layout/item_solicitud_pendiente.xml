@@ -11,7 +11,7 @@
         android:id="@+id/tvLibro"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Título libro"
+        android:text="@string/tit_libro"
         android:textStyle="bold"
         android:textSize="18sp"
         android:textColor="#222222" />
@@ -20,7 +20,7 @@
         android:id="@+id/tvUsuario"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Usuario"
+        android:text="@string/usuario"
         android:textSize="14sp"
         android:textColor="#555555"
         android:layout_marginTop="4dp" />
@@ -29,7 +29,7 @@
         android:id="@+id/tvTipo"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Tipo"
+        android:text="@string/tipo"
         android:textSize="14sp"
         android:textColor="#555555"
         android:layout_marginTop="4dp" />
@@ -38,7 +38,7 @@
         android:id="@+id/tvIdiomas"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Idiomas"
+        android:text="@string/idiomas"
         android:textSize="14sp"
         android:textColor="#555555"
         android:layout_marginTop="4dp" />
@@ -47,7 +47,7 @@
         android:id="@+id/tvEstado"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Estado"
+        android:text="@string/estado"
         android:textSize="14sp"
         android:textColor="#555555"
         android:layout_marginTop="4dp" />

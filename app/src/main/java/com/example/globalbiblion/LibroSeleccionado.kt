@@ -108,12 +108,7 @@ class LibroSeleccionado : BottomBar() {
         }
 
         btnTraducir.setOnClickListener {
-            val intent = Intent(this, SolicitudTraduccion::class.java).apply {
-                putExtra("bookId", idLibro)
-                putExtra("bookTitle", tituloLibro)
-                putExtra("sourceLanguage", "Spanish")
-            }
-            startActivity(intent)
+            comprobarSiPuedeTraducir()
         }
     }
 
@@ -352,6 +347,72 @@ class LibroSeleccionado : BottomBar() {
         card.addView(tvComentario)
 
         return card
+    }
+
+    private fun comprobarSiPuedeTraducir() {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid
+
+        if (uid == null) {
+            Toast.makeText(this, "Debes iniciar sesión para traducir", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        db.collection("users")
+            .document(uid)
+            .get()
+            .addOnSuccessListener { userDoc ->
+
+                val rol = userDoc.getString("rol") ?: ""
+                val estado = userDoc.getString("roleVerificationStatus") ?: ""
+                val idiomaTraductor = userDoc.getString("nativeLanguage") ?: ""
+
+                if (rol != "translator") {
+                    Toast.makeText(this, "Solo los traductores pueden traducir libros", Toast.LENGTH_LONG).show()
+                    return@addOnSuccessListener
+                }
+
+                if (estado != "verified") {
+                    Toast.makeText(this, "Tu cuenta de traductor aún no está verificada", Toast.LENGTH_LONG).show()
+                    return@addOnSuccessListener
+                }
+
+                db.collection("books")
+                    .document(idLibro)
+                    .get()
+                    .addOnSuccessListener { bookDoc ->
+
+                        val idiomaOriginal = bookDoc.getString("language") ?: ""
+                        val idiomasDisponibles = bookDoc.get("availableLanguages") as? List<*>
+                        val listaIdiomas = idiomasDisponibles
+                            ?.mapNotNull { it as? String }
+                            ?: listOf(idiomaOriginal)
+
+                        if (idiomaTraductor.isBlank()) {
+                            Toast.makeText(this, "No tienes idioma nativo registrado", Toast.LENGTH_LONG).show()
+                            return@addOnSuccessListener
+                        }
+
+                        if (listaIdiomas.contains(idiomaTraductor)) {
+                            Toast.makeText(
+                                this,
+                                "Este libro ya está disponible en tu idioma",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        } else {
+                            val intent = Intent(this, SolicitudTraduccion::class.java).apply {
+                                putExtra("bookId", idLibro)
+                                putExtra("bookTitle", tituloLibro)
+                                putExtra("sourceLanguage", idiomaOriginal)
+                                putExtra("targetLanguage", idiomaTraductor)
+                                putExtra("modo", "subir_traduccion")
+                            }
+                            startActivity(intent)
+                        }
+                    }
+            }
+            .addOnFailureListener {
+                Toast.makeText(this, "Error comprobando permisos", Toast.LENGTH_LONG).show()
+            }
     }
 
     private fun dp(valor: Int): Int {

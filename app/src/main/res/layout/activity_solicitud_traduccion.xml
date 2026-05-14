@@ -53,7 +53,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="28dp"
                 android:layout_marginTop="20dp"
-                android:text="Solicitud de contribución"
+                android:text="@string/solic_contri"
                 android:textColor="#000000"
                 android:textSize="22sp"
                 android:textStyle="bold" />
@@ -76,7 +76,7 @@
                 android:layout_marginTop="14dp"
                 android:layout_marginEnd="28dp"
                 android:gravity="center"
-                android:text="Título del libro"
+                android:text="@string/tit_libro"
                 android:textColor="#1E3A5F"
                 android:textSize="18sp"
                 android:textStyle="bold" />
@@ -88,7 +88,7 @@
                 android:layout_marginStart="28dp"
                 android:layout_marginTop="16dp"
                 android:layout_marginEnd="28dp"
-                android:text="Idioma original"
+                android:text="@string/idio_orig"
                 android:textColor="#000000"
                 android:textSize="15sp" />
 
@@ -99,7 +99,7 @@
                 android:layout_marginStart="28dp"
                 android:layout_marginTop="14dp"
                 android:layout_marginEnd="28dp"
-                android:text="Idioma destino"
+                android:text="@string/idio_dest"
                 android:textColor="#000000"
                 android:textStyle="bold" />
 
@@ -120,7 +120,7 @@
                 android:layout_marginTop="24dp"
                 android:layout_marginEnd="28dp"
                 android:backgroundTint="#1E3A5F"
-                android:text="Solicitar traducción"
+                android:text="@string/solic_traduc"
                 android:textAllCaps="false"
                 android:textColor="@android:color/white" />
 
@@ -132,7 +132,7 @@
                 android:layout_marginTop="12dp"
                 android:layout_marginEnd="28dp"
                 android:backgroundTint="#1E3A5F"
-                android:text="Solicitar corrección"
+                android:text="@string/solic_corre"
                 android:textAllCaps="false"
                 android:textColor="@android:color/white" />
 
@@ -145,7 +145,7 @@
                 android:layout_marginEnd="28dp"
                 android:layout_marginBottom="28dp"
                 android:backgroundTint="#F2C94C"
-                android:text="Subir traducción/corrección"
+                android:text="@string/subir_tradu_corre"
                 android:textAllCaps="false"
                 android:textColor="#000000" />
 
