@@ -82,14 +82,30 @@ open class BottomBar : AppCompatActivity() {
 
                 val idLibro = doc.getString("idLibro") ?: ""
                 val titulo = doc.getString("title") ?: "Libro actual"
+
                 val authors = doc.get("authors") as? List<*>
                 val autor = authors
                     ?.mapNotNull { it as? String }
                     ?.joinToString(", ")
                     ?: ""
 
+                val pdfUrl = doc.getString("pdfUrl") ?: ""
                 val pdfPath = doc.getString("pdfPath") ?: ""
                 val coverPath = doc.getString("coverPath") ?: ""
+                val readingLanguage = doc.getString("readingLanguage") ?: ""
+
+                if (pdfUrl.isNotBlank()) {
+                    abrirContinuarLeyendo(
+                        idLibro,
+                        titulo,
+                        autor,
+                        pdfUrl,
+                        pdfPath,
+                        coverPath,
+                        readingLanguage
+                    )
+                    return@addOnSuccessListener
+                }
 
                 if (pdfPath.isBlank()) {
                     Toast.makeText(this, "No se encontró el PDF guardado", Toast.LENGTH_SHORT).show()
@@ -98,17 +114,15 @@ open class BottomBar : AppCompatActivity() {
 
                 storage.reference.child(pdfPath).downloadUrl
                     .addOnSuccessListener { pdfUri ->
-                        val intent = Intent(this, ContinuarLeyendo::class.java).apply {
-                            putExtra("idLibro", idLibro)
-                            putExtra("tituloLibro", titulo)
-                            putExtra("autorLibro", autor)
-                            putExtra("pdfUrl", pdfUri.toString())
-                            putExtra("pdfStoragePath", pdfPath)
-                            putExtra("portadaStoragePath", coverPath)
-                            putExtra("portadaResId", R.drawable.logogbsinfondo)
-                        }
-
-                        startActivity(intent)
+                        abrirContinuarLeyendo(
+                            idLibro,
+                            titulo,
+                            autor,
+                            pdfUri.toString(),
+                            pdfPath,
+                            coverPath,
+                            readingLanguage
+                        )
                     }
                     .addOnFailureListener { e ->
                         Toast.makeText(this, "Error PDF: ${e.message}", Toast.LENGTH_LONG).show()
@@ -154,5 +168,28 @@ open class BottomBar : AppCompatActivity() {
             .addOnFailureListener {
                 flNotificaciones?.visibility = android.view.View.GONE
             }
+    }
+
+    private fun abrirContinuarLeyendo(
+        idLibro: String,
+        titulo: String,
+        autor: String,
+        pdfUrl: String,
+        pdfPath: String,
+        coverPath: String,
+        readingLanguage: String
+    ) {
+        val intent = Intent(this, ContinuarLeyendo::class.java).apply {
+            putExtra("idLibro", idLibro)
+            putExtra("tituloLibro", titulo)
+            putExtra("autorLibro", autor)
+            putExtra("pdfUrl", pdfUrl)
+            putExtra("pdfStoragePath", pdfPath)
+            putExtra("portadaStoragePath", coverPath)
+            putExtra("portadaResId", R.drawable.logogbsinfondo)
+            putExtra("readingLanguage", readingLanguage)
+        }
+
+        startActivity(intent)
     }
 }

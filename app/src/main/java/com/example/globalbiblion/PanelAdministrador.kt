@@ -19,6 +19,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot
 import android.content.Intent
 import android.net.Uri
 import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.firestore.Query
 
 class PanelAdministrador : BottomBar() {
 
@@ -104,7 +105,10 @@ class PanelAdministrador : BottomBar() {
         listaCertificados.clear()
 
         db.collection("users")
+            //.whereIn("roleVerificationStatus", listOf("pending_review", "prevalidated"))
+            //.get()
             .whereIn("roleVerificationStatus", listOf("pending_review", "prevalidated"))
+            .orderBy("certificateUpdatedAt", Query.Direction.DESCENDING)
             .get()
             .addOnSuccessListener { documentos ->
                 for (doc in documentos) {
@@ -255,7 +259,10 @@ class PanelAdministrador : BottomBar() {
         listaSolicitudes.clear()
 
         db.collection("contribution_requests")
+            //.whereIn("status", listOf("proofreader_approved", "proofreader_rejected"))
+            //.get()
             .whereIn("status", listOf("proofreader_approved", "proofreader_rejected"))
+            .orderBy("proofreadAt", Query.Direction.DESCENDING)
             .get()
             .addOnSuccessListener { documentos ->
                 for (doc in documentos) {

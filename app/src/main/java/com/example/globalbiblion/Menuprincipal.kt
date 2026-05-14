@@ -37,6 +37,8 @@ class Menuprincipal : BottomBar () {
 
     private var navegando = false
     private var portadaActualPath = ""
+    private var pdfActualUrl = ""
+    private var idiomaActualLectura = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -336,9 +338,15 @@ class Menuprincipal : BottomBar () {
                 } else {
                     ""
                 }
+
                 val pdfPath = doc.getString("pdfPath") ?: ""
+                val pdfUrl = doc.getString("pdfUrl") ?: ""
                 val coverPath = doc.getString("coverPath") ?: ""
+                val idioma = doc.getString("readingLanguage") ?: ""
+
                 portadaActualPath = coverPath
+                pdfActualUrl = pdfUrl
+                idiomaActualLectura = idioma
 
                 libroActual = Libro(
                     id,
@@ -346,17 +354,14 @@ class Menuprincipal : BottomBar () {
                     autor,
                     pdfPath,
                     0,
-                    R.drawable.logogbsinfondo,
+                    R.drawable.logogbsinfondo
                 )
 
                 tvTituloContinuar.text = titulo
                 tvAutorContinuar.text = autor
 
                 if (coverPath.isNotBlank()) {
-                    FirebaseStorage.getInstance()
-                        .reference
-                        .child(coverPath)
-                        .downloadUrl
+                    storage.reference.child(coverPath).downloadUrl
                         .addOnSuccessListener { uri ->
                             Glide.with(this)
                                 .load(uri.toString())
@@ -364,6 +369,8 @@ class Menuprincipal : BottomBar () {
                                 .error(R.drawable.logogbsinfondo)
                                 .into(ivPortadaLibroActual)
                         }
+                } else {
+                    ivPortadaLibroActual.setImageResource(R.drawable.logogbsinfondo)
                 }
             }
     }
@@ -377,11 +384,26 @@ class Menuprincipal : BottomBar () {
         if (navegando) return
         navegando = true
 
+        if (pdfActualUrl.isNotBlank()) {
+            val intent = Intent(this, ContinuarLeyendo::class.java).apply {
+                putExtra("idLibro", libro.idLibro)
+                putExtra("pdfUrl", pdfActualUrl)
+                putExtra("pdfStoragePath", libro.nombrePDF)
+                putExtra("tituloLibro", libro.titulo)
+                putExtra("autorLibro", libro.autor)
+                putExtra("portadaResId", libro.portadaResId)
+                putExtra("portadaStoragePath", portadaActualPath)
+                putExtra("readingLanguage", idiomaActualLectura)
+            }
+
+            startActivity(intent)
+            return
+        }
+
         val rutaPdfStorage = libro.nombrePDF
 
         storage.reference.child(rutaPdfStorage).downloadUrl
             .addOnSuccessListener { pdfUri ->
-
                 val intent = Intent(this, ContinuarLeyendo::class.java).apply {
                     putExtra("idLibro", libro.idLibro)
                     putExtra("pdfUrl", pdfUri.toString())
@@ -390,6 +412,7 @@ class Menuprincipal : BottomBar () {
                     putExtra("autorLibro", libro.autor)
                     putExtra("portadaResId", libro.portadaResId)
                     putExtra("portadaStoragePath", portadaActualPath)
+                    putExtra("readingLanguage", idiomaActualLectura)
                 }
 
                 startActivity(intent)
@@ -403,7 +426,6 @@ class Menuprincipal : BottomBar () {
                 ).show()
             }
     }
-
     override fun onResume() {
         super.onResume()
         navegando = false

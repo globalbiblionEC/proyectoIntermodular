@@ -490,7 +490,11 @@ class LibroSeleccionado : BottomBar() {
         pdfOriginalPath: String
     ) {
         if (idiomaSeleccionado == idiomaOriginal) {
-            abrirPdfDesdeStorage(pdfOriginalPath)
+            guardarContinuarLeyendoPorIdioma(
+                idiomaSeleccionado,
+                pdfOriginalPath,
+                ""
+            )
             return
         }
 
@@ -503,8 +507,22 @@ class LibroSeleccionado : BottomBar() {
             ?: ""
 
         when {
-            translationUrl.isNotBlank() -> abrirPdfDesdeUrl(translationUrl)
-            translationPath.isNotBlank() -> abrirPdfDesdeStorage(translationPath)
+            translationUrl.isNotBlank() -> {
+                guardarContinuarLeyendoPorIdioma(
+                    idiomaSeleccionado,
+                    translationPath,
+                    translationUrl
+                )
+            }
+
+            translationPath.isNotBlank() -> {
+                guardarContinuarLeyendoPorIdioma(
+                    idiomaSeleccionado,
+                    translationPath,
+                    ""
+                )
+            }
+
             else -> Toast.makeText(
                 this,
                 "No se encontró el PDF en $idiomaSeleccionado",
@@ -540,6 +558,78 @@ class LibroSeleccionado : BottomBar() {
         }
 
         startActivity(Intent.createChooser(intent, "Abrir libro con"))
+    }
+
+    private fun guardarContinuarLeyendoPorIdioma(
+        idiomaSeleccionado: String,
+        rutaPdf: String,
+        urlPdfDirecta: String
+    ) {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid
+
+        if (uid == null || idLibro.isBlank()) {
+            if (urlPdfDirecta.isNotBlank()) {
+                abrirPdfDesdeUrl(urlPdfDirecta)
+            } else {
+                abrirPdfDesdeStorage(rutaPdf)
+            }
+            return
+        }
+
+        val tituloConIdioma = "$tituloLibro ($idiomaSeleccionado)"
+
+        if (urlPdfDirecta.isNotBlank()) {
+            guardarReadingYabrir(uid, tituloConIdioma, idiomaSeleccionado, rutaPdf, urlPdfDirecta)
+        } else {
+            storage.reference.child(rutaPdf).downloadUrl
+                .addOnSuccessListener { uri ->
+                    guardarReadingYabrir(
+                        uid,
+                        tituloConIdioma,
+                        idiomaSeleccionado,
+                        rutaPdf,
+                        uri.toString()
+                    )
+                }
+                .addOnFailureListener { e ->
+                    Toast.makeText(this, "Error al abrir PDF: ${e.message}", Toast.LENGTH_LONG).show()
+                }
+        }
+    }
+
+    private fun guardarReadingYabrir(
+        uid: String,
+        tituloConIdioma: String,
+        idiomaSeleccionado: String,
+        rutaPdf: String,
+        urlPdf: String
+    ) {
+        val datos = hashMapOf(
+            "idLibro" to idLibro,
+            "title" to tituloConIdioma,
+            "baseTitle" to tituloLibro,
+            "readingLanguage" to idiomaSeleccionado,
+            "authors" to autorLibro.split(",").map { it.trim() },
+            "pdfUrl" to urlPdf,
+            "pdfPath" to rutaPdf,
+            "coverPath" to portadaStoragePath,
+            "updatedAt" to FieldValue.serverTimestamp()
+        )
+
+        db.collection("readings")
+            .document(uid)
+            .set(datos)
+            .addOnSuccessListener {
+                abrirPdfDesdeUrl(urlPdf)
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(
+                    this,
+                    "No se pudo guardar en continuar leyendo: ${e.message}",
+                    Toast.LENGTH_LONG
+                ).show()
+                abrirPdfDesdeUrl(urlPdf)
+            }
     }
 
     private fun dp(valor: Int): Int {
