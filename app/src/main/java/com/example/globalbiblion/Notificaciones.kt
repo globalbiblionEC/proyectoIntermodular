@@ -289,13 +289,6 @@ class Notificaciones : BottomBar() {
                             )
                         }
 
-                        /*"changes_requested" -> {
-                            texto.append(
-                                "🔁 El administrador ha aceptado tu rechazo de '$titulo'.\n" +
-                                        "La traducción volverá al traductor para corregirse.\n" +
-                                        "Fecha: ${formatearFecha(fecha)}\n\n"
-                            )
-                        }*/
                         "changes_requested" -> {
                             texto.append(
                                 "🔁 El administrador ha aceptado tu corrección de '$titulo'.\n" +
@@ -444,15 +437,9 @@ class Notificaciones : BottomBar() {
                 val rol = userDoc.getString("rol") ?: ""
                 val estado = userDoc.getString("roleVerificationStatus") ?: ""
 
-                //val certificateValidation = userDoc.get("certificateValidation") as? Map<*, *>
-                //val idiomaCertificado = certificateValidation?.get("idioma")?.toString() ?: ""
                 val idiomaCertificado =
                     userDoc.getString("nativeLanguage") ?: ""
 
-                /*if (rol != "proofreader" || estado != "verified") {
-                    llAvisosCorrector.removeAllViews()
-                    return@addOnSuccessListener
-                }*/
                 if (rol != "proofreader" || estado != "verified") {
                     return@addOnSuccessListener
                 }
@@ -751,14 +738,6 @@ class Notificaciones : BottomBar() {
     }
 
     private fun crearCardCambiosTraductor(
-       /* bookId: String,
-        bookTitle: String,
-        sourceLanguage: String,
-        targetLanguage: String,
-        corrector: String,
-        motivo: String,
-        correctionUrl: String,
-        correctionPath: String*/
        requestId: String,
        bookId: String,
        bookTitle: String,
@@ -809,12 +788,7 @@ class Notificaciones : BottomBar() {
         val btnSubirOtraVez = Button(this)
         btnSubirOtraVez.text = "Subir nuevamente la traducción"
         btnSubirOtraVez.setOnClickListener {
-            /*val intent = Intent(this, SolicitudTraduccion::class.java).apply {
-                putExtra("bookId", bookId)
-                putExtra("bookTitle", bookTitle)
-                putExtra("sourceLanguage", sourceLanguage)
-                putExtra("targetLanguage", targetLanguage)
-            */val intent = Intent(this, SolicitudTraduccion::class.java).apply {
+            val intent = Intent(this, SolicitudTraduccion::class.java).apply {
             putExtra("bookId", bookId)
             putExtra("bookTitle", bookTitle)
             putExtra("sourceLanguage", sourceLanguage)

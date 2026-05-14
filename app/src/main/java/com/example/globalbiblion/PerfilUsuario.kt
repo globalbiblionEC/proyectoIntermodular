@@ -157,8 +157,6 @@ class PerfilUsuario : BottomBar() {
             return
         }
 
-        // RESEÑAS
-        // Esto se mantiene igual si tus reviews siguen guardando userId = uid
         db.collectionGroup("reviews")
             .whereEqualTo("userId", uid)
             .get()
