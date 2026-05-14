@@ -319,20 +319,6 @@ class Menuprincipal : BottomBar () {
             }
     }
 
-    private fun buscarYabrirLibro(consulta: String) {
-        val libroEncontrado = libros.firstOrNull {
-            it.titulo.contains(consulta, ignoreCase = true)
-        }
-
-        if (libroEncontrado != null) {
-            libroActual = libroEncontrado
-            actualizarContinuarLeyendo()
-            irAContinuarLeyendo()
-        } else {
-            Toast.makeText(this, "No se encontró ningún libro con: $consulta", Toast.LENGTH_SHORT).show()
-        }
-    }
-
     private fun cargarDatosDesdeFirebase() {
         val uid = auth.currentUser?.uid ?: return
 
@@ -429,7 +415,6 @@ class Menuprincipal : BottomBar () {
         navegando = true
 
         val rutaPdfStorage = libro.nombrePDF
-        //val rutaPortadaStorage = portadasStorage[libro.idLibro] ?: ""
         val rutaPortadaStorage = portadasStorage[libro.idLibro] ?: portadaActualPath
 
         db.collection("books")

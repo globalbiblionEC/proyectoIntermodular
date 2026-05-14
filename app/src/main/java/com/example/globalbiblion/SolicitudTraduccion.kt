@@ -2,9 +2,6 @@ package com.example.globalbiblion
 
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import android.content.Intent
 import android.net.Uri
 import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
@@ -76,12 +73,6 @@ class SolicitudTraduccion : BottomBar() {
         tvTituloLibro.text = bookTitle
         tvIdiomaOriginal.text = "Idioma original: $sourceLanguage"
 
-        /*val idiomasDestino = listOf("Spanish", "English", "French", "Portuguese")
-        spinnerIdiomaDestino.adapter = ArrayAdapter(
-            this,
-            android.R.layout.simple_spinner_dropdown_item,
-            idiomasDestino
-        )*/
         if (targetLanguage.isNotBlank()) {
 
             val idiomasDestino = listOf(targetLanguage)
@@ -234,7 +225,11 @@ class SolicitudTraduccion : BottomBar() {
                     "sourceLanguage" to sourceLanguage,
                     "targetLanguage" to idiomaDestino,
 
-                    "status" to "pending",
+                    "status" to if (tipoSolicitud == "translation") {
+                        "waiting_for_proofreader"
+                    } else {
+                        "pending"
+                    },
 
                     "translationPath" to "",
                     "translationUrl" to "",
@@ -281,14 +276,14 @@ class SolicitudTraduccion : BottomBar() {
         db.collection("contribution_requests")
             .whereEqualTo("translatorId", uid)
             .whereEqualTo("bookId", bookId)
-            .whereEqualTo("status", "approved")
+            .whereEqualTo("status", "changes_requested")
             .limit(1)
             .get()
             .addOnSuccessListener { documentos ->
                 if (documentos.isEmpty) {
                     Toast.makeText(
                         this,
-                        "No tienes una solicitud aprobada para este libro",
+                        "No tienes cambios pendientes para este libro",
                         Toast.LENGTH_LONG
                     ).show()
                     return@addOnSuccessListener
@@ -317,7 +312,7 @@ class SolicitudTraduccion : BottomBar() {
             return
         }
 
-        val rutaStorage = "contribution_uploads/$requestIdAprobada/traduccion.pdf"
+        val rutaStorage = "contribution_uploads/$requestIdAprobada/traduccion_v2.pdf"
 
         storage.reference.child(rutaStorage)
             .putFile(uriPdf)
@@ -368,19 +363,7 @@ class SolicitudTraduccion : BottomBar() {
     }
 
     private fun subirTraduccionDirecta(uriPdf: Uri) {
-        val uid = auth.currentUser?.uid
-
-        if (uid == null) {
-            Toast.makeText(this, "Debes iniciar sesión", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        if (bookId.isBlank()) {
-            Toast.makeText(this, "No se encontró el libro", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        Toast.makeText(this, "Subiendo traducción...", Toast.LENGTH_SHORT).show()
+        val uid = auth.currentUser?.uid ?: return
 
         db.collection("users").document(uid).get()
             .addOnSuccessListener { userDoc ->
@@ -388,13 +371,8 @@ class SolicitudTraduccion : BottomBar() {
                 val rol = userDoc.getString("rol") ?: ""
                 val estado = userDoc.getString("roleVerificationStatus") ?: ""
 
-                if (rol != "translator") {
-                    Toast.makeText(this, "Solo los traductores pueden subir traducciones", Toast.LENGTH_LONG).show()
-                    return@addOnSuccessListener
-                }
-
-                if (estado != "verified") {
-                    Toast.makeText(this, "Tu perfil de traductor no está verificado", Toast.LENGTH_LONG).show()
+                if (rol != "translator" || estado != "verified") {
+                    Toast.makeText(this, "No tienes permisos de traductor verificado", Toast.LENGTH_LONG).show()
                     return@addOnSuccessListener
                 }
 
@@ -406,103 +384,62 @@ class SolicitudTraduccion : BottomBar() {
                     spinnerIdiomaDestino.selectedItem.toString()
                 }
 
-                val nuevaSolicitud = hashMapOf(
-                    "bookId" to bookId,
-                    "bookTitle" to bookTitle,
+                val solicitudRef = db.collection("contribution_requests").document()
+                val requestId = solicitudRef.id
+                val rutaStorage = "contribution_uploads/$requestId/traduccion.pdf"
 
-                    "translatorId" to uid,
-                    "translatorName" to translatorName,
+                Toast.makeText(this, "Subiendo traducción...", Toast.LENGTH_SHORT).show()
 
-                    "proofreaderId" to "",
-                    "proofreaderName" to "",
+                storage.reference.child(rutaStorage)
+                    .putFile(uriPdf)
+                    .addOnSuccessListener {
+                        storage.reference.child(rutaStorage).downloadUrl
+                            .addOnSuccessListener { downloadUri ->
 
-                    "requestType" to "translation",
+                                val nuevaSolicitud = hashMapOf(
+                                    "bookId" to bookId,
+                                    "bookTitle" to bookTitle,
+                                    "translatorId" to uid,
+                                    "translatorName" to translatorName,
+                                    "proofreaderId" to "",
+                                    "proofreaderName" to "",
+                                    "requestType" to "translation",
+                                    "sourceLanguage" to sourceLanguage,
+                                    "targetLanguage" to idiomaDestino,
+                                    "status" to "waiting_for_proofreader",
+                                    "translationPath" to rutaStorage,
+                                    "translationUrl" to downloadUri.toString(),
+                                    "reviewNotes" to "",
+                                    "adminNotes" to "",
+                                    "createdAt" to FieldValue.serverTimestamp(),
+                                    "uploadedAt" to FieldValue.serverTimestamp(),
+                                    "proofreadAt" to null,
+                                    "adminReviewedAt" to null
+                                )
 
-                    "sourceLanguage" to sourceLanguage,
-                    "targetLanguage" to idiomaDestino,
+                                solicitudRef.set(nuevaSolicitud)
+                                    .addOnSuccessListener {
+                                        Toast.makeText(
+                                            this,
+                                            "Traducción subida. Pendiente de corrección.",
+                                            Toast.LENGTH_LONG
+                                        ).show()
 
-                    "status" to "waiting_for_proofreader",
-
-                    "translationPath" to "",
-                    "translationUrl" to "",
-
-                    "reviewNotes" to "",
-                    "adminNotes" to "",
-
-                    "createdAt" to FieldValue.serverTimestamp(),
-                    "uploadedAt" to null,
-                    "proofreadAt" to null,
-                    "adminReviewedAt" to null
-                )
-
-                db.collection("contribution_requests")
-                    .add(nuevaSolicitud)
-                    .addOnSuccessListener { solicitudRef ->
-
-                        val requestId = solicitudRef.id
-                        val rutaStorage = "contribution_uploads/$requestId/traduccion.pdf"
-
-                        storage.reference.child(rutaStorage)
-                            .putFile(uriPdf)
-                            .addOnSuccessListener {
-
-                                storage.reference.child(rutaStorage).downloadUrl
-                                    .addOnSuccessListener { downloadUri ->
-
-                                        db.collection("contribution_requests")
-                                            .document(requestId)
-                                            .update(
-                                                mapOf(
-                                                    "translationPath" to rutaStorage,
-                                                    "translationUrl" to downloadUri.toString(),
-                                                    "status" to "waiting_for_proofreader",
-                                                    "uploadedAt" to FieldValue.serverTimestamp()
-                                                )
-                                            )
-                                            .addOnSuccessListener {
-                                                Toast.makeText(
-                                                    this,
-                                                    "Traducción subida. Ahora queda pendiente de corrección.",
-                                                    Toast.LENGTH_LONG
-                                                ).show()
-
-                                                btnSubirDocumento.text = "Traducción subida"
-                                                btnSubirDocumento.isEnabled = false
-                                            }
-                                            .addOnFailureListener { e ->
-                                                Toast.makeText(
-                                                    this,
-                                                    "Error actualizando solicitud: ${e.message}",
-                                                    Toast.LENGTH_LONG
-                                                ).show()
-                                            }
+                                        btnSubirDocumento.text = "Traducción subida"
+                                        btnSubirDocumento.isEnabled = false
                                     }
                                     .addOnFailureListener { e ->
                                         Toast.makeText(
                                             this,
-                                            "Error obteniendo URL: ${e.message}",
+                                            "Error Firestore: ${e.message}",
                                             Toast.LENGTH_LONG
                                         ).show()
                                     }
                             }
-                            .addOnFailureListener { e ->
-                                Toast.makeText(
-                                    this,
-                                    "Error subiendo PDF: ${e.message}",
-                                    Toast.LENGTH_LONG
-                                ).show()
-                            }
                     }
                     .addOnFailureListener { e ->
-                        Toast.makeText(
-                            this,
-                            "Error creando solicitud: ${e.message}",
-                            Toast.LENGTH_LONG
-                        ).show()
+                        Toast.makeText(this, "Error Storage: ${e.message}", Toast.LENGTH_LONG).show()
                     }
-            }
-            .addOnFailureListener { e ->
-                Toast.makeText(this, "Error leyendo usuario: ${e.message}", Toast.LENGTH_LONG).show()
             }
     }
 }

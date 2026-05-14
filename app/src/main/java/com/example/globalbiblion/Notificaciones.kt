@@ -156,49 +156,53 @@ class Notificaciones : BottomBar() {
             .addOnSuccessListener { documentos ->
 
                 for (doc in documentos) {
-                    val titulo = doc.getString("bookTitle") ?: "Solicitud"
+                    val titulo = doc.getString("bookTitle") ?: "Libro"
                     val status = doc.getString("status") ?: ""
-                    val notas = doc.getString("reviewNotes")
-                        ?: doc.getString("adminNotes")
-                        ?: "Sin motivo indicado"
+                    val corrector = doc.getString("proofreaderName") ?: "Corrector"
+                    val notasCorrector = doc.getString("reviewNotes") ?: ""
+                    val notasAdmin = doc.getString("adminNotes") ?: ""
                     val fecha = doc.getTimestamp("adminReviewedAt")
                         ?: doc.getTimestamp("proofreadAt")
 
                     when (status) {
                         "proofreader_approved" -> {
                             texto.append(
-                                "✅ Tu traducción de '$titulo' fue validada por el corrector.\n" +
+                                "✅ Tu traducción de '$titulo' ha sido verificada por $corrector.\n" +
+                                        "Ahora está pendiente de revisión del administrador.\n" +
                                         "Fecha: ${formatearFecha(fecha)}\n\n"
                             )
                         }
 
                         "proofreader_rejected" -> {
                             texto.append(
-                                "❌ Tu traducción de '$titulo' fue rechazada por el corrector.\n" +
-                                        "Motivo: $notas\n" +
+                                "❌ Tu traducción de '$titulo' ha sido rechazada por $corrector.\n" +
+                                        "Motivo: ${notasCorrector.ifBlank { "Sin motivo indicado" }}\n" +
+                                        "Ahora pasará al administrador.\n" +
                                         "Fecha: ${formatearFecha(fecha)}\n\n"
                             )
                         }
 
                         "changes_requested" -> {
                             texto.append(
-                                "🔁 El admin solicita cambios en tu traducción de '$titulo'.\n" +
-                                        "Motivo: $notas\n" +
+                                "🔁 El administrador ha pedido cambios en tu traducción de '$titulo'.\n" +
+                                        "Motivo: ${notasAdmin.ifBlank { notasCorrector.ifBlank { "Sin motivo indicado" } }}\n" +
                                         "Fecha: ${formatearFecha(fecha)}\n\n"
                             )
                         }
 
                         "published" -> {
                             texto.append(
-                                "📚 Tu traducción de '$titulo' ha sido publicada.\n" +
+                                "📚 ¡Tu traducción de '$titulo' ha sido publicada!\n" +
+                                        "Ya está disponible para los usuarios.\n" +
                                         "Fecha: ${formatearFecha(fecha)}\n\n"
                             )
                         }
 
                         "translation_vacancy_open" -> {
                             texto.append(
-                                "⚠️ La traducción de '$titulo' fue descartada y la vacante se ha reabierto.\n" +
-                                        "Motivo: $notas\n" +
+                                "⚠️ Tu traducción de '$titulo' no ha sido publicada.\n" +
+                                        "La vacante se ha reabierto para otro traductor.\n" +
+                                        "Motivo: ${notasAdmin.ifBlank { "Sin motivo indicado" }}\n" +
                                         "Fecha: ${formatearFecha(fecha)}\n\n"
                             )
                         }
@@ -223,6 +227,7 @@ class Notificaciones : BottomBar() {
                     "proofreader_rejected",
                     "published",
                     "changes_requested",
+                    "translation_vacancy_open",
                     "waiting_for_proofreader"
                 )
             )
@@ -230,45 +235,64 @@ class Notificaciones : BottomBar() {
             .addOnSuccessListener { documentos ->
 
                 for (doc in documentos) {
-                    val titulo = doc.getString("bookTitle") ?: "Solicitud"
+                    val titulo = doc.getString("bookTitle") ?: "Libro"
                     val status = doc.getString("status") ?: ""
-                    val notas = doc.getString("adminNotes") ?: "Sin notas"
+                    val traductor = doc.getString("translatorName") ?: "Traductor"
+                    val notasAdmin = doc.getString("adminNotes") ?: ""
+                    val notasCorrector = doc.getString("reviewNotes") ?: ""
                     val fecha = doc.getTimestamp("adminReviewedAt")
                         ?: doc.getTimestamp("proofreadAt")
 
                     when (status) {
                         "proofreader_approved" -> {
                             texto.append(
-                                "✅ Validaste la traducción de '$titulo'. Pendiente del admin.\n" +
+                                "✅ Has verificado la traducción de '$titulo'.\n" +
+                                        "Traductor: $traductor\n" +
+                                        "Ahora está pendiente del administrador.\n" +
                                         "Fecha: ${formatearFecha(fecha)}\n\n"
                             )
                         }
 
                         "proofreader_rejected" -> {
                             texto.append(
-                                "❌ Rechazaste la traducción de '$titulo'. Pendiente del admin.\n" +
+                                "❌ Has rechazado la traducción de '$titulo'.\n" +
+                                        "Traductor: $traductor\n" +
+                                        "Motivo: ${notasCorrector.ifBlank { "Sin motivo indicado" }}\n" +
+                                        "Ahora está pendiente del administrador.\n" +
                                         "Fecha: ${formatearFecha(fecha)}\n\n"
                             )
                         }
 
                         "published" -> {
                             texto.append(
-                                "📚 El admin publicó la traducción de '$titulo'.\n" +
+                                "📚 El administrador ha publicado la traducción de '$titulo'.\n" +
+                                        "Tu corrección fue aceptada.\n" +
                                         "Fecha: ${formatearFecha(fecha)}\n\n"
                             )
                         }
 
                         "changes_requested" -> {
                             texto.append(
-                                "🔁 El admin aceptó tu rechazo de '$titulo'. Se devolverá al traductor.\n" +
+                                "🔁 El administrador ha aceptado tu rechazo de '$titulo'.\n" +
+                                        "La traducción volverá al traductor para corregirse.\n" +
+                                        "Fecha: ${formatearFecha(fecha)}\n\n"
+                            )
+                        }
+
+                        "translation_vacancy_open" -> {
+                            texto.append(
+                                "⚠️ El administrador ha rechazado la traducción de '$titulo'.\n" +
+                                        "La vacante se ha reabierto.\n" +
+                                        "Notas: ${notasAdmin.ifBlank { "Sin notas" }}\n" +
                                         "Fecha: ${formatearFecha(fecha)}\n\n"
                             )
                         }
 
                         "waiting_for_proofreader" -> {
                             texto.append(
-                                "🔎 El admin no aceptó el rechazo de '$titulo'. Buscará otro corrector.\n" +
-                                        "Notas: $notas\n\n"
+                                "🔎 El administrador no ha aceptado la corrección anterior de '$titulo'.\n" +
+                                        "La traducción queda disponible para otro corrector.\n" +
+                                        "Notas: ${notasAdmin.ifBlank { "Sin notas" }}\n\n"
                             )
                         }
                     }
@@ -395,8 +419,10 @@ class Notificaciones : BottomBar() {
                 val rol = userDoc.getString("rol") ?: ""
                 val estado = userDoc.getString("roleVerificationStatus") ?: ""
 
-                val certificateValidation = userDoc.get("certificateValidation") as? Map<*, *>
-                val idiomaCertificado = certificateValidation?.get("idioma")?.toString() ?: ""
+                //val certificateValidation = userDoc.get("certificateValidation") as? Map<*, *>
+                //val idiomaCertificado = certificateValidation?.get("idioma")?.toString() ?: ""
+                val idiomaCertificado =
+                    userDoc.getString("nativeLanguage") ?: ""
 
                 if (rol != "proofreader" || estado != "verified") {
                     llAvisosCorrector.removeAllViews()

@@ -306,11 +306,17 @@ class PanelAdministrador : BottomBar() {
             ${solicitud.message}
             """.trimIndent()
             )
-            .setPositiveButton("Aprobar") { _, _ ->
-                aprobarSolicitud(solicitud.id)
+            .setPositiveButton(
+                if (solicitud.status == "proofreader_approved") "Publicar"
+                else "Aceptar rechazo"
+            ) { _, _ ->
+                aprobarSolicitud(solicitud.id, solicitud.status)
             }
-            .setNegativeButton("Rechazar") { _, _ ->
-                pedirMotivoRechazoSolicitud(solicitud.id)
+            .setNegativeButton(
+                if (solicitud.status == "proofreader_approved") "No publicar"
+                else "No aceptar rechazo"
+            ) { _, _ ->
+                pedirMotivoRechazoSolicitud(solicitud.id, solicitud.status)
             }
             .setNeutralButton("Ver PDF") { _, _ ->
                 abrirPdf(solicitud.fileUrl)
@@ -318,70 +324,89 @@ class PanelAdministrador : BottomBar() {
             .show()
     }
 
-    private fun aprobarSolicitud(requestId: String) {
+    private fun aprobarSolicitud(requestId: String, statusActual: String) {
         val uidAdmin = auth.currentUser?.uid ?: return
 
-        db.collection("contribution_requests").document(requestId)
-            .update(
-                mapOf(
-                    "status" to "approved",
-                    "adminReviewedBy" to uidAdmin,
-                    "adminReviewedAt" to FieldValue.serverTimestamp(),
-                    "notificationPending" to true,
-                    "notificationMessage" to "Tu solicitud ha sido aprobada."
-                )
+        val nuevosDatos = when (statusActual) {
+            "proofreader_approved" -> mapOf(
+                "status" to "published",
+                "adminReviewedBy" to uidAdmin,
+                "adminReviewedAt" to FieldValue.serverTimestamp(),
+                "notificationPending" to true,
+                "notificationMessage" to "Tu traducción ha sido publicada."
             )
+
+            "proofreader_rejected" -> mapOf(
+                "status" to "changes_requested",
+                "adminReviewedBy" to uidAdmin,
+                "adminReviewedAt" to FieldValue.serverTimestamp(),
+                "notificationPending" to true,
+                "notificationMessage" to "El administrador ha aceptado la corrección. Debes subir una nueva versión."
+            )
+
+            else -> return
+        }
+
+        db.collection("contribution_requests")
+            .document(requestId)
+            .update(nuevosDatos)
             .addOnSuccessListener {
-                Toast.makeText(this, "Solicitud aprobada", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Solicitud actualizada", Toast.LENGTH_SHORT).show()
                 cargarSolicitudesPendientes()
-            }
-            .addOnFailureListener {
-                Toast.makeText(this, "Error al aprobar solicitud", Toast.LENGTH_SHORT).show()
             }
     }
 
-    private fun pedirMotivoRechazoSolicitud(requestId: String) {
+    private fun pedirMotivoRechazoSolicitud(requestId: String, statusActual: String) {
         val input = EditText(this)
-        input.hint = "Escribe el motivo del rechazo"
+        input.hint = "Escribe una nota para justificar la decisión"
         input.minLines = 3
 
         AlertDialog.Builder(this)
-            .setTitle("Rechazar solicitud")
-            .setMessage("Este motivo se guardará para avisar al usuario más adelante.")
+            .setTitle("Revisar solicitud")
             .setView(input)
-            .setPositiveButton("Rechazar") { _, _ ->
-                val motivo = input.text.toString().trim()
-
-                if (motivo.isEmpty()) {
-                    Toast.makeText(this, "Debes escribir un motivo", Toast.LENGTH_SHORT).show()
-                } else {
-                    rechazarSolicitud(requestId, motivo)
-                }
+            .setPositiveButton("Confirmar") { _, _ ->
+                val nota = input.text.toString().trim()
+                rechazarSolicitud(requestId, statusActual, nota)
             }
             .setNegativeButton("Cancelar", null)
             .show()
     }
 
-    private fun rechazarSolicitud(requestId: String, nota: String) {
+    private fun rechazarSolicitud(requestId: String, statusActual: String, nota: String) {
         val uidAdmin = auth.currentUser?.uid ?: return
 
-        db.collection("contribution_requests").document(requestId)
-            .update(
-                mapOf(
-                    "status" to "rejected",
-                    "adminReviewedBy" to uidAdmin,
-                    "adminReviewedAt" to FieldValue.serverTimestamp(),
-                    "reviewNotes" to nota,
-                    "notificationPending" to true,
-                    "notificationMessage" to "Tu solicitud ha sido rechazada. Motivo: $nota"
-                )
+        val nuevosDatos = when (statusActual) {
+            "proofreader_approved" -> mapOf(
+                "status" to "waiting_for_proofreader",
+                "proofreaderId" to "",
+                "proofreaderName" to "",
+                "adminNotes" to nota,
+                "adminReviewedBy" to uidAdmin,
+                "adminReviewedAt" to FieldValue.serverTimestamp(),
+                "notificationPending" to true,
+                "notificationMessage" to "El administrador no publicó la traducción. Se buscará otro corrector."
             )
+
+            "proofreader_rejected" -> mapOf(
+                "status" to "waiting_for_proofreader",
+                "proofreaderId" to "",
+                "proofreaderName" to "",
+                "adminNotes" to nota,
+                "adminReviewedBy" to uidAdmin,
+                "adminReviewedAt" to FieldValue.serverTimestamp(),
+                "notificationPending" to true,
+                "notificationMessage" to "El administrador no aceptó el rechazo. Se buscará otro corrector."
+            )
+
+            else -> return
+        }
+
+        db.collection("contribution_requests")
+            .document(requestId)
+            .update(nuevosDatos)
             .addOnSuccessListener {
-                Toast.makeText(this, "Solicitud rechazada", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Solicitud devuelta a correctores", Toast.LENGTH_SHORT).show()
                 cargarSolicitudesPendientes()
-            }
-            .addOnFailureListener {
-                Toast.makeText(this, "Error al rechazar solicitud", Toast.LENGTH_SHORT).show()
             }
     }
     private fun abrirPdf(pdf: String) {
@@ -464,7 +489,14 @@ class PanelAdministrador : BottomBar() {
 
     private fun cargarHistorialSolicitudes() {
         db.collection("contribution_requests")
-            .whereIn("status", listOf("approved", "rejected"))
+            .whereIn(
+                "status",
+                listOf(
+                    "published",
+                    "changes_requested",
+                    "waiting_for_proofreader"
+                )
+            )
             .get()
             .addOnSuccessListener { documentos ->
 

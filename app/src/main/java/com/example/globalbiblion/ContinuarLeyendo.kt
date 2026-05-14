@@ -25,8 +25,6 @@ class ContinuarLeyendo : BottomBar() {
 
     private var idLibro: String = ""
     private var pdfUrl: String = ""
-
-    // AHORA: ruta de portada en Firebase Storage
     private var portadaStoragePath: String = ""
 
     private var tituloLibro: String = ""

@@ -31,6 +31,8 @@ class LibroSeleccionado : BottomBar() {
     private lateinit var btnLeerLibro: Button
     private lateinit var btnTraducir: Button
     private lateinit var llReviewsContainer: LinearLayout
+    private lateinit var btnMostrarIdiomas: Button
+    private lateinit var llIdiomasDisponibles: LinearLayout
     private var idLibro = ""
     private var tituloLibro = ""
     private var autorLibro = ""
@@ -60,6 +62,9 @@ class LibroSeleccionado : BottomBar() {
         btnEscribirResena = findViewById(R.id.btnEscribirResena)
         btnTraducir = findViewById(R.id.btnTraducir)
         llReviewsContainer = findViewById(R.id.llReviewsContainer)
+        btnMostrarIdiomas = findViewById(R.id.btnMostrarIdiomas)
+        llIdiomasDisponibles = findViewById(R.id.llIdiomasDisponibles)
+
 
         idLibro = intent.getStringExtra("idLibro") ?: ""
         tituloLibro = intent.getStringExtra("tituloLibro") ?: "Título"
@@ -75,6 +80,16 @@ class LibroSeleccionado : BottomBar() {
         cargarPortada()
         cargarInfoDesdeFirebase()
         configurarBottomBar()
+
+        btnMostrarIdiomas.setOnClickListener {
+            if (llIdiomasDisponibles.visibility == android.view.View.VISIBLE) {
+                llIdiomasDisponibles.visibility = android.view.View.GONE
+                btnMostrarIdiomas.text = "Ver idiomas disponibles ▼"
+            } else {
+                llIdiomasDisponibles.visibility = android.view.View.VISIBLE
+                btnMostrarIdiomas.text = "Ocultar idiomas ▲"
+            }
+        }
 
         ivPerfil.setOnClickListener {
             startActivity(Intent(this, PerfilUsuario::class.java))
@@ -168,6 +183,7 @@ class LibroSeleccionado : BottomBar() {
                     ?: "-"
 
                 val language = doc.getString("language") ?: "-"
+                cargarIdiomasDisponibles(doc)
 
                 tvTitulo.text = tituloLibro
                 tvAutor.text = autorLibro
@@ -413,6 +429,119 @@ class LibroSeleccionado : BottomBar() {
             .addOnFailureListener {
                 Toast.makeText(this, "Error comprobando permisos", Toast.LENGTH_LONG).show()
             }
+    }
+
+    private fun cargarIdiomasDisponibles(doc: com.google.firebase.firestore.DocumentSnapshot) {
+        llIdiomasDisponibles.removeAllViews()
+
+        val idiomaOriginal = doc.getString("language") ?: ""
+        val pdfOriginalPath = doc.getString("pdfPath") ?: ""
+
+        val availableLanguages = doc.get("availableLanguages") as? List<*>
+        val idiomas = mutableListOf<String>()
+
+        if (idiomaOriginal.isNotBlank()) {
+            idiomas.add(idiomaOriginal)
+        }
+
+        availableLanguages
+            ?.mapNotNull { it as? String }
+            ?.forEach { idioma ->
+                if (!idiomas.contains(idioma)) {
+                    idiomas.add(idioma)
+                }
+            }
+
+        if (idiomas.isEmpty()) {
+            val tv = TextView(this)
+            tv.text = "No hay idiomas disponibles"
+            tv.textSize = 14f
+            tv.setTextColor(android.graphics.Color.DKGRAY)
+            tv.setPadding(12, 12, 12, 12)
+            llIdiomasDisponibles.addView(tv)
+            return
+        }
+
+        for (idioma in idiomas) {
+            val botonIdioma = Button(this)
+            botonIdioma.text = "Leer en $idioma"
+            botonIdioma.isAllCaps = false
+            botonIdioma.textSize = 15f
+            botonIdioma.setTextColor(android.graphics.Color.WHITE)
+            botonIdioma.setBackgroundColor(android.graphics.Color.parseColor("#1E3A5F"))
+
+            val params = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                dp(44)
+            )
+            params.setMargins(0, 0, 0, dp(8))
+            botonIdioma.layoutParams = params
+
+            botonIdioma.setOnClickListener {
+                abrirPdfPorIdioma(doc, idioma, idiomaOriginal, pdfOriginalPath)
+            }
+
+            llIdiomasDisponibles.addView(botonIdioma)
+        }
+    }
+
+    private fun abrirPdfPorIdioma(
+        doc: com.google.firebase.firestore.DocumentSnapshot,
+        idiomaSeleccionado: String,
+        idiomaOriginal: String,
+        pdfOriginalPath: String
+    ) {
+        if (idiomaSeleccionado == idiomaOriginal) {
+            abrirPdfDesdeStorage(pdfOriginalPath)
+            return
+        }
+
+        val translations = doc.get("translations") as? Map<*, *>
+        val traduccion = translations?.get(idiomaSeleccionado) as? Map<*, *>
+
+        val translationUrl = traduccion?.get("translationUrl")?.toString() ?: ""
+        val translationPath = traduccion?.get("pdfPath")?.toString()
+            ?: traduccion?.get("translationPath")?.toString()
+            ?: ""
+
+        when {
+            translationUrl.isNotBlank() -> abrirPdfDesdeUrl(translationUrl)
+            translationPath.isNotBlank() -> abrirPdfDesdeStorage(translationPath)
+            else -> Toast.makeText(
+                this,
+                "No se encontró el PDF en $idiomaSeleccionado",
+                Toast.LENGTH_LONG
+            ).show()
+        }
+    }
+
+    private fun abrirPdfDesdeStorage(rutaPdf: String) {
+        if (rutaPdf.isBlank()) {
+            Toast.makeText(this, "No se encontró la ruta del PDF", Toast.LENGTH_LONG).show()
+            return
+        }
+
+        storage.reference.child(rutaPdf).downloadUrl
+            .addOnSuccessListener { uri ->
+                abrirPdfDesdeUrl(uri.toString())
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(
+                    this,
+                    "Error al abrir PDF: ${e.message}",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+    }
+
+    private fun abrirPdfDesdeUrl(urlPdf: String) {
+        val intent = Intent(Intent.ACTION_VIEW).apply {
+            setDataAndType(Uri.parse(urlPdf), "application/pdf")
+            addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+
+        startActivity(Intent.createChooser(intent, "Abrir libro con"))
     }
 
     private fun dp(valor: Int): Int {
