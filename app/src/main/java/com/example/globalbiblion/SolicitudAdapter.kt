@@ -22,6 +22,7 @@ class SolicitudAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SolicitudViewHolder {
         val vista = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_solicitud_pendiente, parent, false)
+
         return SolicitudViewHolder(vista)
     }
 
@@ -29,7 +30,10 @@ class SolicitudAdapter(
         val solicitud = lista[position]
 
         holder.tvLibro.text = solicitud.bookTitle
-        holder.tvUsuario.text = "Usuario: ${solicitud.userName}"
+
+        holder.tvUsuario.text =
+            "Traductor: ${solicitud.translatorName}\nCorrector: ${solicitud.proofreaderName}"
+
         holder.tvTipo.text = "Tipo: ${solicitud.requestType}"
         holder.tvIdiomas.text = "${solicitud.sourceLanguage} → ${solicitud.targetLanguage}"
         holder.tvEstado.text = "Estado: ${solicitud.status} | ${solicitud.createdAt}"

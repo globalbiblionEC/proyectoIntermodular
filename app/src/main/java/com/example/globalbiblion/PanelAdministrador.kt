@@ -263,18 +263,21 @@ class PanelAdministrador : BottomBar() {
                         SolicitudPendiente(
                             id = doc.id,
                             bookTitle = doc.getString("bookTitle") ?: "",
-                           // userName = doc.getString("userName") ?: "",
-                            userName = doc.getString("translatorName") ?: "",
+                            translatorName = doc.getString("translatorName") ?: "Sin traductor",
+                            proofreaderName = doc.getString("proofreaderName") ?: "Sin corrector",
                             requestType = doc.getString("requestType") ?: "",
                             sourceLanguage = doc.getString("sourceLanguage") ?: "",
                             targetLanguage = doc.getString("targetLanguage") ?: "",
                             createdAt = doc.getTimestamp("createdAt")?.toDate().toString(),
                             status = doc.getString("status") ?: "",
-                            message = doc.getString("message") ?: "",
-                            fileUrl = doc.getString("fileUrl")
-                                ?: doc.getString("pdfUrl")
-                                ?: doc.getString("translationUrl")
-                                ?: ""
+                           // message = doc.getString("message") ?: "",
+                            message = doc.getString("reviewNotes")
+                                ?: doc.getString("adminNotes")
+                                ?: doc.getString("message")
+                                ?: "",
+                            translationUrl = doc.getString("translationUrl") ?: "",
+                            correctionUrl = doc.getString("correctionUrl") ?: "",
+                            reviewNotes = doc.getString("reviewNotes") ?: ""
                         )
                     )
                 }
@@ -296,7 +299,8 @@ class PanelAdministrador : BottomBar() {
             .setTitle(solicitud.bookTitle)
             .setMessage(
                 """
-            Usuario: ${solicitud.userName}
+            Traductor: ${solicitud.translatorName}
+            Corrector: ${solicitud.proofreaderName}
             Tipo: ${solicitud.requestType}
             Idioma origen: ${solicitud.sourceLanguage}
             Idioma destino: ${solicitud.targetLanguage}
@@ -319,7 +323,8 @@ class PanelAdministrador : BottomBar() {
                 pedirMotivoRechazoSolicitud(solicitud.id, solicitud.status)
             }
             .setNeutralButton("Ver PDF") { _, _ ->
-                abrirPdf(solicitud.fileUrl)
+                //abrirPdf(solicitud.translationUrl)
+                mostrarOpcionesPdfSolicitud(solicitud)
             }
             .show()
     }
@@ -557,5 +562,32 @@ class PanelAdministrador : BottomBar() {
                 .setPositiveButton("Cerrar", null)
                 .show()
         }
+    }
+
+    private fun mostrarOpcionesPdfSolicitud(solicitud: SolicitudPendiente) {
+        val opciones = mutableListOf<String>()
+        val pdfs = mutableListOf<String>()
+
+        if (solicitud.translationUrl.isNotBlank()) {
+            opciones.add("Ver PDF del traductor")
+            pdfs.add(solicitud.translationUrl)
+        }
+
+        if (solicitud.correctionUrl.isNotBlank()) {
+            opciones.add("Ver PDF del corrector")
+            pdfs.add(solicitud.correctionUrl)
+        }
+
+        if (opciones.isEmpty()) {
+            Toast.makeText(this, "No hay PDFs disponibles", Toast.LENGTH_LONG).show()
+            return
+        }
+
+        AlertDialog.Builder(this)
+            .setTitle("Selecciona el PDF")
+            .setItems(opciones.toTypedArray()) { _, posicion ->
+                abrirPdf(pdfs[posicion])
+            }
+            .show()
     }
 }

@@ -299,7 +299,6 @@ class LibroSeleccionado : BottomBar() {
                     tvSinResenas.text = "Sin reseñas todavía"
                     tvSinResenas.textSize = 14f
                     tvSinResenas.setPadding(16, 12, 16, 12)
-
                     llReviewsContainer.addView(tvSinResenas)
                     return@addOnSuccessListener
                 }
@@ -320,8 +319,7 @@ class LibroSeleccionado : BottomBar() {
                     Toast.LENGTH_LONG
                 ).show()
             }
-
-}
+    }
     private fun crearCardReview(
         userName: String,
         comment: String,
