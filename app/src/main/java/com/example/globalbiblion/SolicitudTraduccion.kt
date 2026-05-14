@@ -16,7 +16,6 @@ class SolicitudTraduccion : BottomBar() {
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseFirestore
     private lateinit var storage: FirebaseStorage
-
     private lateinit var ivPortadaLibro: ImageView
     private lateinit var tvTituloLibro: TextView
     private lateinit var tvIdiomaOriginal: TextView
@@ -25,6 +24,7 @@ class SolicitudTraduccion : BottomBar() {
     private lateinit var btnSolicitarCorreccion: Button
     private lateinit var btnSubirDocumento: Button
     private lateinit var btnVolver: ImageButton
+    private var requestIdCambios = ""
     private var targetLanguage = ""
     private var modo = ""
     private var bookId = ""
@@ -68,6 +68,7 @@ class SolicitudTraduccion : BottomBar() {
         bookTitle = intent.getStringExtra("bookTitle") ?: "Libro"
         sourceLanguage = intent.getStringExtra("sourceLanguage") ?: "Idioma no indicado"
         targetLanguage = intent.getStringExtra("targetLanguage") ?: ""
+        requestIdCambios = intent.getStringExtra("requestId") ?: ""
         modo = intent.getStringExtra("modo") ?: ""
 
         tvTituloLibro.text = bookTitle
@@ -122,6 +123,17 @@ class SolicitudTraduccion : BottomBar() {
             btnSolicitarTraduccion.visibility = android.view.View.GONE
             btnSolicitarCorreccion.visibility = android.view.View.GONE
             btnSubirDocumento.text = "Subir traducción"
+        }
+        if (modo == "subir_cambios") {
+            btnSolicitarTraduccion.visibility = android.view.View.GONE
+            btnSolicitarCorreccion.visibility = android.view.View.GONE
+            btnSubirDocumento.text = "Subir nueva versión"
+
+            requestIdAprobada = requestIdCambios
+
+            btnSubirDocumento.post {
+                seleccionarPdfLauncher.launch(arrayOf("application/pdf"))
+            }
         }
 
     }
@@ -308,11 +320,11 @@ class SolicitudTraduccion : BottomBar() {
         }
 
         if (requestIdAprobada.isBlank()) {
-            Toast.makeText(this, "No hay solicitud aprobada", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "No se encontró la solicitud para actualizar", Toast.LENGTH_SHORT).show()
             return
         }
 
-        val rutaStorage = "contribution_uploads/$requestIdAprobada/traduccion_v2.pdf"
+        val rutaStorage = "contribution_uploads/$requestIdAprobada/traduccion_${System.currentTimeMillis()}.pdf"
 
         storage.reference.child(rutaStorage)
             .putFile(uriPdf)
@@ -324,7 +336,11 @@ class SolicitudTraduccion : BottomBar() {
                             "translationPath" to rutaStorage,
                             "translationUrl" to downloadUri.toString(),
                             "status" to "waiting_for_proofreader",
-                            "uploadedAt" to FieldValue.serverTimestamp()
+                            "uploadedAt" to FieldValue.serverTimestamp(),
+                            "reviewNotes" to "",
+                            "adminNotes" to "",
+                            "proofreadAt" to null,
+                            "adminReviewedAt" to null
                         )
 
                         db.collection("contribution_requests")
@@ -333,32 +349,20 @@ class SolicitudTraduccion : BottomBar() {
                             .addOnSuccessListener {
                                 Toast.makeText(
                                     this,
-                                    "Traducción subida. Pendiente de corrección.",
+                                    "Nueva traducción subida. Queda disponible para corrección.",
                                     Toast.LENGTH_LONG
                                 ).show()
+
+                                btnSubirDocumento.text = "Nueva versión subida"
+                                btnSubirDocumento.isEnabled = false
                             }
                             .addOnFailureListener { e ->
-                                Toast.makeText(
-                                    this,
-                                    "Error guardando traducción: ${e.message}",
-                                    Toast.LENGTH_LONG
-                                ).show()
+                                Toast.makeText(this, "Error Firestore: ${e.message}", Toast.LENGTH_LONG).show()
                             }
-                    }
-                    .addOnFailureListener { e ->
-                        Toast.makeText(
-                            this,
-                            "Error obteniendo URL: ${e.message}",
-                            Toast.LENGTH_LONG
-                        ).show()
                     }
             }
             .addOnFailureListener { e ->
-                Toast.makeText(
-                    this,
-                    "Error subiendo PDF: ${e.message}",
-                    Toast.LENGTH_LONG
-                ).show()
+                Toast.makeText(this, "Error Storage: ${e.message}", Toast.LENGTH_LONG).show()
             }
     }
 

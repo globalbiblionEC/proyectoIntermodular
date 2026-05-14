@@ -183,10 +183,28 @@ class Notificaciones : BottomBar() {
                         }
 
                         "changes_requested" -> {
+                            val correctionUrl = doc.getString("correctionUrl") ?: ""
+                            val correctionPath = doc.getString("correctionPath") ?: ""
+                            val bookId = doc.getString("bookId") ?: ""
+                            val sourceLanguage = doc.getString("sourceLanguage") ?: ""
+                            val targetLanguage = doc.getString("targetLanguage") ?: ""
+
                             texto.append(
-                                "🔁 El administrador ha pedido cambios en tu traducción de '$titulo'.\n" +
-                                        "Motivo: ${notasAdmin.ifBlank { notasCorrector.ifBlank { "Sin motivo indicado" } }}\n" +
+                                "🔁 $corrector ha pedido cambios en tu traducción de '$titulo'.\n" +
+                                        "Motivo: ${notasCorrector.ifBlank { notasAdmin.ifBlank { "Sin motivo indicado" } }}\n" +
                                         "Fecha: ${formatearFecha(fecha)}\n\n"
+                            )
+
+                            crearCardCambiosTraductor(
+                                requestId = doc.id,
+                                bookId = bookId,
+                                bookTitle = titulo,
+                                sourceLanguage = sourceLanguage,
+                                targetLanguage = targetLanguage,
+                                corrector = corrector,
+                                motivo = notasCorrector.ifBlank { notasAdmin },
+                                correctionUrl = correctionUrl,
+                                correctionPath = correctionPath
                             )
                         }
 
@@ -271,10 +289,17 @@ class Notificaciones : BottomBar() {
                             )
                         }
 
-                        "changes_requested" -> {
+                        /*"changes_requested" -> {
                             texto.append(
                                 "🔁 El administrador ha aceptado tu rechazo de '$titulo'.\n" +
                                         "La traducción volverá al traductor para corregirse.\n" +
+                                        "Fecha: ${formatearFecha(fecha)}\n\n"
+                            )
+                        }*/
+                        "changes_requested" -> {
+                            texto.append(
+                                "🔁 El administrador ha aceptado tu corrección de '$titulo'.\n" +
+                                        "La traducción volverá al traductor para que suba una nueva versión.\n" +
                                         "Fecha: ${formatearFecha(fecha)}\n\n"
                             )
                         }
@@ -424,8 +449,11 @@ class Notificaciones : BottomBar() {
                 val idiomaCertificado =
                     userDoc.getString("nativeLanguage") ?: ""
 
-                if (rol != "proofreader" || estado != "verified") {
+                /*if (rol != "proofreader" || estado != "verified") {
                     llAvisosCorrector.removeAllViews()
+                    return@addOnSuccessListener
+                }*/
+                if (rol != "proofreader" || estado != "verified") {
                     return@addOnSuccessListener
                 }
 
@@ -719,6 +747,105 @@ class Notificaciones : BottomBar() {
 
                         cargarAvisosCorrector(uidCorrector)
                     }
+            }
+    }
+
+    private fun crearCardCambiosTraductor(
+       /* bookId: String,
+        bookTitle: String,
+        sourceLanguage: String,
+        targetLanguage: String,
+        corrector: String,
+        motivo: String,
+        correctionUrl: String,
+        correctionPath: String*/
+       requestId: String,
+       bookId: String,
+       bookTitle: String,
+       sourceLanguage: String,
+       targetLanguage: String,
+       corrector: String,
+       motivo: String,
+       correctionUrl: String,
+       correctionPath: String
+    ) {
+        val card = LinearLayout(this)
+        card.orientation = LinearLayout.VERTICAL
+        card.setPadding(24, 24, 24, 24)
+        card.setBackgroundColor(android.graphics.Color.WHITE)
+
+        val params = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT
+        )
+        params.setMargins(0, 0, 0, 20)
+        card.layoutParams = params
+
+        val tvInfo = TextView(this)
+        tvInfo.text =
+            "🔁 Corrección solicitada\n\n" +
+                    "Libro: $bookTitle\n" +
+                    "Corrector: $corrector\n" +
+                    "Motivo: ${motivo.ifBlank { "Sin motivo indicado" }}"
+
+        tvInfo.textSize = 15f
+        tvInfo.setTextColor(android.graphics.Color.BLACK)
+
+        card.addView(tvInfo)
+
+        if (correctionUrl.isNotBlank() || correctionPath.isNotBlank()) {
+            val btnVerCorreccion = Button(this)
+            btnVerCorreccion.text = "Ver PDF de corrección"
+            btnVerCorreccion.setOnClickListener {
+                if (correctionUrl.isNotBlank()) {
+                    abrirPdf(correctionUrl)
+                } else {
+                    abrirPdfDesdeStorage(correctionPath)
+                }
+            }
+            card.addView(btnVerCorreccion)
+        }
+
+        val btnSubirOtraVez = Button(this)
+        btnSubirOtraVez.text = "Subir nuevamente la traducción"
+        btnSubirOtraVez.setOnClickListener {
+            /*val intent = Intent(this, SolicitudTraduccion::class.java).apply {
+                putExtra("bookId", bookId)
+                putExtra("bookTitle", bookTitle)
+                putExtra("sourceLanguage", sourceLanguage)
+                putExtra("targetLanguage", targetLanguage)
+            */val intent = Intent(this, SolicitudTraduccion::class.java).apply {
+            putExtra("bookId", bookId)
+            putExtra("bookTitle", bookTitle)
+            putExtra("sourceLanguage", sourceLanguage)
+            putExtra("targetLanguage", targetLanguage)
+            putExtra("requestId", requestId)
+            putExtra("modo", "subir_cambios")
+        }
+            startActivity(intent)
+        }
+
+        card.addView(btnSubirOtraVez)
+
+        llAvisosCorrector.addView(card)
+    }
+
+    private fun abrirPdfDesdeStorage(rutaPdf: String) {
+        if (rutaPdf.isBlank()) {
+            Toast.makeText(this, "No se encontró el PDF de corrección", Toast.LENGTH_LONG).show()
+            return
+        }
+
+        storage.reference.child(rutaPdf).downloadUrl
+            .addOnSuccessListener { uri ->
+                abrirPdf(uri.toString())
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(
+                    this,
+                    "Error al abrir PDF de corrección: ${e.message}",
+                    Toast.LENGTH_LONG
+                ).show()
             }
     }
 }
