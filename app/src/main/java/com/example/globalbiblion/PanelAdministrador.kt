@@ -105,6 +105,45 @@ class PanelAdministrador : BottomBar() {
         listaCertificados.clear()
 
         db.collection("users")
+            .whereIn("roleVerificationStatus", listOf("pending_review", "prevalidated"))
+            .get()
+            .addOnSuccessListener { documentos ->
+
+                val docsOrdenados = documentos.documents.sortedByDescending { doc ->
+                    doc.getTimestamp("certificateUpdatedAt")?.toDate()?.time
+                        ?: doc.getTimestamp("createdAt")?.toDate()?.time
+                        ?: 0L
+                }
+
+                for (doc in docsOrdenados) {
+                    listaCertificados.add(convertirCertificado(doc))
+                }
+
+                rvAdmin.adapter = CertificadoAdapter(listaCertificados) { certificado ->
+                    mostrarDialogoCertificado(certificado)
+                }
+
+                progressBar.visibility = View.GONE
+
+                if (listaCertificados.isEmpty()) {
+                    Toast.makeText(this, "No hay certificados pendientes", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .addOnFailureListener { e ->
+                progressBar.visibility = View.GONE
+                Toast.makeText(
+                    this,
+                    "Error al cargar certificados: ${e.message}",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+    }
+   /* private fun cargarCertificadosPendientes() {
+        tvTituloSeccion.text = "Certificados pendientes"
+        progressBar.visibility = View.VISIBLE
+        listaCertificados.clear()
+
+        db.collection("users")
             //.whereIn("roleVerificationStatus", listOf("pending_review", "prevalidated"))
             //.get()
             .whereIn("roleVerificationStatus", listOf("pending_review", "prevalidated"))
@@ -125,9 +164,10 @@ class PanelAdministrador : BottomBar() {
                 progressBar.visibility = View.GONE
                 Toast.makeText(this, "Error al cargar certificados", Toast.LENGTH_SHORT).show()
             }
-    }
+    }*/
 
-    private fun convertirCertificado(doc: QueryDocumentSnapshot): CertificadoPendiente {
+   // private fun convertirCertificado(doc: QueryDocumentSnapshot): CertificadoPendiente {
+   private fun convertirCertificado(doc: com.google.firebase.firestore.DocumentSnapshot): CertificadoPendiente {
         val validation = doc.get("certificateValidation") as? Map<*, *>
 
         return CertificadoPendiente(

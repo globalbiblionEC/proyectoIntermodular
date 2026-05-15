@@ -10,8 +10,11 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FieldValue
 import android.net.Uri
+import android.text.Editable
+import android.text.TextWatcher
 import androidx.activity.result.contract.ActivityResultContracts
 import com.google.firebase.storage.FirebaseStorage
+import android.view.View
 
 
 class Registro : AppCompatActivity() {
@@ -39,6 +42,7 @@ class Registro : AppCompatActivity() {
     private var certificateUri: Uri? = null
     private var certificatePath: String = ""
     private var btnVolver: ImageButton? = null
+
 
     //Para seleccionar el PDF
     private val seleccionarPdfLauncher =
@@ -80,11 +84,8 @@ class Registro : AppCompatActivity() {
         spinnerNativeLanguage = findViewById(R.id.spinnerNativeLanguage)
         btnUploadCertificate = findViewById(R.id.btn_UploadCertificate)
 
-        val roles = listOf("reader", "translator", "proofreader")
-        spinnerRole.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, roles)
-
-        val idiomas = listOf("Spanish", "English", "French", "Portuguese")
-        spinnerNativeLanguage.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, idiomas)
+        configurarSpinners()
+        configurarFormatoFecha()
 
         btnUploadCertificate.setOnClickListener {
             seleccionarPdfLauncher.launch(arrayOf("application/pdf"))
@@ -103,6 +104,89 @@ class Registro : AppCompatActivity() {
         }
 
     }
+
+    private fun configurarSpinners() {
+        val roles = arrayOf("reader", "translator", "proofreader")
+
+        val adapterRoles = ArrayAdapter(
+            this,
+            android.R.layout.simple_spinner_item,
+            roles
+        )
+
+        adapterRoles.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinnerRole.adapter = adapterRoles
+
+        val idiomas = arrayOf("Spanish", "English", "French", "Portuguese")
+
+        val adapterIdiomas = ArrayAdapter(
+            this,
+            android.R.layout.simple_spinner_item,
+            idiomas
+        )
+
+        adapterIdiomas.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinnerNativeLanguage.adapter = adapterIdiomas
+
+        btnUploadCertificate.visibility = View.GONE
+
+        spinnerRole.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(
+                parent: AdapterView<*>,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+                val rolSeleccionado = parent.getItemAtPosition(position).toString()
+
+                if (rolSeleccionado == "translator" || rolSeleccionado == "proofreader") {
+                    btnUploadCertificate.visibility = View.VISIBLE
+                } else {
+                    btnUploadCertificate.visibility = View.GONE
+                    certificateUri = null
+                    certificatePath = ""
+                    btnUploadCertificate.text = "Certificado"
+                }
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>) {}
+        }
+    }
+
+    private fun configurarFormatoFecha() {
+        etFechaNacimiento.addTextChangedListener(object : TextWatcher {
+
+            private var cambiandoTexto = false
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+
+            override fun afterTextChanged(s: Editable?) {
+                if (cambiandoTexto) return
+
+                val numeros = s.toString()
+                    .replace("/", "")
+                    .take(8)
+
+                val fechaFormateada = StringBuilder()
+
+                for (i in numeros.indices) {
+                    fechaFormateada.append(numeros[i])
+
+                    if ((i == 1 || i == 3) && i != numeros.lastIndex) {
+                        fechaFormateada.append("/")
+                    }
+                }
+
+                cambiandoTexto = true
+                etFechaNacimiento.setText(fechaFormateada.toString())
+                etFechaNacimiento.setSelection(fechaFormateada.length)
+                cambiandoTexto = false
+            }
+        })
+    }
+
     //Funcion para registrar el usuario (aca hacemos validaciones tambien)
     private fun registrarUsuario() {
         val nombre = etNombre.text.toString().trim()
