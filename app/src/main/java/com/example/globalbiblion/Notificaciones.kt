@@ -1,5 +1,6 @@
 package com.example.globalbiblion
 
+import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.widget.ImageButton
@@ -87,8 +88,8 @@ class Notificaciones : BottomBar() {
         }
 
         cargarNombreUsuario()
-        marcarNotificacionesComoLeidas()
         cargarNotificaciones()
+        marcarNotificacionesComoLeidas()
 
     }
 
@@ -102,29 +103,39 @@ class Notificaciones : BottomBar() {
             return
         }
 
+        tvNotificaciones.text = "Cargando notificaciones..."
+        llAvisosCorrector.removeAllViews()
+
+        val listaNotificaciones = mutableListOf<NotificacionesItem>()
+
         db.collection("users").document(uid).get()
             .addOnSuccessListener { doc ->
 
                 val estado = doc.getString("roleVerificationStatus") ?: ""
                 val mensaje = doc.getString("notificationMessage") ?: ""
                 val fechaRevision = doc.getTimestamp("adminReviewedAt")
-
-                val texto = StringBuilder()
+                val fechaCertificado = doc.getTimestamp("certificateUpdatedAt") ?: fechaRevision
 
                 when (estado) {
                     "pending_review", "prevalidated" -> {
                         btnSubirCertificadoNuevo.visibility = View.GONE
-                        texto.append(
-                            "⏳ Tu certificado está pendiente de verificación.\n" +
-                                    "Cuando el administrador lo revise, recibirás una notificación.\n\n"
+
+                        listaNotificaciones.add(
+                            NotificacionesItem(
+                                texto = "⏳ Tu certificado está pendiente de verificación.\nCuando el administrador lo revise, recibirás una notificación.",
+                                fecha = fechaCertificado
+                            )
                         )
                     }
 
                     "verified" -> {
                         btnSubirCertificadoNuevo.visibility = View.GONE
-                        texto.append(
-                            "✅ Tu certificado ha sido validado.\n" +
-                                    "Fecha: ${formatearFecha(fechaRevision)}\n\n"
+
+                        listaNotificaciones.add(
+                            NotificacionesItem(
+                                texto = "✅ Tu certificado ha sido validado.\nFecha: ${formatearFecha(fechaRevision)}",
+                                fecha = fechaRevision
+                            )
                         )
                     }
 
@@ -133,32 +144,36 @@ class Notificaciones : BottomBar() {
 
                         val motivo = doc.getString("reviewNotes") ?: "Sin motivo indicado"
 
-                        texto.append(
-                            "❌ Tu certificado ha sido rechazado.\n" +
-                                    "Fecha: ${formatearFecha(fechaRevision)}\n" +
-                                    "Motivo: $motivo\n\n"
+                        listaNotificaciones.add(
+                            NotificacionesItem(
+                                texto = "❌ Tu certificado ha sido rechazado.\nFecha: ${formatearFecha(fechaRevision)}\nMotivo: $motivo",
+                                fecha = fechaRevision
+                            )
                         )
-                    }
-
-                    else -> {
-                        btnSubirCertificadoNuevo.visibility = View.GONE
                     }
                 }
 
                 if (mensaje.isNotEmpty()) {
-                    texto.append("Aviso: $mensaje\n\n")
+                    listaNotificaciones.add(
+                        NotificacionesItem(
+                            texto = "Aviso: $mensaje",
+                            fecha = fechaRevision
+                        )
+                    )
                 }
 
-                cargarNotificacionesSolicitudes(uid, texto)
+                cargarNotificacionesSolicitudes(uid, listaNotificaciones)
                 cargarAvisosCorrector(uid)
             }
             .addOnFailureListener {
-                Toast.makeText(this, "Error al cargar notificaciones", Toast.LENGTH_SHORT).show()
+                tvNotificaciones.text = "Error al cargar notificaciones"
             }
     }
 
-    private fun cargarNotificacionesSolicitudes(uid: String, texto: StringBuilder) {
-
+    private fun cargarNotificacionesSolicitudes(
+        uid: String,
+        listaNotificaciones: MutableList<NotificacionesItem>
+    ) {
         db.collection("contribution_requests")
             .whereEqualTo("translatorId", uid)
             .whereIn(
@@ -181,24 +196,55 @@ class Notificaciones : BottomBar() {
                     val corrector = doc.getString("proofreaderName") ?: "Corrector"
                     val notasCorrector = doc.getString("reviewNotes") ?: ""
                     val notasAdmin = doc.getString("adminNotes") ?: ""
+
                     val fecha = doc.getTimestamp("adminReviewedAt")
                         ?: doc.getTimestamp("proofreadAt")
+                        ?: doc.getTimestamp("uploadedAt")
+                        ?: doc.getTimestamp("createdAt")
 
                     when (status) {
                         "proofreader_approved" -> {
-                            texto.append(
-                                "✅ Tu traducción de '$titulo' ha sido verificada por $corrector.\n" +
-                                        "Ahora está pendiente de revisión del administrador.\n" +
-                                        "Fecha: ${formatearFecha(fecha)}\n\n"
+                            listaNotificaciones.add(
+                                NotificacionesItem(
+                                    texto = "✅ Tu traducción de '$titulo' ha sido verificada por $corrector.\nAhora está pendiente de revisión del administrador.\nFecha: ${formatearFecha(fecha)}",
+                                    fecha = fecha
+                                )
                             )
                         }
 
                         "proofreader_rejected" -> {
-                            texto.append(
-                                "❌ Tu traducción de '$titulo' ha sido rechazada por $corrector.\n" +
-                                        "Motivo: ${notasCorrector.ifBlank { "Sin motivo indicado" }}\n" +
-                                        "Ahora pasará al administrador.\n" +
-                                        "Fecha: ${formatearFecha(fecha)}\n\n"
+                            listaNotificaciones.add(
+                                NotificacionesItem(
+                                    texto = "❌ Tu traducción de '$titulo' ha sido rechazada por $corrector.\nMotivo: ${notasCorrector.ifBlank { "Sin motivo indicado" }}\nAhora pasará al administrador.\nFecha: ${formatearFecha(fecha)}",
+                                    fecha = fecha
+                                )
+                            )
+                        }
+
+                        "published" -> {
+                            listaNotificaciones.add(
+                                NotificacionesItem(
+                                    texto = "📚 ¡Tu traducción de '$titulo' ha sido publicada!\nYa está disponible para los usuarios.\nFecha: ${formatearFecha(fecha)}",
+                                    fecha = fecha
+                                )
+                            )
+                        }
+
+                        "translation_vacancy_open" -> {
+                            listaNotificaciones.add(
+                                NotificacionesItem(
+                                    texto = "⚠️ Tu traducción de '$titulo' no ha sido publicada.\nLa vacante se ha reabierto para otro traductor.\nMotivo: ${notasAdmin.ifBlank { "Sin motivo indicado" }}\nFecha: ${formatearFecha(fecha)}",
+                                    fecha = fecha
+                                )
+                            )
+                        }
+
+                        "waiting_for_proofreader" -> {
+                            listaNotificaciones.add(
+                                NotificacionesItem(
+                                    texto = "⏳ Tu traducción de '$titulo' está pendiente de verificación por un corrector.\nIdioma destino: ${doc.getString("targetLanguage") ?: ""}\nFecha: ${formatearFecha(fecha)}",
+                                    fecha = fecha
+                                )
                             )
                         }
 
@@ -208,63 +254,48 @@ class Notificaciones : BottomBar() {
                             val bookId = doc.getString("bookId") ?: ""
                             val sourceLanguage = doc.getString("sourceLanguage") ?: ""
                             val targetLanguage = doc.getString("targetLanguage") ?: ""
+                            val requestId = doc.id
 
-                            texto.append(
-                                "🔁 $corrector ha pedido cambios en tu traducción de '$titulo'.\n" +
-                                        "Motivo: ${notasCorrector.ifBlank { notasAdmin.ifBlank { "Sin motivo indicado" } }}\n" +
-                                        "Fecha: ${formatearFecha(fecha)}\n\n"
-                            )
+                            val motivo = notasCorrector.ifBlank {
+                                notasAdmin.ifBlank { "Sin motivo indicado" }
+                            }
 
-                            crearCardCambiosTraductor(
-                                requestId = doc.id,
-                                bookId = bookId,
-                                bookTitle = titulo,
-                                sourceLanguage = sourceLanguage,
-                                targetLanguage = targetLanguage,
-                                corrector = corrector,
-                                motivo = notasCorrector.ifBlank { notasAdmin },
-                                correctionUrl = correctionUrl,
-                                correctionPath = correctionPath
-                            )
-                        }
-
-                        "published" -> {
-                            texto.append(
-                                "📚 ¡Tu traducción de '$titulo' ha sido publicada!\n" +
-                                        "Ya está disponible para los usuarios.\n" +
-                                        "Fecha: ${formatearFecha(fecha)}\n\n"
-                            )
-                        }
-
-                        "translation_vacancy_open" -> {
-                            texto.append(
-                                "⚠️ Tu traducción de '$titulo' no ha sido publicada.\n" +
-                                        "La vacante se ha reabierto para otro traductor.\n" +
-                                        "Motivo: ${notasAdmin.ifBlank { "Sin motivo indicado" }}\n" +
-                                        "Fecha: ${formatearFecha(fecha)}\n\n"
+                            listaNotificaciones.add(
+                                NotificacionesItem(
+                                    texto = "🔁 $corrector ha pedido cambios en tu traducción de '$titulo'." +
+                                            "\nMotivo: $motivo\n" +
+                                            "Fecha: ${formatearFecha(fecha)}",
+                                    fecha = fecha,
+                                    textoBoton = "Ver corrección y subir nueva traducción",
+                                    accion = {
+                                        mostrarDetalleCambiosTraductor(
+                                            requestId = requestId,
+                                            bookId = bookId,
+                                            bookTitle = titulo,
+                                            sourceLanguage = sourceLanguage,
+                                            targetLanguage = targetLanguage,
+                                            corrector = corrector,
+                                            motivo = motivo,
+                                            correctionUrl = correctionUrl,
+                                            correctionPath = correctionPath
+                                        )
+                                    }
+                                )
                             )
                         }
-
-                        "waiting_for_proofreader" -> {
-                            texto.append(
-                                "⏳ Tu traducción de '$titulo' está pendiente de verificación por un corrector.\n" +
-                                        "Idioma destino: ${doc.getString("targetLanguage") ?: ""}\n" +
-                                        "Fecha: ${formatearFecha(doc.getTimestamp("uploadedAt") ?: doc.getTimestamp("createdAt"))}\n\n"
-                            )
-                        }
-
                     }
                 }
 
-                cargarNotificacionesCorrector(uid, texto)
+                cargarNotificacionesCorrector(uid, listaNotificaciones)
             }
             .addOnFailureListener { e ->
                 tvNotificaciones.text = "Error cargando notificaciones del traductor: ${e.message}"
             }
     }
-
-    private fun cargarNotificacionesCorrector(uid: String, texto: StringBuilder) {
-
+    private fun cargarNotificacionesCorrector(
+        uid: String,
+        listaNotificaciones: MutableList<NotificacionesItem>
+    ) {
         db.collection("contribution_requests")
             .whereEqualTo("proofreaderId", uid)
             .whereIn(
@@ -287,69 +318,45 @@ class Notificaciones : BottomBar() {
                     val traductor = doc.getString("translatorName") ?: "Traductor"
                     val notasAdmin = doc.getString("adminNotes") ?: ""
                     val notasCorrector = doc.getString("reviewNotes") ?: ""
+
                     val fecha = doc.getTimestamp("adminReviewedAt")
                         ?: doc.getTimestamp("proofreadAt")
+                        ?: doc.getTimestamp("uploadedAt")
+                        ?: doc.getTimestamp("createdAt")
 
-                    when (status) {
-                        "proofreader_approved" -> {
-                            texto.append(
-                                "✅ Has verificado la traducción de '$titulo'.\n" +
-                                        "Traductor: $traductor\n" +
-                                        "Ahora está pendiente del administrador.\n" +
-                                        "Fecha: ${formatearFecha(fecha)}\n\n"
-                            )
-                        }
+                    val texto = when (status) {
+                        "proofreader_approved" ->
+                            "✅ Has verificado la traducción de '$titulo'.\nTraductor: $traductor\nAhora está pendiente del administrador.\nFecha: ${formatearFecha(fecha)}"
 
-                        "proofreader_rejected" -> {
-                            texto.append(
-                                "❌ Has rechazado la traducción de '$titulo'.\n" +
-                                        "Traductor: $traductor\n" +
-                                        "Motivo: ${notasCorrector.ifBlank { "Sin motivo indicado" }}\n" +
-                                        "Ahora está pendiente del administrador.\n" +
-                                        "Fecha: ${formatearFecha(fecha)}\n\n"
-                            )
-                        }
+                        "proofreader_rejected" ->
+                            "❌ Has rechazado la traducción de '$titulo'.\nTraductor: $traductor\nMotivo: ${notasCorrector.ifBlank { "Sin motivo indicado" }}\nAhora está pendiente del administrador.\nFecha: ${formatearFecha(fecha)}"
 
-                        "published" -> {
-                            texto.append(
-                                "📚 El administrador ha publicado la traducción de '$titulo'.\n" +
-                                        "Tu corrección fue aceptada.\n" +
-                                        "Fecha: ${formatearFecha(fecha)}\n\n"
-                            )
-                        }
+                        "published" ->
+                            "📚 El administrador ha publicado la traducción de '$titulo'.\nTu corrección fue aceptada.\nFecha: ${formatearFecha(fecha)}"
 
-                        "changes_requested" -> {
-                            texto.append(
-                                "🔁 El administrador ha aceptado tu corrección de '$titulo'.\n" +
-                                        "La traducción volverá al traductor para que suba una nueva versión.\n" +
-                                        "Fecha: ${formatearFecha(fecha)}\n\n"
-                            )
-                        }
+                        "changes_requested" ->
+                            "🔁 El administrador ha aceptado tu corrección de '$titulo'.\nLa traducción volverá al traductor para que suba una nueva versión.\nFecha: ${formatearFecha(fecha)}"
 
-                        "translation_vacancy_open" -> {
-                            texto.append(
-                                "⚠️ El administrador ha rechazado la traducción de '$titulo'.\n" +
-                                        "La vacante se ha reabierto.\n" +
-                                        "Notas: ${notasAdmin.ifBlank { "Sin notas" }}\n" +
-                                        "Fecha: ${formatearFecha(fecha)}\n\n"
-                            )
-                        }
+                        "translation_vacancy_open" ->
+                            "⚠️ El administrador ha rechazado la traducción de '$titulo'.\nLa vacante se ha reabierto.\nNotas: ${notasAdmin.ifBlank { "Sin notas" }}\nFecha: ${formatearFecha(fecha)}"
 
-                        "waiting_for_proofreader" -> {
-                            texto.append(
-                                "🔎 El administrador no ha aceptado la corrección anterior de '$titulo'.\n" +
-                                        "La traducción queda disponible para otro corrector.\n" +
-                                        "Notas: ${notasAdmin.ifBlank { "Sin notas" }}\n\n"
+                        "waiting_for_proofreader" ->
+                            "🔎 La traducción de '$titulo' está disponible para corrección.\nNotas: ${notasAdmin.ifBlank { "Sin notas" }}\nFecha: ${formatearFecha(fecha)}"
+
+                        else -> ""
+                    }
+
+                    if (texto.isNotBlank()) {
+                        listaNotificaciones.add(
+                            NotificacionesItem(
+                                texto = texto,
+                                fecha = fecha
                             )
-                        }
+                        )
                     }
                 }
 
-                if (texto.isEmpty()) {
-                    texto.append("No tienes notificaciones.")
-                }
-
-                tvNotificaciones.text = texto.toString()
+                pintarNotificacionesOrdenadas(listaNotificaciones)
             }
             .addOnFailureListener { e ->
                 tvNotificaciones.text = "Error cargando notificaciones del corrector: ${e.message}"
@@ -669,7 +676,8 @@ class Notificaciones : BottomBar() {
                                     .document(requestIdCorreccionActual)
                                     .update(
                                         mapOf(
-                                            "status" to "proofreader_rejected",
+                                            //"status" to "proofreader_rejected",
+                                            "status" to "changes_requested",
                                             "proofreaderId" to uidCorrector,
                                             "proofreaderName" to nombreCompleto,
                                             "reviewNotes" to reviewNotesActual,
@@ -745,7 +753,8 @@ class Notificaciones : BottomBar() {
                     .document(requestId)
                     .update(
                         mapOf(
-                            "status" to "proofreader_rejected",
+                            //"status" to "proofreader_rejected",
+                            "status" to "changes_requested",
                             "proofreaderId" to uidCorrector,
                             "proofreaderName" to nombreCompleto,
                             "reviewNotes" to motivo,
@@ -850,5 +859,133 @@ class Notificaciones : BottomBar() {
                     Toast.LENGTH_LONG
                 ).show()
             }
+    }
+
+    private fun pintarNotificacionesOrdenadas(lista: MutableList<NotificacionesItem>) {
+        llAvisosCorrector.removeAllViews()
+
+        val ordenadas = lista.sortedByDescending {
+            it.fecha?.toDate()?.time ?: 0L
+        }
+
+        if (ordenadas.isEmpty()) {
+            tvNotificaciones.text = "No tienes notificaciones."
+            return
+        }
+
+        tvNotificaciones.text = "Tus notificaciones"
+
+        for (notificacion in ordenadas) {
+            llAvisosCorrector.addView(crearCardNotificacion(notificacion))
+        }
+    }
+
+    private fun crearCardNotificacion(notificacion: NotificacionesItem): LinearLayout {
+        val card = LinearLayout(this)
+        card.orientation = LinearLayout.VERTICAL
+        card.setPadding(24, 24, 24, 24)
+        card.setBackgroundColor(android.graphics.Color.WHITE)
+
+        val params = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT
+        )
+        params.setMargins(24, 0, 24, 18)
+        card.layoutParams = params
+
+        val tvTexto = TextView(this)
+        tvTexto.text = notificacion.texto
+        tvTexto.textSize = 15f
+        tvTexto.setTextColor(android.graphics.Color.parseColor("#222222"))
+
+        card.addView(tvTexto)
+
+        if (notificacion.accion != null) {
+            card.setOnClickListener {
+                notificacion.accion.invoke()
+            }
+        }
+
+        if (notificacion.accion != null && notificacion.textoBoton.isNotBlank()) {
+            val btnAccion = Button(this)
+            btnAccion.text = notificacion.textoBoton
+            btnAccion.isAllCaps = false
+            btnAccion.setOnClickListener {
+                notificacion.accion.invoke()
+            }
+
+            card.addView(btnAccion)
+        }
+
+        return card
+    }
+
+    private fun mostrarDetalleCambiosTraductor(
+        requestId: String,
+        bookId: String,
+        bookTitle: String,
+        sourceLanguage: String,
+        targetLanguage: String,
+        corrector: String,
+        motivo: String,
+        correctionUrl: String,
+        correctionPath: String
+    ) {
+        val layout = LinearLayout(this)
+        layout.orientation = LinearLayout.VERTICAL
+        layout.setPadding(32, 16, 32, 8)
+
+        val tvInfo = TextView(this)
+        tvInfo.text =
+            """
+        Libro: $bookTitle
+        Corrector: $corrector
+        
+        Comentario:
+        ${motivo.ifBlank { "Sin comentario indicado" }}
+        """.trimIndent()
+        tvInfo.textSize = 15f
+
+        layout.addView(tvInfo)
+
+        if (correctionUrl.isNotBlank() || correctionPath.isNotBlank()) {
+            val btnVerPdf = Button(this)
+            btnVerPdf.text = "Ver PDF del corrector"
+            btnVerPdf.isAllCaps = false
+
+            btnVerPdf.setOnClickListener {
+                if (correctionUrl.isNotBlank()) {
+                    abrirPdf(correctionUrl)
+                } else {
+                    abrirPdfDesdeStorage(correctionPath)
+                }
+            }
+
+            layout.addView(btnVerPdf)
+        }
+
+        val btnSubirNueva = Button(this)
+        btnSubirNueva.text = "Subir traducción corregida"
+        btnSubirNueva.isAllCaps = false
+
+        btnSubirNueva.setOnClickListener {
+            val intent = Intent(this, SolicitudTraduccion::class.java).apply {
+                putExtra("bookId", bookId)
+                putExtra("bookTitle", bookTitle)
+                putExtra("sourceLanguage", sourceLanguage)
+                putExtra("targetLanguage", targetLanguage)
+                putExtra("requestId", requestId)
+                putExtra("modo", "subir_cambios")
+            }
+            startActivity(intent)
+        }
+
+        layout.addView(btnSubirNueva)
+
+        AlertDialog.Builder(this)
+            .setTitle("Corrección solicitada")
+            .setView(layout)
+            .setNegativeButton("Cerrar", null)
+            .show()
     }
 }
