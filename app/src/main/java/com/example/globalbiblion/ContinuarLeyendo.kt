@@ -16,11 +16,8 @@ class ContinuarLeyendo : Bars() {
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseFirestore
     private lateinit var storage: FirebaseStorage
-
-    private lateinit var ivPerfil: ImageView
     private lateinit var ivPortadaLibro: ImageView
     private lateinit var tvTituloLibroActual: TextView
-    private lateinit var btnVolver: ImageButton
     private lateinit var btnEscribirResenia: Button
 
     private var idLibro: String = ""
@@ -34,21 +31,20 @@ class ContinuarLeyendo : Bars() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_continuar_leyendo)
+
+        configurarTopBar()
         configurarBottomBar()
 
         auth = FirebaseAuth.getInstance()
         db = FirebaseFirestore.getInstance()
         storage = FirebaseStorage.getInstance()
 
-        ivPerfil = findViewById(R.id.ivPerfil)
         ivPortadaLibro = findViewById(R.id.ivPortadaLibroActual)
         tvTituloLibroActual = findViewById(R.id.tvTituloLibroActual)
-        btnVolver = findViewById(R.id.btnVolver)
         btnEscribirResenia = findViewById(R.id.btnEscribirResena)
 
         tituloLibro = intent.getStringExtra("tituloLibro") ?: "Libro actual"
         idLibro = intent.getStringExtra("idLibro") ?: ""
-
         pdfUrl = intent.getStringExtra("pdfUrl") ?: ""
         portadaStoragePath = intent.getStringExtra("portadaStoragePath") ?: ""
 
@@ -67,11 +63,6 @@ class ContinuarLeyendo : Bars() {
 
         cargarPortadaDesdeStorage()
 
-        ivPerfil.setOnClickListener {
-            val intent = Intent(this, PerfilUsuario::class.java)
-            startActivity(intent)
-        }
-
         ivPortadaLibro.setOnClickListener {
             if (pdfUrl.isNotBlank()) {
                 abrirPdfDesdeUrl()
@@ -83,8 +74,6 @@ class ContinuarLeyendo : Bars() {
                 ).show()
             }
         }
-
-        btnVolver.setOnClickListener { finish() }
 
         btnEscribirResenia.setOnClickListener {
             val intent = Intent(this, EscribirResenia::class.java).apply {

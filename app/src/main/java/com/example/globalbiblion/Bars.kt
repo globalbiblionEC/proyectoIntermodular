@@ -1,5 +1,6 @@
 package com.example.globalbiblion
 import android.content.Intent
+import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -69,6 +70,8 @@ open class Bars : AppCompatActivity() {
         val ivPerfil = findViewById<ImageView?>(R.id.ivPerfilTopBar)
         val tvNombreUsuario = findViewById<TextView?>(R.id.tvNombreUsuarioTopBar)
         val btnCerrarSesion = findViewById<ImageButton?>(R.id.btnCerrarSesionTopBar)
+        val etBuscarLibro = findViewById<EditText?>(R.id.etBuscarLibroTopBar)
+        val ivLupa = findViewById<ImageView?>(R.id.ivLupaTopBar)
 
         val uid = auth.currentUser?.uid
 
@@ -102,16 +105,13 @@ open class Bars : AppCompatActivity() {
         }
 
         btnCerrarSesion?.setOnClickListener {
-
             AlertDialog.Builder(this)
                 .setTitle("Cerrar sesión")
                 .setMessage("¿Seguro que deseas cerrar sesión?")
                 .setPositiveButton("Sí") { _, _ ->
-
                     auth.signOut()
 
                     val intent = Intent(this, MainActivity::class.java)
-
                     intent.addFlags(
                         Intent.FLAG_ACTIVITY_CLEAR_TOP or
                                 Intent.FLAG_ACTIVITY_NEW_TASK or
@@ -121,10 +121,97 @@ open class Bars : AppCompatActivity() {
                     startActivity(intent)
                     finish()
                 }
-
                 .setNegativeButton("Cancelar", null)
                 .show()
         }
+
+        ivLupa?.setOnClickListener {
+            val texto = etBuscarLibro?.text.toString().trim()
+
+            if (texto.length < 4) {
+                Toast.makeText(this, "Escribe al menos 4 caracteres", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            buscarLibroDesdeTopBar(texto)
+        }
+
+        etBuscarLibro?.setOnEditorActionListener { _, _, _ ->
+            val texto = etBuscarLibro.text.toString().trim()
+
+            if (texto.length < 4) {
+                Toast.makeText(this, "Escribe al menos 4 caracteres", Toast.LENGTH_SHORT).show()
+                return@setOnEditorActionListener true
+            }
+
+            buscarLibroDesdeTopBar(texto)
+            true
+        }
+    }
+
+    private fun buscarLibroDesdeTopBar(texto: String) {
+        val db = FirebaseFirestore.getInstance()
+        val storage = FirebaseStorage.getInstance()
+        val consulta = normalizar(texto).take(4)
+
+        db.collection("books")
+            .get()
+            .addOnSuccessListener { snapshot ->
+
+                val libroEncontrado = snapshot.documents.firstOrNull { doc ->
+                    val titulo = doc.getString("title") ?: ""
+                    normalizar(titulo).contains(consulta)
+                }
+
+                if (libroEncontrado == null) {
+                    Toast.makeText(this, "No se ha encontrado el libro con: $consulta", Toast.LENGTH_SHORT).show()
+                    return@addOnSuccessListener
+                }
+
+                val idLibro = libroEncontrado.id
+                val titulo = libroEncontrado.getString("title") ?: "Sin título"
+
+                val authors = libroEncontrado.get("authors") as? List<*>
+                val autor = authors
+                    ?.mapNotNull { it as? String }
+                    ?.joinToString(", ")
+                    ?: "Autor desconocido"
+
+                val pdfPath = libroEncontrado.getString("pdfPath") ?: ""
+                val coverPath = libroEncontrado.getString("coverPath") ?: ""
+
+                if (pdfPath.isBlank()) {
+                    Toast.makeText(this, "Este libro no tiene PDF", Toast.LENGTH_SHORT).show()
+                    return@addOnSuccessListener
+                }
+
+                storage.reference.child(pdfPath).downloadUrl
+                    .addOnSuccessListener { pdfUri ->
+                        val intent = Intent(this, LibroSeleccionado::class.java).apply {
+                            putExtra("idLibro", idLibro)
+                            putExtra("tituloLibro", titulo)
+                            putExtra("autorLibro", autor)
+                            putExtra("pdfUrl", pdfUri.toString())
+                            putExtra("pdfStoragePath", pdfPath)
+                            putExtra("portadaStoragePath", coverPath)
+                            putExtra("portadaResId", R.drawable.logogbsinfondo)
+                        }
+
+                        startActivity(intent)
+                    }
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(this, "Error buscando libro: ${e.message}", Toast.LENGTH_LONG).show()
+            }
+    }
+
+    private fun normalizar(texto: String): String {
+        val sinAcentos = java.text.Normalizer.normalize(
+            texto,
+            java.text.Normalizer.Form.NFD
+        ).replace("\\p{InCombiningDiacriticalMarks}+".toRegex(), "")
+
+        return sinAcentos.lowercase().replace(" ", "")
     }
 
     private fun abrirUltimaLectura() {

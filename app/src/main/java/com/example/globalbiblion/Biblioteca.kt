@@ -15,15 +15,7 @@ class Biblioteca : Bars (){
     private lateinit var storage: FirebaseStorage
     private val libros= mutableListOf<Libro>()
     private val portadasStorage= mutableMapOf<String, String>()
-
-   // private lateinit var tvNombreUsuario: TextView
- //   private lateinit var ivPerfil: ImageView
- //   private lateinit var etBuscarLibro: EditText
-  //  private lateinit var ivLupa: ImageView
-   // private lateinit var btnVolver: ImageButton
     private lateinit var gridBiblioteca: GridLayout
-
-
     private var navegando = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,47 +29,9 @@ class Biblioteca : Bars (){
         db = FirebaseFirestore.getInstance()
         storage = FirebaseStorage.getInstance()
 
-       /*tvNombreUsuario = findViewById(R.id.tvNombreUsuario)
-        ivPerfil = findViewById(R.id.ivPerfil)
-        etBuscarLibro = findViewById(R.id.etBuscarLibro)
-        ivLupa = findViewById(R.id.ivLupa)
-        btnVolver = findViewById(R.id.btnVolver)*/
-
         gridBiblioteca=findViewById(R.id.gridBiblioteca)
 
-        //cargarNombreUsuario()
         cargarLibrosDesdeFirebase()
-
-        /*ivPerfil.setOnClickListener {
-            startActivity(Intent(this, PerfilUsuario::class.java))
-        }
-
-        btnVolver.setOnClickListener {
-            finish()
-        }
-
-        ivLupa.setOnClickListener {
-            val texto = etBuscarLibro.text.toString().trim()
-
-            if (texto.length < 4) {
-                Toast.makeText(this, "Escribe al menos 4 caracteres", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-
-            buscarPor4Letras(texto)
-        }
-
-        etBuscarLibro.setOnEditorActionListener { _, _, _ ->
-            val texto = etBuscarLibro.text.toString().trim()
-
-            if (texto.length < 4) {
-                Toast.makeText(this, "Escribe al menos 4 caracteres", Toast.LENGTH_SHORT).show()
-                return@setOnEditorActionListener true
-            }
-
-            buscarPor4Letras(texto)
-            true
-        }*/
 
     }
 
@@ -182,50 +136,6 @@ class Biblioteca : Bars (){
 
         return contenedor
     }
-
-
-    /*private fun cargarNombreUsuario() {
-        val uid = auth.currentUser?.uid ?: return
-
-        db.collection("users")
-            .document(uid)
-            .get()
-            .addOnSuccessListener { doc ->
-                if (doc != null && doc.exists()) {
-                    val nombre = doc.getString("nombre") ?: ""
-                    val apellidos = doc.getString("apellidos") ?: ""
-
-                    tvNombreUsuario.text = when {
-                        nombre.isNotEmpty() && apellidos.isNotEmpty() -> "$nombre $apellidos"
-                        nombre.isNotEmpty() -> nombre
-                        else -> "Lector"
-                    }
-                } else {
-                    tvNombreUsuario.text = "Lector"
-                }
-            }
-            .addOnFailureListener {
-                tvNombreUsuario.text = "Lector"
-            }
-    }*/
-
-    /*private fun buscarPor4Letras(query: String) {
-        val consulta = normalizar(query).take(4)
-
-        val libroEncontrado = libros.firstOrNull { libro ->
-            normalizar(libro.titulo).contains(consulta)
-        }
-
-        if (libroEncontrado != null) {
-            irALibroSeleccionado(libroEncontrado)
-        } else {
-            Toast.makeText(
-                this,
-                "No se ha encontrado el libro con: $consulta",
-                Toast.LENGTH_SHORT
-            ).show()
-        }
-    }*/
 
     private fun normalizar(texto: String): String {
         val sinAcentos = java.text.Normalizer.normalize(
