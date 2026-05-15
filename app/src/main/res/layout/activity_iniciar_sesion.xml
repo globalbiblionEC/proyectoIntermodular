@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="24dp"
     android:background="#F2F2F2">
-
 
     <!-- FILA FLECHA ATRÁS -->
     <LinearLayout
@@ -29,49 +27,36 @@
             android:src="@android:drawable/ic_menu_revert"/>
     </LinearLayout>
 
+    <!-- LOGO -->
     <ImageView
         android:id="@+id/ivLogo"
-        android:layout_width="416dp"
-        android:layout_height="320dp"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
         android:layout_gravity="center_horizontal"
-        android:adjustViewBounds="true"
+        android:layout_marginTop="8dp"
         android:src="@drawable/logogbsinfondo"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.509"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0" />
+        android:adjustViewBounds="true" />
 
+    <!-- TÍTULO INICIAR SESIÓN -->
     <TextView
         android:id="@+id/tvInicioSesion"
-        android:layout_width="343dp"
-        android:layout_height="49dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:fontFamily="serif"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="24dp"
         android:text="@string/inicar_sesion"
-        android:textAlignment="center"
         android:textColor="#000000"
-        android:textSize="34sp"
-        android:textStyle="normal"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.342" />
+        android:textSize="22sp"
+        android:textStyle="bold" />
 
+    <!-- CAMPO USUARIO -->
     <LinearLayout
-        android:id="@+id/linearLayout2"
-        android:layout_width="356dp"
+        android:layout_width="match_parent"
         android:layout_height="48dp"
-        android:background="#FFFFFF"
         android:orientation="horizontal"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.428"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.44">
+        android:background="#FFFFFF"
+        android:layout_marginBottom="12dp">
 
         <ImageView
             android:id="@+id/ivIconoUsuario"
@@ -83,28 +68,22 @@
 
         <EditText
             android:id="@+id/etCorreo"
-            android:layout_width="318dp"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:background="@null"
-            android:ems="10"
+            android:background="@android:color/transparent"
             android:hint="@string/correo"
-            android:inputType="text" />
-
+            android:inputType="textEmailAddress"
+            android:padding="8dp" />
     </LinearLayout>
 
+    <!-- CAMPO CONTRASENIA -->
     <LinearLayout
-        android:id="@+id/linearLayout"
-        android:layout_width="358dp"
-        android:layout_height="49dp"
-        android:background="#FFFFFF"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
         android:orientation="horizontal"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.6"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout2"
-        app:layout_constraintVertical_bias="0.063">
+        android:background="#FFFFFF"
+        android:layout_marginBottom="24dp">
 
         <ImageView
             android:id="@+id/ivIconoContrasenia"
@@ -116,86 +95,64 @@
 
         <EditText
             android:id="@+id/etContrasenia"
-            android:layout_width="375dp"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:background="@null"
-            android:ems="10"
+            android:background="@android:color/transparent"
             android:hint="@string/contrasenia"
-            android:inputType="text" />
-
+            android:inputType="textPassword"
+            android:padding="8dp" />
     </LinearLayout>
 
+    <!-- BOTÓN INICIAR SESIÓN -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnIniciarSesion"
-        android:layout_width="315dp"
-        android:layout_height="65dp"
-        android:fontFamily="serif"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
         android:text="@string/Iniciar_sesion"
         android:textAllCaps="false"
         android:textColor="#FFFFFF"
-        android:textSize="20sp"
-        app:backgroundTint="#1E3A5F"
-        app:cornerRadius="12dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.69" />
+        android:textSize="16sp"
+        app:backgroundTint="#1E3A5F" />   <!-- ESTE ES EL BUENO -->
 
+
+    <!-- BOTÓN REGISTRARSE -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnRegistrarse"
-        android:layout_width="315dp"
-        android:layout_height="65dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="32dp"
         android:backgroundTint="@android:color/transparent"
-        android:fontFamily="serif"
         android:text="@string/Registrarse"
         android:textAllCaps="false"
         android:textColor="#000000"
-        android:textSize="20sp"
-        app:cornerRadius="12dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnIniciarSesion"
-        app:layout_constraintVertical_bias="0.109"
+        android:textSize="16sp"
         app:strokeColor="#F2C94C"
-        app:strokeWidth="5dp" />
+        app:strokeWidth="2dp" />
 
+    <!-- LÍNEA + IDIOMAS ABAJO -->
     <View
-        android:id="@+id/view"
-        android:layout_width="250dp"
-        android:layout_height="2dp"
+        android:layout_width="80dp"
+        android:layout_height="1dp"
         android:layout_gravity="center_horizontal"
-        android:background="#1E3A5F"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.53"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.904" />
+        android:background="#1E3A5F" />
 
     <LinearLayout
         android:id="@+id/btnIdiomas"
-        android:layout_width="193dp"
-        android:layout_height="60dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:clickable="true"
-        android:focusable="true"
-        android:gravity="center_vertical"
         android:orientation="horizontal"
+        android:gravity="center_vertical"
         android:padding="8dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.497"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.991">
+        android:clickable="true"
+        android:focusable="true">
 
         <ImageView
             android:id="@+id/ivIconoMundo"
-            android:layout_width="45dp"
-            android:layout_height="44dp"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
             android:src="@drawable/mundosinfondo" />
 
         <TextView
@@ -205,10 +162,14 @@
             android:layout_marginStart="8dp"
             android:text="@string/idiomaPantPri"
             android:textColor="#000000"
-            android:textSize="16sp" />
+            android:textSize="12sp" />
     </LinearLayout>
 
     <!-- ESPACIO -->
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="24dp" />
 
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+
+</LinearLayout>

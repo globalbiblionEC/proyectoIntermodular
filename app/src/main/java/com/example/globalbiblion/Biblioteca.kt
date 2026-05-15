@@ -16,11 +16,11 @@ class Biblioteca : Bars (){
     private val libros= mutableListOf<Libro>()
     private val portadasStorage= mutableMapOf<String, String>()
 
-    private lateinit var tvNombreUsuario: TextView
-    private lateinit var ivPerfil: ImageView
-    private lateinit var etBuscarLibro: EditText
-    private lateinit var ivLupa: ImageView
-    private lateinit var btnVolver: ImageButton
+   // private lateinit var tvNombreUsuario: TextView
+ //   private lateinit var ivPerfil: ImageView
+ //   private lateinit var etBuscarLibro: EditText
+  //  private lateinit var ivLupa: ImageView
+   // private lateinit var btnVolver: ImageButton
     private lateinit var gridBiblioteca: GridLayout
 
 
@@ -29,24 +29,26 @@ class Biblioteca : Bars (){
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_biblioteca)
+
+        configurarTopBar()
         configurarBottomBar()
 
         auth = FirebaseAuth.getInstance()
         db = FirebaseFirestore.getInstance()
         storage = FirebaseStorage.getInstance()
 
-        tvNombreUsuario = findViewById(R.id.tvNombreUsuario)
+       /*tvNombreUsuario = findViewById(R.id.tvNombreUsuario)
         ivPerfil = findViewById(R.id.ivPerfil)
         etBuscarLibro = findViewById(R.id.etBuscarLibro)
         ivLupa = findViewById(R.id.ivLupa)
-        btnVolver = findViewById(R.id.btnVolver)
+        btnVolver = findViewById(R.id.btnVolver)*/
 
         gridBiblioteca=findViewById(R.id.gridBiblioteca)
 
-        cargarNombreUsuario()
+        //cargarNombreUsuario()
         cargarLibrosDesdeFirebase()
 
-        ivPerfil.setOnClickListener {
+        /*ivPerfil.setOnClickListener {
             startActivity(Intent(this, PerfilUsuario::class.java))
         }
 
@@ -75,7 +77,7 @@ class Biblioteca : Bars (){
 
             buscarPor4Letras(texto)
             true
-        }
+        }*/
 
     }
 
@@ -182,7 +184,7 @@ class Biblioteca : Bars (){
     }
 
 
-    private fun cargarNombreUsuario() {
+    /*private fun cargarNombreUsuario() {
         val uid = auth.currentUser?.uid ?: return
 
         db.collection("users")
@@ -205,9 +207,9 @@ class Biblioteca : Bars (){
             .addOnFailureListener {
                 tvNombreUsuario.text = "Lector"
             }
-    }
+    }*/
 
-    private fun buscarPor4Letras(query: String) {
+    /*private fun buscarPor4Letras(query: String) {
         val consulta = normalizar(query).take(4)
 
         val libroEncontrado = libros.firstOrNull { libro ->
@@ -223,7 +225,7 @@ class Biblioteca : Bars (){
                 Toast.LENGTH_SHORT
             ).show()
         }
-    }
+    }*/
 
     private fun normalizar(texto: String): String {
         val sinAcentos = java.text.Normalizer.normalize(
