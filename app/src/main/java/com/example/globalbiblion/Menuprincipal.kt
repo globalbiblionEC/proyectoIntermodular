@@ -8,7 +8,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import com.bumptech.glide.Glide
 
-class Menuprincipal : BottomBar () {
+class Menuprincipal : Bars () {
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseFirestore
     private lateinit var storage: FirebaseStorage
@@ -16,9 +16,9 @@ class Menuprincipal : BottomBar () {
     private val portadasStorage=mutableMapOf<String,String>()
 
     private lateinit var gridBiblioteca: LinearLayout
-
-    private lateinit var tvNombreUsuario: TextView
-    private lateinit var ivPerfil: ImageView
+    private lateinit var tvNombreUsuarioTopBar: TextView
+    private lateinit var etBuscarLibroTopBar: EditText
+    private lateinit var ivLupaTopBar: ImageView
 
     private var libroActual: Libro? =null
 
@@ -27,11 +27,6 @@ class Menuprincipal : BottomBar () {
     private lateinit var llContiLeyendo: LinearLayout
     private lateinit var btnContiLeyend: ImageButton
     private lateinit var ivPortadaLibroActual: ImageView
-
-    private lateinit var etBuscarLibro: EditText
-    private lateinit var btnVolver: ImageButton
-    private lateinit var ivLupa: ImageView
-
     private lateinit var llTop1Ranking: LinearLayout
     private lateinit var llTop5Ranking: LinearLayout
 
@@ -53,12 +48,10 @@ class Menuprincipal : BottomBar () {
         llContiLeyendo = findViewById(R.id.llContiLeyendo)
         btnContiLeyend = findViewById(R.id.btnContiLeyend)
 
-        etBuscarLibro = findViewById(R.id.etBuscarLibro)
-        ivLupa = findViewById(R.id.ivLupa)
-        btnVolver = findViewById(R.id.btnVolver)
+        etBuscarLibroTopBar = findViewById(R.id.etBuscarLibroTopBar)
+        ivLupaTopBar = findViewById(R.id.ivLupaTopBar)
 
-        tvNombreUsuario = findViewById(R.id.tvNombreUsuario)
-        ivPerfil = findViewById(R.id.ivPerfil)
+        tvNombreUsuarioTopBar = findViewById(R.id.tvNombreUsuarioTopBar)
 
         llTop1Ranking = findViewById(R.id.llTop1Ranking)
         llTop5Ranking = findViewById(R.id.llTop5Ranking)
@@ -68,25 +61,10 @@ class Menuprincipal : BottomBar () {
         cargarLibrosDesdeFirebase()
         cargarNombreUsuario()
         configurarBottomBar()
+        configurarTopBar()
+
         findViewById<LinearLayout>(R.id.llContileyendo).setOnClickListener {
             irAContinuarLeyendo()
-        }
-
-        ivPerfil.setOnClickListener {
-            startActivity(Intent(this, PerfilUsuario::class.java))
-        }
-
-        btnVolver.setOnClickListener {
-            auth.signOut()
-
-            val intent = Intent(this, MainActivity::class.java)
-            intent.addFlags(
-                Intent.FLAG_ACTIVITY_CLEAR_TOP or
-                        Intent.FLAG_ACTIVITY_NEW_TASK or
-                        Intent.FLAG_ACTIVITY_CLEAR_TASK
-            )
-            startActivity(intent)
-            finish()
         }
 
         val listenerContinuar = {
@@ -96,8 +74,8 @@ class Menuprincipal : BottomBar () {
         llContiLeyendo.setOnClickListener { listenerContinuar() }
         btnContiLeyend.setOnClickListener { listenerContinuar() }
 
-        ivLupa.setOnClickListener {
-            val texto = etBuscarLibro.text.toString().trim()
+        ivLupaTopBar.setOnClickListener {
+            val texto = etBuscarLibroTopBar.text.toString().trim()
             if (texto.length < 4) {
                 Toast.makeText(this, "Escribe al menos 4 caracteres", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
@@ -105,8 +83,8 @@ class Menuprincipal : BottomBar () {
             buscarPor4Letras(texto)
         }
 
-        etBuscarLibro.setOnEditorActionListener { _, _, _ ->
-            val texto = etBuscarLibro.text.toString().trim()
+        etBuscarLibroTopBar.setOnEditorActionListener { _, _, _ ->
+            val texto = etBuscarLibroTopBar.text.toString().trim()
             if (texto.length < 4) {
                 Toast.makeText(this, "Escribe al menos 4 caracteres", Toast.LENGTH_SHORT).show()
                 return@setOnEditorActionListener true
@@ -269,13 +247,14 @@ class Menuprincipal : BottomBar () {
                         else -> "Lector"
                     }
 
-                    tvNombreUsuario.text = textoNombre
+                    //tvNombreUsuario.text = textoNombre
+                    tvNombreUsuarioTopBar.text = textoNombre
                 } else {
-                    tvNombreUsuario.text = "Lector"
+                    tvNombreUsuarioTopBar.text = "Lector"
                 }
             }
             .addOnFailureListener {
-                tvNombreUsuario.text = "Lector"
+                tvNombreUsuarioTopBar.text = "Lector"
             }
     }
 

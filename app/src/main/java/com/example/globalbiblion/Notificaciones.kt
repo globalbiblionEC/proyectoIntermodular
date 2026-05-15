@@ -20,7 +20,7 @@ import android.widget.LinearLayout
 import androidx.activity.result.contract.ActivityResultContracts
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.storage.FirebaseStorage
-class Notificaciones : BottomBar() {
+class Notificaciones : Bars() {
 
 
     private lateinit var auth: FirebaseAuth

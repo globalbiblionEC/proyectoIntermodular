@@ -8,9 +8,12 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import android.widget.TextView
 import android.widget.FrameLayout
+import android.widget.ImageButton
+import android.widget.ImageView
+import androidx.appcompat.app.AlertDialog
 
 //Activity base for reuse
-open class BottomBar : AppCompatActivity() {
+open class Bars : AppCompatActivity() {
 
     //This function must be in every child
     protected fun configurarBottomBar() {
@@ -58,6 +61,70 @@ open class BottomBar : AppCompatActivity() {
 
         controlarBotonNotificaciones(flNotificaciones,llNotificaciones,tvBadgeNotificaciones)
 
+    }
+    protected fun configurarTopBar() {
+        val auth = FirebaseAuth.getInstance()
+        val db = FirebaseFirestore.getInstance()
+
+        val ivPerfil = findViewById<ImageView?>(R.id.ivPerfilTopBar)
+        val tvNombreUsuario = findViewById<TextView?>(R.id.tvNombreUsuarioTopBar)
+        val btnCerrarSesion = findViewById<ImageButton?>(R.id.btnCerrarSesionTopBar)
+
+        val uid = auth.currentUser?.uid
+
+        if (uid != null) {
+            db.collection("users")
+                .document(uid)
+                .get()
+                .addOnSuccessListener { doc ->
+                    val nombre = doc.getString("nombre") ?: ""
+                    val apellidos = doc.getString("apellidos") ?: ""
+
+                    tvNombreUsuario?.text = when {
+                        nombre.isNotBlank() && apellidos.isNotBlank() -> "$nombre $apellidos"
+                        nombre.isNotBlank() -> nombre
+                        else -> "Usuario"
+                    }
+                }
+                .addOnFailureListener {
+                    tvNombreUsuario?.text = "Usuario"
+                }
+        } else {
+            tvNombreUsuario?.text = "Invitado"
+        }
+
+        ivPerfil?.setOnClickListener {
+            if (this !is PerfilUsuario) {
+                startActivity(Intent(this, PerfilUsuario::class.java))
+            } else {
+                Toast.makeText(this, "Ya estás en tu perfil", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        btnCerrarSesion?.setOnClickListener {
+
+            AlertDialog.Builder(this)
+                .setTitle("Cerrar sesión")
+                .setMessage("¿Seguro que deseas cerrar sesión?")
+                .setPositiveButton("Sí") { _, _ ->
+
+                    auth.signOut()
+
+                    val intent = Intent(this, MainActivity::class.java)
+
+                    intent.addFlags(
+                        Intent.FLAG_ACTIVITY_CLEAR_TOP or
+                                Intent.FLAG_ACTIVITY_NEW_TASK or
+                                Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    )
+
+                    startActivity(intent)
+                    finish()
+                }
+
+                .setNegativeButton("Cancelar", null)
+                .show()
+        }
     }
 
     private fun abrirUltimaLectura() {

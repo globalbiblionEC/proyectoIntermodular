@@ -11,7 +11,7 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 
-class EscribirResenia : BottomBar() {//BottomBar child
+class EscribirResenia : Bars() {//BottomBar child
 
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseFirestore

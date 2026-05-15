@@ -10,7 +10,7 @@ import android.net.Uri
 import androidx.activity.result.contract.ActivityResultContracts
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.storage.FirebaseStorage
-class PerfilUsuario : BottomBar() {
+class PerfilUsuario : Bars() {
     //Variables de Firebase
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseFirestore

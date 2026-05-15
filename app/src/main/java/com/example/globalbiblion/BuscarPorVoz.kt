@@ -10,7 +10,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import java.util.Locale
 
-class BuscarPorVoz : BottomBar() {
+class BuscarPorVoz : Bars() {
     private lateinit var db: FirebaseFirestore
     private lateinit var storage: FirebaseStorage
 

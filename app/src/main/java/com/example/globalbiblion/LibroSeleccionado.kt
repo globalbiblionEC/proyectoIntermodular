@@ -11,7 +11,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 
 
-class LibroSeleccionado : BottomBar() {
+class LibroSeleccionado : Bars() {
 
     private lateinit var db: FirebaseFirestore
     private lateinit var storage: FirebaseStorage

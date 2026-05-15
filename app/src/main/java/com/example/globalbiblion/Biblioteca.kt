@@ -8,7 +8,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 
-class Biblioteca : BottomBar (){
+class Biblioteca : Bars (){
 
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseFirestore

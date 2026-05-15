@@ -20,7 +20,7 @@ import android.net.Uri
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.firestore.Query
 
-class PanelAdministrador : BottomBar() {
+class PanelAdministrador : Bars() {
 
 
     private lateinit var auth: FirebaseAuth

@@ -11,7 +11,7 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 
-class SolicitudTraduccion : BottomBar() {
+class SolicitudTraduccion : Bars() {
 
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseFirestore

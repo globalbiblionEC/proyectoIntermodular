@@ -11,7 +11,7 @@ import android.graphics.BitmapFactory
 import com.google.firebase.storage.FirebaseStorage
 import kotlin.jvm.java
 
-class ContinuarLeyendo : BottomBar() {
+class ContinuarLeyendo : Bars() {
 
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseFirestore

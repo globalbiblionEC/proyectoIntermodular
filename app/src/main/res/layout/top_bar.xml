@@ -1,0 +1,101 @@
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/topBar"
+    android:layout_width="match_parent"
+    android:layout_height="178dp"
+    android:background="#1E3A5F">
+
+    <ImageView
+        android:id="@+id/ivLogoTopBar"
+        android:layout_width="91dp"
+        android:layout_height="49dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="18dp"
+        android:contentDescription="@string/app_name"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/logocfmenuprin" />
+
+    <ImageView
+        android:id="@+id/ivPerfilTopBar"
+        android:layout_width="78dp"
+        android:layout_height="70dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="18dp"
+        android:contentDescription="@string/perfil"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/usuarioleyendocfmenuprinc" />
+
+    <TextView
+        android:id="@+id/tvNombreUsuarioTopBar"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:gravity="center"
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:text="@string/invitado"
+        android:textColor="@android:color/white"
+        android:textSize="12sp"
+        app:layout_constraintEnd_toEndOf="@id/ivPerfilTopBar"
+        app:layout_constraintStart_toStartOf="@id/ivPerfilTopBar"
+        app:layout_constraintTop_toBottomOf="@id/ivPerfilTopBar" />
+
+    <ImageButton
+        android:id="@+id/btnCerrarSesionTopBar"
+        android:layout_width="57dp"
+        android:layout_height="57dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="106dp"
+        android:background="@null"
+        android:contentDescription="Cerrar sesión"
+        android:src="@android:drawable/ic_lock_power_off"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="@android:color/white" />
+
+    <EditText
+        android:id="@+id/etBuscarLibroTopBar"
+        android:layout_width="0dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="65dp"
+        android:layout_marginTop="110dp"
+        android:layout_marginEnd="32dp"
+        android:background="@drawable/bg_input"
+        android:hint="@string/buscar_libro"
+        android:imeOptions="actionSearch"
+        android:inputType="text"
+        android:paddingStart="12dp"
+        android:paddingEnd="45dp"
+        android:singleLine="true"
+        android:textColorHint="#B1433C3C"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/ivLupaTopBar"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_marginEnd="10dp"
+        android:clickable="true"
+        android:contentDescription="@string/buscar_libro"
+        android:focusable="true"
+        app:layout_constraintBottom_toBottomOf="@id/etBuscarLibroTopBar"
+        app:layout_constraintEnd_toEndOf="@id/etBuscarLibroTopBar"
+        app:layout_constraintTop_toTopOf="@id/etBuscarLibroTopBar"
+        app:srcCompat="@drawable/lupabuscador" />
+
+    <View
+        android:id="@+id/vLineaTopBar"
+        android:layout_width="0dp"
+        android:layout_height="5dp"
+        android:layout_marginTop="14dp"
+        android:background="#F2C94C"
+        app:layout_constraintTop_toBottomOf="@id/etBuscarLibroTopBar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
