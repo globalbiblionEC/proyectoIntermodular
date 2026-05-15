@@ -15,7 +15,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.QueryDocumentSnapshot
 import android.content.Intent
 import android.net.Uri
 import com.google.firebase.storage.FirebaseStorage
@@ -69,7 +68,24 @@ class PanelAdministrador : BottomBar() {
             cargarHistorialAdmin()
         }
         btnVolver.setOnClickListener {
-            finish()
+            AlertDialog.Builder(this)
+                .setTitle("Cerrar sesión")
+                .setMessage("¿Seguro que deseas cerrar sesión?")
+                .setPositiveButton("Sí") { _, _ ->
+
+                    auth.signOut()
+
+                    val intent = Intent(this, MainActivity::class.java)
+
+                    intent.flags =
+                        Intent.FLAG_ACTIVITY_NEW_TASK or
+                                Intent.FLAG_ACTIVITY_CLEAR_TASK
+
+                    startActivity(intent)
+                    finish()
+                }
+                .setNegativeButton("Cancelar", null)
+                .show()
         }
     }
 
@@ -138,35 +154,7 @@ class PanelAdministrador : BottomBar() {
                 ).show()
             }
     }
-   /* private fun cargarCertificadosPendientes() {
-        tvTituloSeccion.text = "Certificados pendientes"
-        progressBar.visibility = View.VISIBLE
-        listaCertificados.clear()
 
-        db.collection("users")
-            //.whereIn("roleVerificationStatus", listOf("pending_review", "prevalidated"))
-            //.get()
-            .whereIn("roleVerificationStatus", listOf("pending_review", "prevalidated"))
-            .orderBy("certificateUpdatedAt", Query.Direction.DESCENDING)
-            .get()
-            .addOnSuccessListener { documentos ->
-                for (doc in documentos) {
-                    listaCertificados.add(convertirCertificado(doc))
-                }
-
-                rvAdmin.adapter = CertificadoAdapter(listaCertificados) { certificado ->
-                    mostrarDialogoCertificado(certificado)
-                }
-
-                progressBar.visibility = View.GONE
-            }
-            .addOnFailureListener {
-                progressBar.visibility = View.GONE
-                Toast.makeText(this, "Error al cargar certificados", Toast.LENGTH_SHORT).show()
-            }
-    }*/
-
-   // private fun convertirCertificado(doc: QueryDocumentSnapshot): CertificadoPendiente {
    private fun convertirCertificado(doc: com.google.firebase.firestore.DocumentSnapshot): CertificadoPendiente {
         val validation = doc.get("certificateValidation") as? Map<*, *>
 
