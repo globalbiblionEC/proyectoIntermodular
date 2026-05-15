@@ -1,96 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#F2F2F2">
 
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar"
+    <include
+        android:id="@+id/topBar"
+        layout="@layout/top_bar"
         android:layout_width="0dp"
-        android:layout_height="146dp"
-        android:background="#1E3A5F"
-        android:minHeight="?attr/actionBarSize"
-        android:theme="?attr/actionBarTheme"
+        android:layout_height="178dp"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <ImageView
-        android:id="@+id/ivPerfil"
-        android:layout_width="85dp"
-        android:layout_height="76dp"
-        android:layout_marginTop="5dp"
-        android:layout_marginEnd="13dp"
-        android:contentDescription="@string/perfil"
-        android:src="@drawable/usuarioleyendocfmenuprinc"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <ImageView
-        android:id="@+id/imageViewLogo"
-        android:layout_width="91dp"
-        android:layout_height="49dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="10dp"
-        android:contentDescription="@string/app_name"
-        android:src="@drawable/logocfmenuprin"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <ImageButton
-        android:id="@+id/btnVolver"
-        android:layout_width="57dp"
-        android:layout_height="57dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="20dp"
-        android:background="@null"
-        android:contentDescription="@string/volver"
-        android:src="@android:drawable/ic_menu_revert"
-        app:layout_constraintTop_toBottomOf="@id/imageViewLogo"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <LinearLayout
-        android:id="@+id/llBuscador"
-        android:layout_width="0dp"
-        android:layout_height="44dp"
-        android:layout_marginStart="65dp"
-        android:layout_marginEnd="20dp"
-        android:layout_marginBottom="10dp"
-        android:background="@android:color/white"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:paddingStart="14dp"
-        android:paddingEnd="12dp"
-        app:layout_constraintBottom_toBottomOf="@id/toolbar"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-
-        <ImageView
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:src="@drawable/lupabuscador" />
-
-        <EditText
-            android:id="@+id/etBuscarLibro"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_marginStart="8dp"
-            android:layout_weight="1"
-            android:background="@android:color/transparent"
-            android:hint="@string/buscar_libro"
-            android:singleLine="true"
-            android:textColorHint="#999999"
-            android:textSize="18sp" />
-    </LinearLayout>
-
-    <View
-        android:id="@+id/vLinea"
-        android:layout_width="0dp"
-        android:layout_height="5dp"
-        android:background="#F2C94C"
-        app:layout_constraintTop_toBottomOf="@id/toolbar"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
@@ -98,10 +21,10 @@
         android:id="@+id/svLibroSeleccionado"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@id/vLineaBottom"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/topBar"
+        app:layout_constraintBottom_toTopOf="@id/bottomBar"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/vLinea">
+        app:layout_constraintEnd_toEndOf="parent">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -177,6 +100,7 @@
                         android:textAllCaps="false"
                         android:textColor="#1E3A5F"
                         android:textSize="14sp" />
+
                 </LinearLayout>
             </LinearLayout>
 
@@ -217,6 +141,7 @@
                     android:textAllCaps="false"
                     android:textColor="@android:color/white"
                     android:textSize="16sp" />
+
             </LinearLayout>
 
             <TextView
@@ -369,32 +294,23 @@
                 android:textColor="#000000"
                 android:textSize="14sp" />
 
-            <LinearLayout
+            <HorizontalScrollView
+                android:id="@+id/hsvReviews"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="10dp"
-                android:paddingStart="20dp"
-                android:paddingEnd="20dp">
+                android:layout_marginTop="12dp"
+                android:scrollbars="none">
 
-                <HorizontalScrollView
-                    android:id="@+id/hsvReviews"
-                    android:layout_width="match_parent"
+                <LinearLayout
+                    android:id="@+id/llReviewsContainer"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:scrollbars="none">
+                    android:orientation="horizontal"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
+                    android:paddingBottom="12dp" />
 
-                    <LinearLayout
-                        android:id="@+id/llReviewsContainer"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:paddingStart="16dp"
-                        android:paddingEnd="16dp"
-                        android:paddingBottom="12dp" />
-
-                </HorizontalScrollView>
-            </LinearLayout>
+            </HorizontalScrollView>
 
             <TextView
                 android:id="@+id/tvHistorialTitulo"
@@ -418,17 +334,10 @@
                 android:text="@string/ultima_actualizacion"
                 android:textColor="#000000"
                 android:textSize="16sp" />
-        </LinearLayout>
-    </ScrollView>
 
-    <View
-        android:id="@+id/vLineaBottom"
-        android:layout_width="0dp"
-        android:layout_height="5dp"
-        android:background="#F2C94C"
-        app:layout_constraintBottom_toTopOf="@id/bottomBar"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        </LinearLayout>
+
+    </ScrollView>
 
     <include
         android:id="@+id/bottomBar"
@@ -436,8 +345,7 @@
         android:layout_width="0dp"
         android:layout_height="88dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

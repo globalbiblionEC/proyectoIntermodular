@@ -16,8 +16,8 @@ class LibroSeleccionado : Bars() {
     private lateinit var db: FirebaseFirestore
     private lateinit var storage: FirebaseStorage
 
-    private lateinit var ivPerfil: ImageView
-    private lateinit var btnVolver: ImageButton
+   // private lateinit var ivPerfil: ImageView
+   // private lateinit var btnVolver: ImageButton
     private lateinit var ivPortada: ImageView
     private lateinit var tvTitulo: TextView
     private lateinit var tvAutor: TextView
@@ -48,8 +48,8 @@ class LibroSeleccionado : Bars() {
         db = FirebaseFirestore.getInstance()
         storage = FirebaseStorage.getInstance()
 
-        ivPerfil = findViewById(R.id.ivPerfil)
-        btnVolver = findViewById(R.id.btnVolver)
+    //    ivPerfil = findViewById(R.id.ivPerfil)
+      //  btnVolver = findViewById(R.id.btnVolver)
         ivPortada = findViewById(R.id.ivPortadaLibroSeleccionado)
         tvTitulo = findViewById(R.id.tvTituloLibroSeleccionado)
         tvAutor = findViewById(R.id.tvAutorLibroSeleccionado)
@@ -79,6 +79,7 @@ class LibroSeleccionado : Bars() {
 
         cargarPortada()
         cargarInfoDesdeFirebase()
+        configurarTopBar()
         configurarBottomBar()
 
         btnMostrarIdiomas.setOnClickListener {
@@ -91,13 +92,13 @@ class LibroSeleccionado : Bars() {
             }
         }
 
-        ivPerfil.setOnClickListener {
+        /*ivPerfil.setOnClickListener {
             startActivity(Intent(this, PerfilUsuario::class.java))
         }
 
         btnVolver.setOnClickListener {
             finish()
-        }
+        }*/
 
         ivPortada.setOnClickListener {
             abrirPdf()
