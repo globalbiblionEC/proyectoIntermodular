@@ -479,6 +479,8 @@ class PanelAdministrador : BottomBar() {
                     val nombre = doc.getString("nombreCompleto")
                         ?: "${doc.getString("nombre") ?: ""} ${doc.getString("apellidos") ?: ""}"
 
+                    val fechaTimestamp = doc.getTimestamp("adminReviewedAt")
+
                     listaHistorial.add(
                         HistorialAdmin(
                             id = doc.id,
@@ -486,7 +488,9 @@ class PanelAdministrador : BottomBar() {
                             titulo = nombre,
                             usuario = doc.getString("email") ?: "",
                             estado = doc.getString("roleVerificationStatus") ?: "",
-                            motivo = doc.getString("reviewNotes") ?: "Sin motivo registrado"
+                            motivo = doc.getString("reviewNotes") ?: "Sin motivo registrado",
+                            fecha = formatearFecha(fechaTimestamp),
+                            fechaMillis = fechaTimestamp?.toDate()?.time ?: 0L
                         )
                     )
                 }
@@ -506,25 +510,37 @@ class PanelAdministrador : BottomBar() {
                 listOf(
                     "published",
                     "changes_requested",
-                    "waiting_for_proofreader"
+                    "waiting_for_proofreader",
+                    "translation_vacancy_open"
                 )
             )
             .get()
             .addOnSuccessListener { documentos ->
 
                 for (doc in documentos) {
+                    val fechaTimestamp =
+                        doc.getTimestamp("adminReviewedAt")
+                            ?: doc.getTimestamp("proofreadAt")
+                            ?: doc.getTimestamp("uploadedAt")
+                            ?: doc.getTimestamp("createdAt")
+
                     listaHistorial.add(
                         HistorialAdmin(
                             id = doc.id,
                             tipo = "Solicitud",
                             titulo = doc.getString("bookTitle") ?: "Solicitud",
                             usuario = doc.getString("translatorName") ?: "",
-                            //usuario = doc.getString("userName") ?: "",
                             estado = doc.getString("status") ?: "",
-                            motivo = doc.getString("reviewNotes") ?: "Sin motivo registrado"
+                            motivo = doc.getString("adminNotes")
+                                ?: doc.getString("reviewNotes")
+                                ?: "Sin motivo registrado",
+                            fecha = formatearFecha(fechaTimestamp),
+                            fechaMillis = fechaTimestamp?.toDate()?.time ?: 0L
                         )
                     )
                 }
+
+                listaHistorial.sortByDescending { it.fechaMillis }
 
                 rvAdmin.adapter = HistorialAdminAdapter(listaHistorial) { item ->
                     mostrarDialogoHistorial(item)
@@ -539,38 +555,22 @@ class PanelAdministrador : BottomBar() {
     }
 
     private fun mostrarDialogoHistorial(item: HistorialAdmin) {
-        if (item.estado == "rejected") {
-            AlertDialog.Builder(this)
-                .setTitle("${item.tipo} rechazado")
-                .setMessage(
-                    """
-                ${item.titulo}
-                
-                Usuario: ${item.usuario}
-                
-                Motivo del rechazo:
-                ${item.motivo}
-                """.trimIndent()
-                )
-                .setPositiveButton("Cerrar", null)
-                .show()
-        } else {
-            AlertDialog.Builder(this)
-                .setTitle("${item.tipo} aprobado")
-                .setMessage(
-                    """
-                ${item.titulo}
-                
-                Usuario: ${item.usuario}
-                
-                Estado: aprobado correctamente.
-                """.trimIndent()
-                )
-                .setPositiveButton("Cerrar", null)
-                .show()
-        }
+        AlertDialog.Builder(this)
+            .setTitle("${item.tipo}: ${item.estado}")
+            .setMessage(
+                """
+            ${item.titulo}
+            
+            Usuario: ${item.usuario}
+            Fecha: ${item.fecha}
+            
+            Motivo / notas:
+            ${item.motivo}
+            """.trimIndent()
+            )
+            .setPositiveButton("Cerrar", null)
+            .show()
     }
-
     private fun mostrarOpcionesPdfSolicitud(solicitud: SolicitudPendiente) {
         val opciones = mutableListOf<String>()
         val pdfs = mutableListOf<String>()
@@ -596,5 +596,11 @@ class PanelAdministrador : BottomBar() {
                 abrirPdf(pdfs[posicion])
             }
             .show()
+    }
+    private fun formatearFecha(timestamp: com.google.firebase.Timestamp?): String {
+        if (timestamp == null) return "Fecha desconocida"
+
+        val formato = java.text.SimpleDateFormat("dd/MM/yyyy HH:mm", java.util.Locale.getDefault())
+        return formato.format(timestamp.toDate())
     }
 }

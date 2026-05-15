@@ -104,26 +104,45 @@ class Notificaciones : BottomBar() {
 
         db.collection("users").document(uid).get()
             .addOnSuccessListener { doc ->
+
                 val estado = doc.getString("roleVerificationStatus") ?: ""
                 val mensaje = doc.getString("notificationMessage") ?: ""
                 val fechaRevision = doc.getTimestamp("adminReviewedAt")
 
                 val texto = StringBuilder()
 
-                if (estado == "verified") {
-                    btnSubirCertificadoNuevo.visibility = View.GONE
-                    texto.append(
-                        "✅ Tu certificado ha sido validado.\n" +
-                                "Fecha: ${formatearFecha(fechaRevision)}\n\n"
-                    )
-                }
+                when (estado) {
+                    "pending_review", "prevalidated" -> {
+                        btnSubirCertificadoNuevo.visibility = View.GONE
+                        texto.append(
+                            "⏳ Tu certificado está pendiente de verificación.\n" +
+                                    "Cuando el administrador lo revise, recibirás una notificación.\n\n"
+                        )
+                    }
 
-                if (estado == "rejected") {
-                    btnSubirCertificadoNuevo.visibility = View.VISIBLE
-                    val motivo = doc.getString("reviewNotes") ?: "Sin motivo indicado"
-                    texto.append( "❌ Tu certificado ha sido rechazado.\n" +
-                            "Fecha: ${formatearFecha(fechaRevision)}\n" +
-                            "Motivo: $motivo\n\n")
+                    "verified" -> {
+                        btnSubirCertificadoNuevo.visibility = View.GONE
+                        texto.append(
+                            "✅ Tu certificado ha sido validado.\n" +
+                                    "Fecha: ${formatearFecha(fechaRevision)}\n\n"
+                        )
+                    }
+
+                    "rejected" -> {
+                        btnSubirCertificadoNuevo.visibility = View.VISIBLE
+
+                        val motivo = doc.getString("reviewNotes") ?: "Sin motivo indicado"
+
+                        texto.append(
+                            "❌ Tu certificado ha sido rechazado.\n" +
+                                    "Fecha: ${formatearFecha(fechaRevision)}\n" +
+                                    "Motivo: $motivo\n\n"
+                        )
+                    }
+
+                    else -> {
+                        btnSubirCertificadoNuevo.visibility = View.GONE
+                    }
                 }
 
                 if (mensaje.isNotEmpty()) {
@@ -131,11 +150,11 @@ class Notificaciones : BottomBar() {
                 }
 
                 cargarNotificacionesSolicitudes(uid, texto)
+                cargarAvisosCorrector(uid)
             }
             .addOnFailureListener {
                 Toast.makeText(this, "Error al cargar notificaciones", Toast.LENGTH_SHORT).show()
             }
-        cargarAvisosCorrector(uid)
     }
 
     private fun cargarNotificacionesSolicitudes(uid: String, texto: StringBuilder) {
@@ -145,6 +164,7 @@ class Notificaciones : BottomBar() {
             .whereIn(
                 "status",
                 listOf(
+                    "waiting_for_proofreader",
                     "proofreader_approved",
                     "proofreader_rejected",
                     "changes_requested",
@@ -224,6 +244,15 @@ class Notificaciones : BottomBar() {
                                         "Fecha: ${formatearFecha(fecha)}\n\n"
                             )
                         }
+
+                        "waiting_for_proofreader" -> {
+                            texto.append(
+                                "⏳ Tu traducción de '$titulo' está pendiente de verificación por un corrector.\n" +
+                                        "Idioma destino: ${doc.getString("targetLanguage") ?: ""}\n" +
+                                        "Fecha: ${formatearFecha(doc.getTimestamp("uploadedAt") ?: doc.getTimestamp("createdAt"))}\n\n"
+                            )
+                        }
+
                     }
                 }
 

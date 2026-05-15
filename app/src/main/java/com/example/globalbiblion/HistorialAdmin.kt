@@ -6,5 +6,7 @@ data class HistorialAdmin(
     val titulo: String,
     val usuario: String,
     val estado: String,
-    val motivo: String
+    val motivo: String,
+    val fecha: String,
+    val fechaMillis:Long
 )

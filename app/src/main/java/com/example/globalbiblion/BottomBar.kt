@@ -145,31 +145,84 @@ open class BottomBar : AppCompatActivity() {
             return
         }
 
-        FirebaseFirestore.getInstance()
-            .collection("users")
+        val db = FirebaseFirestore.getInstance()
+
+        db.collection("users")
             .document(uid)
             .get()
-            .addOnSuccessListener { doc ->
+            .addOnSuccessListener { userDoc ->
 
-                val rol = doc.getString("rol") ?: ""
-                val hayNotificacion = doc.getBoolean("notificationPending") ?: false
+                val rol = userDoc.getString("rol") ?: ""
+                val estado = userDoc.getString("roleVerificationStatus") ?: ""
+                val hayNotificacionUsuario =
+                    userDoc.getBoolean("notificationPending") ?: false
 
                 if (rol == "reader") {
                     flNotificaciones?.visibility = android.view.View.GONE
-                } else {
-                    flNotificaciones?.visibility = android.view.View.VISIBLE
-                    llNotificaciones?.visibility = android.view.View.VISIBLE
-
-                    tvBadge?.visibility =
-                        if (hayNotificacion) android.view.View.VISIBLE
-                        else android.view.View.GONE
+                    return@addOnSuccessListener
                 }
+
+                flNotificaciones?.visibility = android.view.View.VISIBLE
+                llNotificaciones?.visibility = android.view.View.VISIBLE
+
+                val hayNotificacionCertificado =
+                    estado == "pending_review" ||
+                            estado == "prevalidated" ||
+                            estado == "rejected" ||
+                            estado == "verified"
+
+                db.collection("contribution_requests")
+                    .whereEqualTo("translatorId", uid)
+                    .whereIn(
+                        "status",
+                        listOf(
+                            "proofreader_approved",
+                            "proofreader_rejected",
+                            "changes_requested",
+                            "published",
+                            "translation_vacancy_open"
+                        )
+                    )
+                    .limit(1)
+                    .get()
+                    .addOnSuccessListener { solicitudesTraductor ->
+
+                        if (!solicitudesTraductor.isEmpty) {
+                            tvBadge?.visibility = android.view.View.VISIBLE
+                            return@addOnSuccessListener
+                        }
+
+                        db.collection("contribution_requests")
+                            .whereEqualTo("proofreaderId", uid)
+                            .whereIn(
+                                "status",
+                                listOf(
+                                    "proofreader_approved",
+                                    "proofreader_rejected",
+                                    "published",
+                                    "changes_requested",
+                                    "translation_vacancy_open"
+                                )
+                            )
+                            .limit(1)
+                            .get()
+                            .addOnSuccessListener { solicitudesCorrector ->
+
+                                val mostrarPunto =
+                                    hayNotificacionUsuario ||
+                                            hayNotificacionCertificado ||
+                                            !solicitudesCorrector.isEmpty
+
+                                tvBadge?.visibility =
+                                    if (mostrarPunto) android.view.View.VISIBLE
+                                    else android.view.View.GONE
+                            }
+                    }
             }
             .addOnFailureListener {
                 flNotificaciones?.visibility = android.view.View.GONE
             }
     }
-
     private fun abrirContinuarLeyendo(
         idLibro: String,
         titulo: String,
