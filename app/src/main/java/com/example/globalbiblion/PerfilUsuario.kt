@@ -10,7 +10,7 @@ import android.net.Uri
 import androidx.activity.result.contract.ActivityResultContracts
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.storage.FirebaseStorage
-import com.bumptech.glide.Glide
+import com.bumptech.glide.Glide //For images
 class PerfilUsuario : Bars() {
     //Variables de Firebase
     private lateinit var auth: FirebaseAuth
@@ -186,68 +186,6 @@ class PerfilUsuario : Bars() {
                 ).show()
             }
     }
-    /*private fun cargarDatosUsuario() {
-        val uid = auth.currentUser?.uid //Obtenemos la uid del usuario actual
-
-        if (uid == null) {
-            Toast.makeText(
-                this,
-                "Debes iniciar sesión para ver tu perfil",
-                Toast.LENGTH_LONG).show()
-            finish()
-            return
-        }
-        //ruta de Firebase
-        db.collection("users")
-            .document(uid)
-            .get()
-            .addOnSuccessListener { doc ->
-                if (doc != null && doc.exists()) {
-                    val nombre = doc.getString("nombre") ?: ""
-                    val email = doc.getString("email") ?: auth.currentUser?.email ?: ""
-                    val rol = doc.getString("rol") ?: ""
-                    val idiomaNativo = doc.getString("nativeLanguage") ?: ""
-                    val estadoVerificacion = doc.getString("roleVerificationStatus") ?: ""
-
-                    tvNombre.text = if (nombre.isNotEmpty()) nombre else "Nombre"
-                    tvEmail.text = if (email.isNotEmpty()) email else "Email"
-
-                    if (rol == "reader") {
-                        tvRolTitulo.visibility = View.VISIBLE
-                        tvRolTitulo.text = obtenerNombreRol(rol)
-
-                        tvRol.visibility = View.GONE
-                        tvIdiomaNativo.visibility = View.GONE
-                        tvEstadoVerificacion.visibility = View.GONE
-                        btnSubirCertificadoNuevo.visibility = View.GONE
-
-                        cardTraducciones.visibility = View.GONE
-                    } else {
-                        tvRolTitulo.visibility = View.VISIBLE
-                        tvRolTitulo.text = obtenerNombreRol(rol)
-
-                        tvRol.visibility = View.GONE
-                        tvIdiomaNativo.visibility = View.VISIBLE
-                        tvEstadoVerificacion.visibility = View.VISIBLE
-
-                        cardTraducciones.visibility = View.VISIBLE
-
-                        tvIdiomaNativo.text =
-                            if (idiomaNativo.isNotEmpty()) "Idioma nativo: $idiomaNativo"
-                            else "Idioma nativo"
-
-                        mostrarEstadoVerificacion(estadoVerificacion)
-                    }
-
-                } else {
-                    Toast.makeText(this, "No se encontraron datos de usuario", Toast.LENGTH_SHORT).show()
-                }
-            }
-            .addOnFailureListener { e ->
-                Toast.makeText(this, "Error al cargar usuario: ${e.message}", Toast.LENGTH_LONG).show()
-            }
-    }*/
-
 
     private fun cargarContribuciones() {
         val uid = auth.currentUser?.uid

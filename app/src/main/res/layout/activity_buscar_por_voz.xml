@@ -40,16 +40,6 @@
                     app:layout_constraintTop_toTopOf="parent"
                     app:srcCompat="@drawable/logocfmenuprin" />
 
-                <ImageView
-                    android:id="@+id/ivPerfil"
-                    android:layout_width="85dp"
-                    android:layout_height="76dp"
-                    android:layout_marginTop="6dp"
-                    android:layout_marginEnd="10dp"
-                    android:contentDescription="@string/perfil"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:srcCompat="@drawable/usuarioleyendocfmenuprinc" />
 
                 <ImageButton
                     android:id="@+id/btnVolver"

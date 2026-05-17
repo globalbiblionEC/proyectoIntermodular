@@ -34,28 +34,38 @@
                     app:layout_constraintTop_toTopOf="parent"
                     app:srcCompat="@drawable/logocfmenuprin" />
 
-                <ImageView
-                    android:id="@+id/ivPerfil"
-                    android:layout_width="85dp"
-                    android:layout_height="76dp"
-                    android:layout_marginTop="6dp"
-                    android:layout_marginEnd="10dp"
-                    android:contentDescription="@string/perfil"
+                <FrameLayout
+                    android:id="@+id/flFotoPerfil"
+                    android:layout_width="90dp"
+                    android:layout_height="90dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginEnd="14dp"
+                    android:background="@drawable/bg_circle_profile"
+                    android:padding="4dp"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:srcCompat="@drawable/usuarioleyendocfmenuprinc" />
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <ImageView
+                        android:id="@+id/ivPerfil"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:contentDescription="@string/perfil"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/usuarioleyendocfmenuprinc" />
+
+                </FrameLayout>
 
                 <TextView
                     android:id="@+id/tvNombreUsuario"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
+                    android:layout_marginTop="4dp"
                     android:text="@string/usuario"
                     android:textColor="@android:color/white"
                     android:textSize="12sp"
-                    app:layout_constraintEnd_toEndOf="@id/ivPerfil"
-                    app:layout_constraintStart_toStartOf="@id/ivPerfil"
-                    app:layout_constraintTop_toBottomOf="@id/ivPerfil" />
+                    app:layout_constraintEnd_toEndOf="@id/flFotoPerfil"
+                    app:layout_constraintStart_toStartOf="@id/flFotoPerfil"
+                    app:layout_constraintTop_toBottomOf="@id/flFotoPerfil" />
 
                 <ImageButton
                     android:id="@+id/btnVolver"

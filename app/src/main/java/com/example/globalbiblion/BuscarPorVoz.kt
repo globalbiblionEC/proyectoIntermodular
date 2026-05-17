@@ -15,7 +15,6 @@ class BuscarPorVoz : Bars() {
     private lateinit var storage: FirebaseStorage
 
     private lateinit var btnVolver: ImageButton
-    private lateinit var ivPerfil: ImageView
     private lateinit var btnHablar: Button
     private lateinit var tvResultadoVoz: TextView
     private lateinit var gridBiblioteca: GridLayout
@@ -35,7 +34,6 @@ class BuscarPorVoz : Bars() {
         storage = FirebaseStorage.getInstance()
 
         btnVolver = findViewById(R.id.btnVolver)
-        ivPerfil = findViewById(R.id.ivPerfil)
         btnHablar = findViewById(R.id.btnHablar)
         tvResultadoVoz = findViewById(R.id.tvResultadoVoz)
         gridBiblioteca = findViewById(R.id.gridBibliotecaVoz)
@@ -46,9 +44,6 @@ class BuscarPorVoz : Bars() {
             finish()
         }
 
-        ivPerfil.setOnClickListener {
-            startActivity(Intent(this, PerfilUsuario::class.java))
-        }
 
         btnHablar.setOnClickListener {
             iniciarReconocimientoVoz()

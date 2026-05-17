@@ -20,6 +20,7 @@ import android.widget.LinearLayout
 import androidx.activity.result.contract.ActivityResultContracts
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.storage.FirebaseStorage
+import com.bumptech.glide.Glide
 class Notificaciones : Bars() {
 
 
@@ -461,19 +462,72 @@ class Notificaciones : Bars() {
 
     private fun marcarNotificacionesComoLeidas() {
 
-            val uid = auth.currentUser?.uid ?: return
+        val uid = auth.currentUser?.uid ?: return
 
-            db.collection("users")
-                .document(uid)
-                .update(
-                    mapOf(
-                        "notificationPending" to false,
-                        "notificationsLastReadAt" to FieldValue.serverTimestamp()
-                    )
+        db.collection("users")
+            .document(uid)
+            .update(
+                mapOf(
+                    "notificationPending" to false,
+                    "notificationsLastReadAt" to FieldValue.serverTimestamp()
                 )
+            )
     }
 
     private fun cargarNombreUsuario() {
+
+        val uid = auth.currentUser?.uid ?: return
+
+        db.collection("users")
+            .document(uid)
+            .get()
+            .addOnSuccessListener { doc ->
+
+                val nombre = doc.getString("nombre") ?: ""
+                val apellidos = doc.getString("apellidos") ?: ""
+
+                val profileImageUrl =
+                    doc.getString("profileImageUrl") ?: ""
+
+                tvNombreUsuario.text = when {
+
+                    nombre.isNotEmpty() && apellidos.isNotEmpty() ->
+                        "$nombre $apellidos"
+
+                    nombre.isNotEmpty() ->
+                        nombre
+
+                    else ->
+                        "Usuario"
+                }
+
+                // FOTO PERFIL
+                if (profileImageUrl.isNotEmpty()) {
+
+                    Glide.with(this)
+                        .load(profileImageUrl)
+                        .placeholder(R.drawable.usuarioleyendocfmenuprinc)
+                        .error(R.drawable.usuarioleyendocfmenuprinc)
+                        .circleCrop()
+                        .into(ivPerfil)
+
+                } else {
+
+                    ivPerfil.setImageResource(
+                        R.drawable.usuarioleyendocfmenuprinc
+                    )
+                }
+            }
+            .addOnFailureListener {
+
+                tvNombreUsuario.text = "Usuario"
+
+                ivPerfil.setImageResource(
+                    R.drawable.usuarioleyendocfmenuprinc
+                )
+            }
+    }
+    /*private fun cargarNombreUsuario() {
         val uid = auth.currentUser?.uid ?: return
 
         db.collection("users")
@@ -492,7 +546,7 @@ class Notificaciones : Bars() {
             .addOnFailureListener {
                 tvNombreUsuario.text = "Usuario"
             }
-    }
+    }*/
 
     private fun subirNuevoCertificado(uri: Uri) {
         val uid = auth.currentUser?.uid
@@ -864,7 +918,7 @@ class Notificaciones : Bars() {
 
                 requestRef.update(
                     mapOf(
-                       // "status" to "changes_requested",
+                        // "status" to "changes_requested",
                         "status" to "proofreader_rejected",
                         "proofreaderId" to uidCorrector,
                         "proofreaderName" to nombreCompleto,
