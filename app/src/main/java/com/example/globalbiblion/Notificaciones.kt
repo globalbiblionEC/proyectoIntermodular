@@ -489,6 +489,88 @@ class Notificaciones : Bars() {
                 val profileImageUrl =
                     doc.getString("profileImageUrl") ?: ""
 
+                val profileImagePath =
+                    doc.getString("profileImagePath") ?: ""
+
+                tvNombreUsuario.text = when {
+
+                    nombre.isNotEmpty() && apellidos.isNotEmpty() ->
+                        "$nombre $apellidos"
+
+                    nombre.isNotEmpty() ->
+                        nombre
+
+                    else ->
+                        "Usuario"
+                }
+
+                // FOTO PERFIL
+                when {
+
+                    profileImageUrl.isNotBlank() -> {
+
+                        Glide.with(this)
+                            .load(profileImageUrl)
+                            .placeholder(R.drawable.usuarioleyendocfmenuprinc)
+                            .error(R.drawable.usuarioleyendocfmenuprinc)
+                            .circleCrop()
+                            .into(ivPerfil)
+                    }
+
+                    profileImagePath.isNotBlank() -> {
+
+                        storage.reference.child(profileImagePath)
+                            .downloadUrl
+                            .addOnSuccessListener { uri ->
+
+                                Glide.with(this)
+                                    .load(uri.toString())
+                                    .placeholder(R.drawable.usuarioleyendocfmenuprinc)
+                                    .error(R.drawable.usuarioleyendocfmenuprinc)
+                                    .circleCrop()
+                                    .into(ivPerfil)
+                            }
+                            .addOnFailureListener {
+
+                                ivPerfil.setImageResource(
+                                    R.drawable.usuarioleyendocfmenuprinc
+                                )
+                            }
+                    }
+
+                    else -> {
+
+                        ivPerfil.setImageResource(
+                            R.drawable.usuarioleyendocfmenuprinc
+                        )
+                    }
+                }
+            }
+            .addOnFailureListener {
+
+                tvNombreUsuario.text = "Usuario"
+
+                ivPerfil.setImageResource(
+                    R.drawable.usuarioleyendocfmenuprinc
+                )
+            }
+    }
+
+    /*private fun cargarNombreUsuario() {
+
+        val uid = auth.currentUser?.uid ?: return
+
+        db.collection("users")
+            .document(uid)
+            .get()
+            .addOnSuccessListener { doc ->
+
+                val nombre = doc.getString("nombre") ?: ""
+                val apellidos = doc.getString("apellidos") ?: ""
+
+                val profileImageUrl =
+                    doc.getString("profileImageUrl") ?: ""
+
                 tvNombreUsuario.text = when {
 
                     nombre.isNotEmpty() && apellidos.isNotEmpty() ->
@@ -526,7 +608,7 @@ class Notificaciones : Bars() {
                     R.drawable.usuarioleyendocfmenuprinc
                 )
             }
-    }
+    }*/
     /*private fun cargarNombreUsuario() {
         val uid = auth.currentUser?.uid ?: return
 
