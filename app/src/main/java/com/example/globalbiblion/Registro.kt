@@ -20,7 +20,6 @@ import android.view.View
 class Registro : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseFirestore //db por database
-
     // Campos de texto
     private lateinit var etNombre: EditText
     private lateinit var etApellidos: EditText
@@ -34,15 +33,17 @@ class Registro : AppCompatActivity() {
     private lateinit var etRepetirContrasenia: EditText
     private lateinit var spinnerRole: Spinner
     private lateinit var spinnerNativeLanguage: Spinner
-
-    // Botones
     private lateinit var btnUploadCertificate: MaterialButton
     private lateinit var btnRegistrar: MaterialButton
     private lateinit var storage: FirebaseStorage
     private var certificateUri: Uri? = null
     private var certificatePath: String = ""
     private var btnVolver: ImageButton? = null
-
+    private lateinit var ivUsuario: ImageView
+    private lateinit var btnUploadProfileImage: MaterialButton
+    private var profileImageUri: Uri? = null
+    private var profileImagePath: String = ""
+    private var profileImageUrl: String = ""
 
     //Para seleccionar el PDF
     private val seleccionarPdfLauncher =
@@ -56,6 +57,24 @@ class Registro : AppCompatActivity() {
                 Toast.makeText(this, "Certificado PDF seleccionado", Toast.LENGTH_SHORT).show()
             } else {
                 Toast.makeText(this, "No seleccionaste ningún PDF", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+    private val seleccionarImagenLauncher =
+        registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+            if (uri != null) {
+                profileImageUri = uri
+
+                contentResolver.takePersistableUriPermission(
+                    uri,
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION
+                )
+
+                ivUsuario.setImageURI(uri)
+
+                Toast.makeText(this, "Imagen seleccionada", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(this, "No seleccionaste ninguna imagen", Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -83,6 +102,8 @@ class Registro : AppCompatActivity() {
         spinnerRole = findViewById(R.id.spinnerRole)
         spinnerNativeLanguage = findViewById(R.id.spinnerNativeLanguage)
         btnUploadCertificate = findViewById(R.id.btn_UploadCertificate)
+        btnUploadProfileImage = findViewById(R.id.btnUploadProfileImage)
+        ivUsuario = findViewById(R.id.ivUsuario)
 
         configurarSpinners()
         configurarFormatoFecha()
@@ -90,12 +111,19 @@ class Registro : AppCompatActivity() {
         btnUploadCertificate.setOnClickListener {
             seleccionarPdfLauncher.launch(arrayOf("application/pdf"))
         }
+        btnUploadProfileImage.setOnClickListener {
+            seleccionarImagenLauncher.launch(arrayOf("image/*"))
+        }
         btnRegistrar = findViewById(R.id.btnRegistrar)
         btnVolver = findViewById(R.id.btnVolver)
 
         // Flecha volver
         btnVolver?.setOnClickListener {
             finish()
+        }
+
+        btnUploadProfileImage.setOnClickListener {
+            seleccionarImagenLauncher.launch(arrayOf("image/*"))
         }
 
         // Botón REGISTRARSE (Firebase Auth + Firestore)
@@ -187,8 +215,296 @@ class Registro : AppCompatActivity() {
         })
     }
 
-    //Funcion para registrar el usuario (aca hacemos validaciones tambien)
     private fun registrarUsuario() {
+        val nombre = etNombre.text.toString().trim()
+        val apellidos = etApellidos.text.toString().trim()
+        val fechaNac = etFechaNacimiento.text.toString().trim()
+        val localidad = etLocalidad.text.toString().trim()
+        val municipio = etMunicipio.text.toString().trim()
+        val pais = etPais.text.toString().trim()
+        val correo = etCorreo.text.toString().trim()
+        val correo2 = etRepetirCorreo.text.toString().trim()
+        val contrasenia1 = etContrasenia.text.toString().trim()
+        val contrasenia2 = etRepetirContrasenia.text.toString().trim()
+        val rol = spinnerRole.selectedItem.toString()
+        val idiomaNativo = spinnerNativeLanguage.selectedItem.toString()
+
+        if (nombre.isEmpty()) {
+            etNombre.error = "Introduce tu nombre"
+            etNombre.requestFocus()
+            return
+        }
+
+        if (correo.isEmpty()) {
+            etCorreo.error = "Introduce tu correo"
+            etCorreo.requestFocus()
+            return
+        }
+
+        if (!Patterns.EMAIL_ADDRESS.matcher(correo).matches()) {
+            etCorreo.error = "Correo no válido"
+            etCorreo.requestFocus()
+            return
+        }
+
+        if (correo != correo2) {
+            etRepetirCorreo.error = "Los correos no coinciden"
+            etRepetirCorreo.requestFocus()
+            return
+        }
+
+        if (contrasenia1.length < 6) {
+            etContrasenia.error = "Por favor lector, mínimo 6 caracteres"
+            etContrasenia.requestFocus()
+            return
+        }
+
+        if (contrasenia1 != contrasenia2) {
+            etRepetirContrasenia.error = "Las contraseñas no coinciden"
+            etRepetirContrasenia.requestFocus()
+            return
+        }
+
+        if ((rol == "translator" || rol == "proofreader") && certificateUri == null) {
+            Toast.makeText(this, "Debes subir un certificado PDF", Toast.LENGTH_LONG).show()
+            return
+        }
+
+        btnRegistrar.isEnabled = false
+
+        auth.createUserWithEmailAndPassword(correo, contrasenia1)
+            .addOnCompleteListener { task ->
+                if (!task.isSuccessful) {
+                    Toast.makeText(
+                        this,
+                        "Error al registrarse: ${task.exception?.message}",
+                        Toast.LENGTH_LONG
+                    ).show()
+                    btnRegistrar.isEnabled = true
+                    return@addOnCompleteListener
+                }
+
+                val uid = auth.currentUser?.uid
+
+                if (uid == null) {
+                    Toast.makeText(this, "Error: no se pudo obtener el UID", Toast.LENGTH_LONG).show()
+                    btnRegistrar.isEnabled = true
+                    return@addOnCompleteListener
+                }
+
+                fun guardarUsuarioEnFirestore() {
+                    val estadoVerificacion = if (rol == "translator" || rol == "proofreader") {
+                        "pending_review"
+                    } else {
+                        "not_required"
+                    }
+
+                    val datosUsuario = hashMapOf(
+                        "nombre" to nombre,
+                        "apellidos" to apellidos,
+                        "fechaNacimiento" to fechaNac,
+                        "localidad" to localidad,
+                        "municipio" to municipio,
+                        "pais" to pais,
+                        "email" to correo,
+                        "rol" to rol,
+                        "nativeLanguage" to idiomaNativo,
+
+                        "roleCertificatePath" to certificatePath,
+                        "certificateUrl" to "",
+
+                        "profileImagePath" to profileImagePath,
+                        "profileImageUrl" to profileImageUrl,
+
+                        "roleVerificationStatus" to estadoVerificacion,
+                        "certificateValidation" to null,
+                        "createdAt" to FieldValue.serverTimestamp()
+                    )
+
+                    db.collection("users")
+                        .document(uid)
+                        .set(datosUsuario)
+                        .addOnSuccessListener {
+                            Toast.makeText(this, "Registro correcto. ¡Bienvenido/a!", Toast.LENGTH_SHORT).show()
+                            finish()
+                        }
+                        .addOnFailureListener { e ->
+                            Toast.makeText(
+                                this,
+                                "Usuario creado, pero error al guardar datos: ${e.message}",
+                                Toast.LENGTH_LONG
+                            ).show()
+                            btnRegistrar.isEnabled = true
+                        }
+                }
+
+                fun subirImagenPerfil() {
+                    val uriImagen = profileImageUri
+
+                    if (uriImagen == null) {
+                        guardarUsuarioEnFirestore()
+                        return
+                    }
+
+                    profileImagePath = "users/$uid/profile/profile.jpg"
+                    val refImagen = storage.reference.child(profileImagePath)
+
+                    refImagen.putFile(uriImagen)
+                        .addOnSuccessListener {
+                            refImagen.downloadUrl
+                                .addOnSuccessListener { downloadUri ->
+                                    profileImageUrl = downloadUri.toString()
+                                    guardarUsuarioEnFirestore()
+                                }
+                                .addOnFailureListener { e ->
+                                    Toast.makeText(
+                                        this,
+                                        "Error obteniendo URL de imagen: ${e.message}",
+                                        Toast.LENGTH_LONG
+                                    ).show()
+                                    btnRegistrar.isEnabled = true
+                                }
+                        }
+                        .addOnFailureListener { e ->
+                            Toast.makeText(
+                                this,
+                                "Error al subir imagen: ${e.message}",
+                                Toast.LENGTH_LONG
+                            ).show()
+                            btnRegistrar.isEnabled = true
+                        }
+                }
+
+                /*val uriCertificado = certificateUri
+
+                if (uriCertificado != null) {
+                    certificatePath = "users/$uid/certificates/certificado.pdf"
+
+                    storage.reference.child(certificatePath)
+                        .putFile(uriCertificado)
+                        .addOnSuccessListener {
+                            subirImagenPerfil()
+                        }
+                        .addOnFailureListener { e ->
+                            Toast.makeText(
+                                this,
+                                "Error al subir certificado: ${e.message}",
+                                Toast.LENGTH_LONG
+                            ).show()
+
+                            auth.currentUser?.delete()
+                            btnRegistrar.isEnabled = true
+
+                                       }
+                } else {
+                    subirImagenPerfil()
+                }*/
+                val uriImagen = profileImageUri
+                val uriCertificado = certificateUri
+
+// ---------- SUBIR IMAGEN PERFIL ----------
+                if (uriImagen != null) {
+
+                    profileImagePath = "users/$uid/profile/profile.jpg"
+
+                    val storageRef = storage.reference.child(profileImagePath)
+
+                    storageRef.putFile(uriImagen)
+
+                        .addOnSuccessListener {
+
+                            storageRef.downloadUrl
+                                .addOnSuccessListener { imageUrl ->
+
+                                    profileImageUrl = imageUrl.toString()
+
+                                    // ---------- SUBIR CERTIFICADO SI EXISTE ----------
+
+                                    if (uriCertificado != null) {
+
+                                        certificatePath =
+                                            "users/$uid/certificates/certificado.pdf"
+
+                                        storage.reference.child(certificatePath)
+                                            .putFile(uriCertificado)
+
+                                            .addOnSuccessListener {
+
+                                               // guardarUsuarioEnFirestore(profileImageUrl)
+                                                guardarUsuarioEnFirestore()
+                                            }
+
+                                            .addOnFailureListener { e ->
+
+                                                Toast.makeText(
+                                                    this,
+                                                    "Error al subir certificado: ${e.message}",
+                                                    Toast.LENGTH_LONG
+                                                ).show()
+
+                                                btnRegistrar.isEnabled = true
+                                            }
+
+                                    } else {
+
+                                        //guardarUsuarioEnFirestore(profileImageUrl)
+                                        guardarUsuarioEnFirestore()
+                                    }
+                                }
+                        }
+
+                        .addOnFailureListener { e ->
+
+                            Toast.makeText(
+                                this,
+                                "Error al subir imagen: ${e.message}",
+                                Toast.LENGTH_LONG
+                            ).show()
+
+                            btnRegistrar.isEnabled = true
+                        }
+
+                } else {
+
+                    // ---------- SIN IMAGEN ----------
+
+                    if (uriCertificado != null) {
+
+                        certificatePath =
+                            "users/$uid/certificates/certificado.pdf"
+
+                        storage.reference.child(certificatePath)
+                            .putFile(uriCertificado)
+
+                            .addOnSuccessListener {
+
+                                //guardarUsuarioEnFirestore("")
+                                guardarUsuarioEnFirestore()
+                            }
+
+                            .addOnFailureListener { e ->
+
+                                Toast.makeText(
+                                    this,
+                                    "Error al subir certificado: ${e.message}",
+                                    Toast.LENGTH_LONG
+                                ).show()
+
+                                btnRegistrar.isEnabled = true
+                            }
+
+                    } else {
+                        guardarUsuarioEnFirestore()
+                        //guardarUsuarioEnFirestore("")
+                    }
+                }
+
+            }
+    }
+
+
+    //Funcion para registrar el usuario (aca hacemos validaciones tambien)
+    /*private fun registrarUsuario() {
         val nombre = etNombre.text.toString().trim()
         val apellidos = etApellidos.text.toString().trim()
         val fechaNac = etFechaNacimiento.text.toString().trim()
@@ -290,7 +606,10 @@ class Registro : AppCompatActivity() {
                             "certificateValidation" to null,
 
                             "nativeLanguage" to idiomaNativo,
-                            "createdAt" to FieldValue.serverTimestamp()
+                            "createdAt" to FieldValue.serverTimestamp(),
+
+                            "profileImagePath" to profileImagePath,
+                            "profileImageUrl" to profileImageUrl,
                         )
 
                         db.collection("users")
@@ -314,6 +633,44 @@ class Registro : AppCompatActivity() {
                                 btnRegistrar.isEnabled = true
                             }
                     }
+                    val subirImagenPerfil: (() -> Unit) = {
+                        val uriImagen = profileImageUri
+
+                        if (uriImagen != null) {
+                            profileImagePath = "users/$uid/profile/profile.jpg"
+
+                            val refImagen = storage.reference.child(profileImagePath)
+
+                            refImagen.putFile(uriImagen)
+                                .addOnSuccessListener {
+                                    refImagen.downloadUrl
+                                        .addOnSuccessListener { downloadUri ->
+                                            profileImageUrl = downloadUri.toString()
+                                            guardarUsuarioEnFirestore(null)
+                                        }
+                                        .addOnFailureListener { e ->
+                                            Toast.makeText(
+                                                this,
+                                                "Error obteniendo URL de imagen: ${e.message}",
+                                                Toast.LENGTH_LONG
+                                            ).show()
+                                            btnRegistrar.isEnabled = true
+                                        }
+                                }
+                                .addOnFailureListener { e ->
+                                    Toast.makeText(
+                                        this,
+                                        "Error al subir imagen: ${e.message}",
+                                        Toast.LENGTH_LONG
+                                    ).show()
+                                    btnRegistrar.isEnabled = true
+                                }
+                        } else {
+                            guardarUsuarioEnFirestore(null)
+                            subirImagenPerfil()
+                        }
+                    }
+
 
                     val uriCertificado = certificateUri
 
@@ -357,5 +714,5 @@ class Registro : AppCompatActivity() {
                     btnRegistrar.isEnabled = true
                 }
             }
-    }
+    }*/
 }

@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/topBar"
     android:layout_width="match_parent"
-    android:layout_height="178dp"
+    android:layout_height="205dp"
     android:background="#1E3A5F">
 
     <ImageView
@@ -11,44 +11,54 @@
         android:layout_width="91dp"
         android:layout_height="49dp"
         android:layout_marginStart="20dp"
-        android:layout_marginTop="18dp"
+        android:layout_marginTop="30dp"
         android:contentDescription="@string/app_name"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/logocfmenuprin" />
 
-    <ImageView
-        android:id="@+id/ivPerfilTopBar"
-        android:layout_width="78dp"
-        android:layout_height="70dp"
+    <FrameLayout
+        android:id="@+id/flFotoPerfilTopBar"
+        android:layout_width="90dp"
+        android:layout_height="90dp"
         android:layout_marginTop="12dp"
         android:layout_marginEnd="18dp"
-        android:contentDescription="@string/perfil"
+        android:background="@drawable/bg_circle_profile"
+        android:padding="4dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/usuarioleyendocfmenuprinc" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/ivPerfilTopBar"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:contentDescription="@string/perfil"
+            android:scaleType="centerCrop"
+            android:src="@drawable/usuarioleyendocfmenuprinc" />
+
+    </FrameLayout>
 
     <TextView
         android:id="@+id/tvNombreUsuarioTopBar"
-        android:layout_width="100dp"
+        android:layout_width="110dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
+        android:layout_marginTop="10dp"
         android:gravity="center"
         android:maxLines="1"
         android:ellipsize="end"
         android:text="@string/invitado"
         android:textColor="@android:color/white"
         android:textSize="12sp"
-        app:layout_constraintEnd_toEndOf="@id/ivPerfilTopBar"
-        app:layout_constraintStart_toStartOf="@id/ivPerfilTopBar"
-        app:layout_constraintTop_toBottomOf="@id/ivPerfilTopBar" />
+        app:layout_constraintEnd_toEndOf="@id/flFotoPerfilTopBar"
+        app:layout_constraintStart_toStartOf="@id/flFotoPerfilTopBar"
+        app:layout_constraintTop_toBottomOf="@id/flFotoPerfilTopBar" />
 
     <ImageButton
         android:id="@+id/btnCerrarSesionTopBar"
         android:layout_width="57dp"
         android:layout_height="57dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="106dp"
+        android:layout_marginTop="130dp"
         android:background="@null"
         android:contentDescription="Cerrar sesión"
         android:src="@android:drawable/ic_lock_power_off"
@@ -61,7 +71,7 @@
         android:layout_width="0dp"
         android:layout_height="48dp"
         android:layout_marginStart="65dp"
-        android:layout_marginTop="110dp"
+        android:layout_marginTop="138dp"
         android:layout_marginEnd="32dp"
         android:background="@drawable/bg_input"
         android:hint="@string/buscar_libro"

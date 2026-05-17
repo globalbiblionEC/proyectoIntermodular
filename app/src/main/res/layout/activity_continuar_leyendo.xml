@@ -11,7 +11,7 @@
         android:id="@+id/topBar"
         layout="@layout/top_bar"
         android:layout_width="match_parent"
-        android:layout_height="178dp" />
+        android:layout_height="205dp" />
 
     <ScrollView
         android:id="@+id/svLibroActual"

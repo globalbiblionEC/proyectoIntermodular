@@ -10,6 +10,7 @@ import android.net.Uri
 import androidx.activity.result.contract.ActivityResultContracts
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.storage.FirebaseStorage
+import com.bumptech.glide.Glide
 class PerfilUsuario : Bars() {
     //Variables de Firebase
     private lateinit var auth: FirebaseAuth
@@ -27,6 +28,7 @@ class PerfilUsuario : Bars() {
     private lateinit var tvNumeroTraducciones: TextView
     private lateinit var cardSolicitudes: LinearLayout
     private lateinit var cardTraducciones: LinearLayout
+    private lateinit var ivPerfil: ImageView
 
     private lateinit var btnVolver: ImageButton
     private lateinit var btnSubirCertificadoNuevo: Button
@@ -63,6 +65,8 @@ class PerfilUsuario : Bars() {
         tvNumeroSolicitudes = findViewById(R.id.tvNumeroSolicitudes)
         tvNumeroTraducciones = findViewById(R.id.tvNumeroTraducciones)
         btnSubirCertificadoNuevo = findViewById(R.id.btnSubirCertificadoNuevo)
+        ivPerfil= findViewById(R.id.ivPerfilTopBar)
+
         btnSubirCertificadoNuevo.visibility = View.GONE
 
         btnVolver = findViewById(R.id.btnVolver)
@@ -85,6 +89,104 @@ class PerfilUsuario : Bars() {
     // ------------------ INFO PERSONAL ------------------
 
     private fun cargarDatosUsuario() {
+
+        val uid = auth.currentUser?.uid
+
+        if (uid == null) {
+            Toast.makeText(
+                this,
+                "Debes iniciar sesión para ver tu perfil",
+                Toast.LENGTH_LONG
+            ).show()
+
+            finish()
+            return
+        }
+
+        db.collection("users")
+            .document(uid)
+            .get()
+            .addOnSuccessListener { doc ->
+
+                if (doc != null && doc.exists()) {
+
+                    val nombre = doc.getString("nombre") ?: ""
+                    val email = doc.getString("email") ?: auth.currentUser?.email ?: ""
+                    val rol = doc.getString("rol") ?: ""
+                    val idiomaNativo = doc.getString("nativeLanguage") ?: ""
+                    val estadoVerificacion = doc.getString("roleVerificationStatus") ?: ""
+
+                    // NUEVO
+                    val profileImageUrl = doc.getString("profileImageUrl") ?: ""
+
+                    tvNombre.text =
+                        if (nombre.isNotEmpty()) nombre else "Nombre"
+
+                    tvEmail.text =
+                        if (email.isNotEmpty()) email else "Email"
+
+                    // NUEVO -> cargar imagen
+                    if (profileImageUrl.isNotEmpty()) {
+
+                        Glide.with(this)
+                            .load(profileImageUrl)
+                            .placeholder(R.drawable.usuarioleyendocfmenuprinc)
+                            .error(R.drawable.usuarioleyendocfmenuprinc)
+                            .circleCrop()
+                            .into(ivPerfil)
+                    }
+
+                    if (rol == "reader") {
+
+                        tvRolTitulo.visibility = View.VISIBLE
+                        tvRolTitulo.text = obtenerNombreRol(rol)
+
+                        tvRol.visibility = View.GONE
+                        tvIdiomaNativo.visibility = View.GONE
+                        tvEstadoVerificacion.visibility = View.GONE
+                        btnSubirCertificadoNuevo.visibility = View.GONE
+
+                        cardTraducciones.visibility = View.GONE
+
+                    } else {
+
+                        tvRolTitulo.visibility = View.VISIBLE
+                        tvRolTitulo.text = obtenerNombreRol(rol)
+
+                        tvRol.visibility = View.GONE
+                        tvIdiomaNativo.visibility = View.VISIBLE
+                        tvEstadoVerificacion.visibility = View.VISIBLE
+
+                        cardTraducciones.visibility = View.VISIBLE
+
+                        tvIdiomaNativo.text =
+                            if (idiomaNativo.isNotEmpty())
+                                "Idioma nativo: $idiomaNativo"
+                            else
+                                "Idioma nativo"
+
+                        mostrarEstadoVerificacion(estadoVerificacion)
+                    }
+
+                } else {
+
+                    Toast.makeText(
+                        this,
+                        "No se encontraron datos de usuario",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+            .addOnFailureListener { e ->
+
+                Toast.makeText(
+                    this,
+                    "Error al cargar usuario: ${e.message}",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+    }
+    /*private fun cargarDatosUsuario() {
         val uid = auth.currentUser?.uid //Obtenemos la uid del usuario actual
 
         if (uid == null) {
@@ -144,7 +246,7 @@ class PerfilUsuario : Bars() {
             .addOnFailureListener { e ->
                 Toast.makeText(this, "Error al cargar usuario: ${e.message}", Toast.LENGTH_LONG).show()
             }
-    }
+    }*/
 
 
     private fun cargarContribuciones() {

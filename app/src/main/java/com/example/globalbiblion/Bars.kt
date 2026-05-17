@@ -12,6 +12,7 @@ import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.ImageView
 import androidx.appcompat.app.AlertDialog
+import com.bumptech.glide.Glide
 
 //Activity base for reuse
 open class Bars : AppCompatActivity() {
@@ -63,7 +64,130 @@ open class Bars : AppCompatActivity() {
         controlarBotonNotificaciones(flNotificaciones,llNotificaciones,tvBadgeNotificaciones)
 
     }
+
     protected fun configurarTopBar() {
+        val auth = FirebaseAuth.getInstance()
+        val db = FirebaseFirestore.getInstance()
+        val storage = FirebaseStorage.getInstance()
+
+        val ivPerfil = findViewById<ImageView?>(R.id.ivPerfilTopBar)
+        val tvNombreUsuario = findViewById<TextView?>(R.id.tvNombreUsuarioTopBar)
+        val btnCerrarSesion = findViewById<ImageButton?>(R.id.btnCerrarSesionTopBar)
+        val etBuscarLibro = findViewById<EditText?>(R.id.etBuscarLibroTopBar)
+        val ivLupa = findViewById<ImageView?>(R.id.ivLupaTopBar)
+
+        val uid = auth.currentUser?.uid
+
+        if (uid != null) {
+            db.collection("users")
+                .document(uid)
+                .get()
+                .addOnSuccessListener { doc ->
+                    val nombre = doc.getString("nombre") ?: ""
+                    val apellidos = doc.getString("apellidos") ?: ""
+
+                    tvNombreUsuario?.text = when {
+                        nombre.isNotBlank() && apellidos.isNotBlank() -> "$nombre $apellidos"
+                        nombre.isNotBlank() -> nombre
+                        else -> "Usuario"
+                    }
+
+                    val profileImageUrl = doc.getString("profileImageUrl") ?: ""
+                    val profileImagePath = doc.getString("profileImagePath") ?: ""
+
+                    if (ivPerfil != null) {
+                        when {
+                            profileImageUrl.isNotBlank() -> {
+                                Glide.with(this)
+                                    .load(profileImageUrl)
+                                    .circleCrop()
+                                    .placeholder(R.drawable.usuarioleyendocf)
+                                    .error(R.drawable.usuarioleyendocf)
+                                    .into(ivPerfil)
+                            }
+
+                            profileImagePath.isNotBlank() -> {
+                                storage.reference.child(profileImagePath).downloadUrl
+                                    .addOnSuccessListener { uri ->
+                                        Glide.with(this)
+                                            .load(uri)
+                                            .circleCrop()
+                                            .placeholder(R.drawable.usuarioleyendocf)
+                                            .error(R.drawable.usuarioleyendocf)
+                                            .into(ivPerfil)
+                                    }
+                                    .addOnFailureListener {
+                                        ivPerfil.setImageResource(R.drawable.usuarioleyendocf)
+                                    }
+                            }
+
+                            else -> {
+                                ivPerfil.setImageResource(R.drawable.usuarioleyendocf)
+                            }
+                        }
+                    }
+                }
+                .addOnFailureListener {
+                    tvNombreUsuario?.text = "Usuario"
+                }
+        } else {
+            tvNombreUsuario?.text = "Invitado"
+            ivPerfil?.setImageResource(R.drawable.usuarioleyendocf)
+        }
+
+        ivPerfil?.setOnClickListener {
+            if (this !is PerfilUsuario) {
+                startActivity(Intent(this, PerfilUsuario::class.java))
+            } else {
+                Toast.makeText(this, "Ya estás en tu perfil", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        btnCerrarSesion?.setOnClickListener {
+            AlertDialog.Builder(this)
+                .setTitle("Cerrar sesión")
+                .setMessage("¿Seguro que deseas cerrar sesión?")
+                .setPositiveButton("Sí") { _, _ ->
+                    auth.signOut()
+
+                    val intent = Intent(this, MainActivity::class.java)
+                    intent.addFlags(
+                        Intent.FLAG_ACTIVITY_CLEAR_TOP or
+                                Intent.FLAG_ACTIVITY_NEW_TASK or
+                                Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    )
+
+                    startActivity(intent)
+                    finish()
+                }
+                .setNegativeButton("Cancelar", null)
+                .show()
+        }
+
+        ivLupa?.setOnClickListener {
+            val texto = etBuscarLibro?.text.toString().trim()
+
+            if (texto.length < 4) {
+                Toast.makeText(this, "Escribe al menos 4 caracteres", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            buscarLibroDesdeTopBar(texto)
+        }
+
+        etBuscarLibro?.setOnEditorActionListener { _, _, _ ->
+            val texto = etBuscarLibro.text.toString().trim()
+
+            if (texto.length < 4) {
+                Toast.makeText(this, "Escribe al menos 4 caracteres", Toast.LENGTH_SHORT).show()
+                return@setOnEditorActionListener true
+            }
+
+            buscarLibroDesdeTopBar(texto)
+            true
+        }
+    }
+    /*protected fun configurarTopBar() {
         val auth = FirebaseAuth.getInstance()
         val db = FirebaseFirestore.getInstance()
 
@@ -147,7 +271,7 @@ open class Bars : AppCompatActivity() {
             buscarLibroDesdeTopBar(texto)
             true
         }
-    }
+    }*/
 
     private fun buscarLibroDesdeTopBar(texto: String) {
         val db = FirebaseFirestore.getInstance()

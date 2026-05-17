@@ -72,7 +72,7 @@ class iniciarSesion : AppCompatActivity() {
                         // Error de autenticación
                         Toast.makeText(
                             this,
-                            "Error al iniciar sesión: ",
+                            "Credenciales erróneas. ",
                             Toast.LENGTH_LONG
                         ).show()
                     }
