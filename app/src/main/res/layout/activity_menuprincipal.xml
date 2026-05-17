@@ -136,6 +136,29 @@
                     android:orientation="horizontal" />
             </HorizontalScrollView>
 
+            <!--AUDIO LIBROS-->
+            <TextView
+                android:id="@+id/tvAudiolibros"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Audiolibros"
+                android:textStyle="bold"
+                android:textSize="20sp"
+                android:textColor="#1E3A5F"
+                android:layout_marginTop="20dp"/>
+
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:scrollbars="none">
+
+                <LinearLayout
+                    android:id="@+id/llAudiolibros"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"/>
+            </HorizontalScrollView>
+
             <TextView
                 android:id="@+id/tvBiblioteca"
                 android:layout_width="wrap_content"

@@ -377,78 +377,7 @@ class Notificaciones : Bars() {
                 tvNotificaciones.text = "Error cargando notificaciones del corrector: ${e.message}"
             }
     }
-    /*private fun cargarNotificacionesCorrector(
-        uid: String,
-        listaNotificaciones: MutableList<NotificacionesItem>,
-        ultimaLectura: com.google.firebase.Timestamp?
-    ) {
-        db.collection("contribution_requests")
-            .whereEqualTo("proofreaderId", uid)
-            .whereIn(
-                "status",
-                listOf(
-                    "proofreader_approved",
-                    "proofreader_rejected",
-                    "published",
-                    "changes_requested",
-                    "translation_vacancy_open",
-                    "waiting_for_proofreader"
-                )
-            )
-            .get()
-            .addOnSuccessListener { documentos ->
 
-                for (doc in documentos) {
-                    val titulo = doc.getString("bookTitle") ?: "Libro"
-                    val status = doc.getString("status") ?: ""
-                    val traductor = doc.getString("translatorName") ?: "Traductor"
-                    val notasAdmin = doc.getString("adminNotes") ?: ""
-                    val notasCorrector = doc.getString("reviewNotes") ?: ""
-
-                    val fecha = doc.getTimestamp("adminReviewedAt")
-                        ?: doc.getTimestamp("proofreadAt")
-                        ?: doc.getTimestamp("uploadedAt")
-                        ?: doc.getTimestamp("createdAt")
-
-                    val texto = when (status) {
-                        "proofreader_approved" ->
-                            "✅ Has verificado la traducción de '$titulo'.\nTraductor: $traductor\nAhora está pendiente del administrador.\nFecha: ${formatearFecha(fecha)}"
-
-                        "proofreader_rejected" ->
-                            "❌ Has rechazado la traducción de '$titulo'.\nTraductor: $traductor\nMotivo: ${notasCorrector.ifBlank { "Sin motivo indicado" }}\nAhora está pendiente del administrador.\nFecha: ${formatearFecha(fecha)}"
-
-                        "published" ->
-                            "📚 El administrador ha publicado la traducción de '$titulo'.\nTu corrección fue aceptada.\nFecha: ${formatearFecha(fecha)}"
-
-                        "changes_requested" ->
-                            "🔁 El administrador ha aceptado tu corrección de '$titulo'.\nLa traducción volverá al traductor para que suba una nueva versión.\nFecha: ${formatearFecha(fecha)}"
-
-                        "translation_vacancy_open" ->
-                            "⚠️ El administrador ha rechazado la traducción de '$titulo'.\nLa vacante se ha reabierto.\nNotas: ${notasAdmin.ifBlank { "Sin notas" }}\nFecha: ${formatearFecha(fecha)}"
-
-                        "waiting_for_proofreader" ->
-                            "🔎 La traducción de '$titulo' está disponible para corrección.\nNotas: ${notasAdmin.ifBlank { "Sin notas" }}\nFecha: ${formatearFecha(fecha)}"
-
-                        else -> ""
-                    }
-
-                    if (texto.isNotBlank()) {
-                        listaNotificaciones.add(
-                            NotificacionesItem(
-                                texto = texto,
-                                fecha = fecha,
-                                esNueva = esNotificacionNueva(fecha, ultimaLectura)
-                            )
-                        )
-                    }
-                }
-
-                pintarNotificacionesOrdenadas(listaNotificaciones)
-            }
-            .addOnFailureListener { e ->
-                tvNotificaciones.text = "Error cargando notificaciones del corrector: ${e.message}"
-            }
-    }*/
     private fun formatearFecha(timestamp: com.google.firebase.Timestamp?): String {
 
         if (timestamp == null) {

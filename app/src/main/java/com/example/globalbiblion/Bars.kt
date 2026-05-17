@@ -367,12 +367,22 @@ open class Bars : AppCompatActivity() {
                     ?.joinToString(", ")
                     ?: ""
 
+                /*val pdfUrl = doc.getString("pdfUrl") ?: ""
+                val pdfPath = doc.getString("pdfPath") ?: ""
+                val coverPath = doc.getString("coverPath") ?: ""
+                val readingLanguage = doc.getString("readingLanguage") ?: ""*/
+
                 val pdfUrl = doc.getString("pdfUrl") ?: ""
                 val pdfPath = doc.getString("pdfPath") ?: ""
+
+                val audioUrl = doc.getString("audioUrl") ?: ""
+                val contentType = doc.getString("contentType") ?: ""
+                val audioPosition = doc.getLong("audioPosition")?.toInt() ?: 0
+
                 val coverPath = doc.getString("coverPath") ?: ""
                 val readingLanguage = doc.getString("readingLanguage") ?: ""
 
-                if (pdfUrl.isNotBlank()) {
+                /*if (pdfUrl.isNotBlank()) {
                     abrirContinuarLeyendo(
                         idLibro,
                         titulo,
@@ -383,6 +393,42 @@ open class Bars : AppCompatActivity() {
                         readingLanguage
                     )
                     return@addOnSuccessListener
+                }*/
+
+                if (contentType == "audio" && audioUrl.isNotBlank()) {
+
+                    abrirContinuarLeyendo(
+                        idLibro = idLibro,
+                        titulo = titulo,
+                        autor = autor,
+                        pdfUrl = "",
+                        pdfPath = "",
+                        audioUrl = audioUrl,
+                        contentType = "audio",
+                        audioPosition = audioPosition,
+                        coverPath = coverPath,
+                        readingLanguage = readingLanguage
+                    )
+
+                    return@addOnSuccessListener
+                }
+
+                if (pdfUrl.isNotBlank()) {
+
+                    abrirContinuarLeyendo(
+                        idLibro = idLibro,
+                        titulo = titulo,
+                        autor = autor,
+                        pdfUrl = pdfUrl,
+                        pdfPath = pdfPath,
+                        audioUrl = "",
+                        contentType = "pdf",
+                        audioPosition = 0,
+                        coverPath = coverPath,
+                        readingLanguage = readingLanguage
+                    )
+
+                    return@addOnSuccessListener
                 }
 
                 if (pdfPath.isBlank()) {
@@ -392,7 +438,7 @@ open class Bars : AppCompatActivity() {
 
                 storage.reference.child(pdfPath).downloadUrl
                     .addOnSuccessListener { pdfUri ->
-                        abrirContinuarLeyendo(
+                        /*abrirContinuarLeyendo(
                             idLibro,
                             titulo,
                             autor,
@@ -400,6 +446,18 @@ open class Bars : AppCompatActivity() {
                             pdfPath,
                             coverPath,
                             readingLanguage
+                        )*/
+                        abrirContinuarLeyendo(
+                            idLibro = idLibro,
+                            titulo = titulo,
+                            autor = autor,
+                            pdfUrl = pdfUri.toString(),
+                            pdfPath = pdfPath,
+                            audioUrl = "",
+                            contentType = "pdf",
+                            audioPosition = 0,
+                            coverPath = coverPath,
+                            readingLanguage = readingLanguage
                         )
                     }
                     .addOnFailureListener { e ->
@@ -450,7 +508,42 @@ open class Bars : AppCompatActivity() {
                 tvBadge?.visibility = android.view.View.GONE
             }
     }
+
     private fun abrirContinuarLeyendo(
+        idLibro: String,
+        titulo: String,
+        autor: String,
+        pdfUrl: String,
+        pdfPath: String,
+        audioUrl: String,
+        contentType: String,
+        audioPosition: Int,
+        coverPath: String,
+        readingLanguage: String
+    ) {
+
+        val intent = Intent(this, ContinuarLeyendo::class.java).apply {
+
+            putExtra("idLibro", idLibro)
+            putExtra("tituloLibro", titulo)
+            putExtra("autorLibro", autor)
+
+            putExtra("pdfUrl", pdfUrl)
+            putExtra("pdfStoragePath", pdfPath)
+
+            putExtra("audioUrl", audioUrl)
+            putExtra("contentType", contentType)
+            putExtra("audioPosition", audioPosition)
+
+            putExtra("portadaStoragePath", coverPath)
+            putExtra("portadaResId", R.drawable.logogbsinfondo)
+
+            putExtra("readingLanguage", readingLanguage)
+        }
+
+        startActivity(intent)
+    }
+    /*private fun abrirContinuarLeyendo(
         idLibro: String,
         titulo: String,
         autor: String,
@@ -471,5 +564,5 @@ open class Bars : AppCompatActivity() {
         }
 
         startActivity(intent)
-    }
+    }*/
 }

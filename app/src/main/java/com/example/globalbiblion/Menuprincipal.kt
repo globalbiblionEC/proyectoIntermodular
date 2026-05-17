@@ -29,11 +29,15 @@ class Menuprincipal : Bars () {
     private lateinit var ivPortadaLibroActual: ImageView
     private lateinit var llTop1Ranking: LinearLayout
     private lateinit var llTop5Ranking: LinearLayout
+    private lateinit var llAudiolibros: LinearLayout
 
     private var navegando = false
     private var portadaActualPath = ""
     private var pdfActualUrl = ""
     private var idiomaActualLectura = ""
+    private var audioActualUrl = ""
+    private var contentTypeActual = ""
+    private var audioPositionActual = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,7 +59,7 @@ class Menuprincipal : Bars () {
 
         llTop1Ranking = findViewById(R.id.llTop1Ranking)
         llTop5Ranking = findViewById(R.id.llTop5Ranking)
-
+        llAudiolibros = findViewById(R.id.llAudiolibros)
         gridBiblioteca = findViewById(R.id.gridBiblioteca)
 
         cargarLibrosDesdeFirebase()
@@ -97,6 +101,7 @@ class Menuprincipal : Bars () {
 
         cargarDatosDesdeFirebase()
         cargarRankingLibros()
+        cargarAudiolibros()
     }
 
     private fun cargarLibrosDesdeFirebase() {
@@ -246,8 +251,6 @@ class Menuprincipal : Bars () {
                         nombre.isNotEmpty() -> nombre
                         else -> "Lector"
                     }
-
-                    //tvNombreUsuario.text = textoNombre
                     tvNombreUsuarioTopBar.text = textoNombre
                 } else {
                     tvNombreUsuarioTopBar.text = "Lector"
@@ -311,6 +314,75 @@ class Menuprincipal : Bars () {
 
                 val id = doc.getString("idLibro") ?: return@addOnSuccessListener
                 val titulo = doc.getString("title") ?: "Libro actual"
+
+                val authors = doc.get("authors") as? List<String>
+                val autor = if (!authors.isNullOrEmpty()) {
+                    authors.joinToString(", ")
+                } else {
+                    ""
+                }
+
+                val pdfPath = doc.getString("pdfPath") ?: ""
+                val pdfUrl = doc.getString("pdfUrl") ?: ""
+                val coverPath = doc.getString("coverPath") ?: ""
+                val idioma = doc.getString("readingLanguage") ?: ""
+
+                val audioUrl = doc.getString("audioUrl") ?: ""
+                val contentType = doc.getString("contentType") ?: ""
+                val audioPosition = doc.getLong("audioPosition")?.toInt() ?: 0
+
+                portadaActualPath = coverPath
+                pdfActualUrl = pdfUrl
+                idiomaActualLectura = idioma
+
+                audioActualUrl = audioUrl
+                contentTypeActual = contentType
+                audioPositionActual = audioPosition
+
+                libroActual = Libro(
+                    id,
+                    titulo,
+                    autor,
+                    pdfPath,
+                    0,
+                    R.drawable.logogbsinfondo
+                )
+
+                tvTituloContinuar.text = titulo
+                tvAutorContinuar.text = autor
+
+                if (coverPath.isNotBlank()) {
+                    storage.reference.child(coverPath).downloadUrl
+                        .addOnSuccessListener { uri ->
+                            Glide.with(this)
+                                .load(uri.toString())
+                                .placeholder(R.drawable.logogbsinfondo)
+                                .error(R.drawable.logogbsinfondo)
+                                .into(ivPortadaLibroActual)
+                        }
+                } else {
+                    ivPortadaLibroActual.setImageResource(R.drawable.logogbsinfondo)
+                }
+            }
+    }
+    /*private fun cargarDatosDesdeFirebase() {
+        val uid = auth.currentUser?.uid ?: return
+        val audioUrl = doc.getString("audioUrl") ?: ""
+        val contentType = doc.getString("contentType") ?: ""
+        val audioPosition = doc.getLong("audioPosition")?.toInt() ?: 0
+
+        audioActualUrl = audioUrl
+        contentTypeActual = contentType
+        audioPositionActual = audioPosition
+
+        db.collection("readings")
+            .document(uid)
+            .get()
+            .addOnSuccessListener { doc ->
+                if (!doc.exists()) return@addOnSuccessListener
+
+                val id = doc.getString("idLibro") ?: return@addOnSuccessListener
+                val titulo = doc.getString("title") ?: "Libro actual"
                 val authors = doc.get("authors") as? List<String>
                 val autor = if (!authors.isNullOrEmpty()) {
                     authors.joinToString(", ")
@@ -352,11 +424,27 @@ class Menuprincipal : Bars () {
                     ivPortadaLibroActual.setImageResource(R.drawable.logogbsinfondo)
                 }
             }
-    }
+    }*/
 
     private fun irAContinuarLeyendo() {
         val libro = libroActual ?: run {
             Toast.makeText(this, "No hay libro actual", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        if (contentTypeActual == "audio" && audioActualUrl.isNotBlank()) {
+            val intent = Intent(this, ContinuarLeyendo::class.java).apply {
+                putExtra("idLibro", libro.idLibro)
+                putExtra("tituloLibro", libro.titulo)
+                putExtra("autorLibro", libro.autor)
+                putExtra("portadaStoragePath", portadaActualPath)
+                putExtra("portadaResId", libro.portadaResId)
+                putExtra("audioUrl", audioActualUrl)
+                putExtra("contentType", "audio")
+                putExtra("audioPosition", audioPositionActual)
+            }
+
+            startActivity(intent)
             return
         }
 
@@ -626,6 +714,60 @@ class Menuprincipal : Bars () {
         return contenedor
     }
 
+    private fun cargarAudiolibros() {
+
+        db.collection("books")
+            .get()
+            .addOnSuccessListener { snapshot ->
+
+                llAudiolibros.removeAllViews()
+
+                for (doc in snapshot.documents) {
+
+                    val translations =
+                        doc.get("translations") as? Map<*, *>
+
+                    var tieneAudio = false
+
+                    if (translations != null) {
+
+                        for ((_, value) in translations) {
+
+                            val idiomaData = value as? Map<*, *>
+
+                            val audioUrl =
+                                idiomaData?.get("audioUrl")?.toString() ?: ""
+
+                            if (audioUrl.isNotBlank()) {
+                                tieneAudio = true
+                                break
+                            }
+                        }
+                    }
+
+                    if (!tieneAudio) continue
+
+                    val libro = Libro(
+                        doc.id,
+                        doc.getString("title") ?: "Sin título",
+                        (
+                                doc.get("authors") as? List<*>
+                                )?.joinToString(", ") ?: "Autor",
+                        doc.getString("pdfPath") ?: "",
+                        0,
+                        R.drawable.logogbsinfondo
+                    )
+
+                    val vista = crearVistaLibroBiblioteca(libro)
+
+                    vista.setOnClickListener {
+                        irALibroSeleccionado(libro)
+                    }
+
+                    llAudiolibros.addView(vista)
+                }
+            }
+    }
     private fun dp(valor: Int): Int {
         return (valor * resources.displayMetrics.density).toInt()
     }

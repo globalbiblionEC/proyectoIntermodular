@@ -9,15 +9,13 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
+//import android.media.MediaPlayer
 
 
 class LibroSeleccionado : Bars() {
 
     private lateinit var db: FirebaseFirestore
     private lateinit var storage: FirebaseStorage
-
-   // private lateinit var ivPerfil: ImageView
-   // private lateinit var btnVolver: ImageButton
     private lateinit var ivPortada: ImageView
     private lateinit var tvTitulo: TextView
     private lateinit var tvAutor: TextView
@@ -29,10 +27,13 @@ class LibroSeleccionado : Bars() {
     private lateinit var tvFechaActualizacion: TextView
     private lateinit var btnEscribirResena: Button
     private lateinit var btnLeerLibro: Button
+    private lateinit var btnEscucharAudiolibro: Button
     private lateinit var btnTraducir: Button
     private lateinit var llReviewsContainer: LinearLayout
     private lateinit var btnMostrarIdiomas: Button
     private lateinit var llIdiomasDisponibles: LinearLayout
+    //private var mediaPlayer: MediaPlayer? = null
+    private var audioUrl = ""
     private var idLibro = ""
     private var tituloLibro = ""
     private var autorLibro = ""
@@ -59,6 +60,8 @@ class LibroSeleccionado : Bars() {
         tvIdiomasLibro = findViewById(R.id.tvIdiomasLibro)
         tvExtension = findViewById(R.id.tvExtension)
         tvFechaActualizacion = findViewById(R.id.tvFechaActualizacion)
+        btnLeerLibro = findViewById(R.id.btnLeerLibro)
+        btnEscucharAudiolibro = findViewById(R.id.btnEscuchar)
         btnEscribirResena = findViewById(R.id.btnEscribirResena)
         btnTraducir = findViewById(R.id.btnTraducir)
         llReviewsContainer = findViewById(R.id.llReviewsContainer)
@@ -92,22 +95,16 @@ class LibroSeleccionado : Bars() {
             }
         }
 
-        /*ivPerfil.setOnClickListener {
-            startActivity(Intent(this, PerfilUsuario::class.java))
-        }
-
-        btnVolver.setOnClickListener {
-            finish()
-        }*/
-
         ivPortada.setOnClickListener {
             abrirPdf()
         }
 
-        btnLeerLibro = findViewById(R.id.btnLeerLibro)
-
         btnLeerLibro.setOnClickListener {
             guardarComoContinuarLeyendoYAbrirPdf()
+        }
+        btnEscucharAudiolibro.setOnClickListener {
+            //reproducirAudiolibro()
+            irAContinuarLeyendoAudio()
         }
 
         btnEscribirResena.setOnClickListener {
@@ -173,6 +170,15 @@ class LibroSeleccionado : Bars() {
                 portadaStoragePath = doc.getString("coverPath") ?: portadaStoragePath
                 pdfStoragePath = doc.getString("pdfPath") ?: pdfStoragePath
 
+                if (pdfStoragePath.isBlank()) {
+
+                    btnLeerLibro.visibility = android.view.View.GONE
+
+                } else {
+
+                    btnLeerLibro.visibility = android.view.View.VISIBLE
+                }
+
                 val averageRating = doc.getDouble("averageRating") ?: 0.0
                 val reviewsCount = doc.getLong("reviewsCount") ?: 0L
 
@@ -184,6 +190,8 @@ class LibroSeleccionado : Bars() {
                     ?: "-"
 
                 val language = doc.getString("language") ?: "-"
+
+                cargarAudioLibro(idLibro, language)
                 cargarIdiomasDisponibles(doc)
 
                 tvTitulo.text = tituloLibro
@@ -633,7 +641,181 @@ class LibroSeleccionado : Bars() {
             }
     }
 
+    private fun cargarAudioLibro(bookId: String, language: String) {
+
+        btnEscucharAudiolibro.visibility = android.view.View.GONE
+        audioUrl = ""
+
+        db.collection("books")
+            .document(bookId)
+            .get()
+            .addOnSuccessListener { doc ->
+
+                val translations = doc.get("translations") as? Map<*, *>
+
+                val idiomaActual = translations?.get(language) as? Map<*, *>
+                val englishTranslation = translations?.get("English") as? Map<*, *>
+
+                val audioUrlDirecto = doc.getString("audioUrl") ?: ""
+                val audioPathDirecto = doc.getString("audioPath") ?: ""
+
+                val audioUrlIdiomaActual =
+                    idiomaActual?.get("audioUrl")?.toString() ?: ""
+
+                val audioPathIdiomaActual =
+                    idiomaActual?.get("audioPath")?.toString() ?: ""
+
+                val audioUrlEnglish =
+                    englishTranslation?.get("audioUrl")?.toString() ?: ""
+
+                val audioPathEnglish =
+                    englishTranslation?.get("audioPath")?.toString() ?: ""
+
+                when {
+                    audioUrlDirecto.isNotBlank() -> {
+                        audioUrl = audioUrlDirecto
+                        btnEscucharAudiolibro.visibility = android.view.View.VISIBLE
+                    }
+
+                    audioUrlIdiomaActual.isNotBlank() -> {
+                        audioUrl = audioUrlIdiomaActual
+                        btnEscucharAudiolibro.visibility = android.view.View.VISIBLE
+                    }
+
+                    audioUrlEnglish.isNotBlank() -> {
+                        audioUrl = audioUrlEnglish
+                        btnEscucharAudiolibro.visibility = android.view.View.VISIBLE
+                    }
+
+                    audioPathDirecto.isNotBlank() -> {
+                        obtenerUrlAudioDesdeStorage(audioPathDirecto)
+                    }
+
+                    audioPathIdiomaActual.isNotBlank() -> {
+                        obtenerUrlAudioDesdeStorage(audioPathIdiomaActual)
+                    }
+
+                    audioPathEnglish.isNotBlank() -> {
+                        obtenerUrlAudioDesdeStorage(audioPathEnglish)
+                    }
+
+                    else -> {
+                        btnEscucharAudiolibro.visibility = android.view.View.GONE
+                    }
+                }
+            }
+            .addOnFailureListener {
+                btnEscucharAudiolibro.visibility = android.view.View.GONE
+            }
+    }
+
+    private fun obtenerUrlAudioDesdeStorage(audioPath: String) {
+
+        storage.reference.child(audioPath)
+            .downloadUrl
+            .addOnSuccessListener { uri ->
+                audioUrl = uri.toString()
+                btnEscucharAudiolibro.visibility = android.view.View.VISIBLE
+            }
+            .addOnFailureListener {
+                audioUrl = ""
+                btnEscucharAudiolibro.visibility = android.view.View.GONE
+            }
+    }
+
+    /*private fun reproducirAudiolibro() {
+
+        if (audioUrl.isBlank()) {
+            Toast.makeText(
+                this,
+                "No hay audiolibro disponible",
+                Toast.LENGTH_LONG
+            ).show()
+            return
+        }
+
+        try {
+            if (mediaPlayer != null && mediaPlayer!!.isPlaying) {
+                mediaPlayer?.pause()
+                btnEscucharAudiolibro.text = "Escuchar"
+                return
+            }
+
+            if (mediaPlayer == null) {
+                mediaPlayer = MediaPlayer().apply {
+                    setDataSource(audioUrl)
+
+                    setOnPreparedListener {
+                        it.start()
+                        btnEscucharAudiolibro.text = "Pausar"
+                    }
+
+                    setOnCompletionListener {
+                        btnEscucharAudiolibro.text = "Escuchar"
+                    }
+
+                    prepareAsync()
+                }
+
+                Toast.makeText(this, "Cargando audiolibro...", Toast.LENGTH_SHORT).show()
+            } else {
+                mediaPlayer?.start()
+                btnEscucharAudiolibro.text = "Pausar"
+            }
+
+        } catch (e: Exception) {
+            Toast.makeText(
+                this,
+                "No se pudo reproducir el audiolibro: ${e.message}",
+                Toast.LENGTH_LONG
+            ).show()
+        }
+    }*/
+
+    private fun irAContinuarLeyendoAudio() {
+        if (audioUrl.isBlank()) {
+            Toast.makeText(this, "No hay audiolibro disponible", Toast.LENGTH_LONG).show()
+            return
+        }
+
+        val uid = FirebaseAuth.getInstance().currentUser?.uid
+
+        val datos = hashMapOf(
+            "idLibro" to idLibro,
+            "title" to tituloLibro,
+            "authors" to autorLibro.split(",").map { it.trim() },
+            "coverPath" to portadaStoragePath,
+            "audioUrl" to audioUrl,
+            "contentType" to "audio",
+            "updatedAt" to FieldValue.serverTimestamp()
+        )
+
+        if (uid != null) {
+            db.collection("readings")
+                .document(uid)
+                .set(datos)
+        }
+
+        val intent = Intent(this, ContinuarLeyendo::class.java).apply {
+            putExtra("idLibro", idLibro)
+            putExtra("tituloLibro", tituloLibro)
+            putExtra("autorLibro", autorLibro)
+            putExtra("portadaStoragePath", portadaStoragePath)
+            putExtra("portadaResId", portadaResId)
+            putExtra("audioUrl", audioUrl)
+            putExtra("contentType", "audio")
+        }
+
+        startActivity(intent)
+    }
+
     private fun dp(valor: Int): Int {
         return (valor * resources.displayMetrics.density).toInt()
     }
+
+    /*override fun onDestroy() {
+        super.onDestroy()
+        mediaPlayer?.release()
+        mediaPlayer = null
+    }*/
 }
