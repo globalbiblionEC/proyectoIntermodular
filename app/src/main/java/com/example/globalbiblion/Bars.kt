@@ -1,25 +1,23 @@
-package com.example.globalbiblion
-import android.content.Intent
-import android.widget.EditText
-import android.widget.LinearLayout
-import android.widget.Toast
+package com.example.globalbiblion //Paquete de la clase
+import android.content.Intent //Para el cambio de una Activity a otra
+import android.widget.EditText //Para utilizar textos editables
+import android.widget.LinearLayout //Para los contenedores
+import android.widget.Toast //Para mensajes emergentes
 import androidx.appcompat.app.AppCompatActivity
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.auth.FirebaseAuth //Autenticación de usuarios en Firebase
+import com.google.firebase.firestore.FirebaseFirestore //Leer y guardar datos de usuario
+import com.google.firebase.storage.FirebaseStorage //Descaragar PDFs, portadas, etc.
 import android.widget.TextView
-import android.widget.FrameLayout
+import android.widget.FrameLayout//Vistas superpuestas como el área de notificaciones
 import android.widget.ImageButton
 import android.widget.ImageView
 import androidx.appcompat.app.AlertDialog
-import com.bumptech.glide.Glide
+import com.bumptech.glide.Glide //Para cargar y mostrar imagenes desde URLs o Firebase
 
-//Activity base for reuse
-open class Bars : AppCompatActivity() {
+open class Bars : AppCompatActivity() {//Clase reutilizable para las Ativities que usan top y bottom bar
 
-    //This function must be in every child
+    //Esta función debe estar en las clases hijas
     protected fun configurarBottomBar() {
-
         val llMenuPrincipal = findViewById<LinearLayout?>(R.id.llBotonMenuPrincipal)
         val llCatalogo = findViewById<LinearLayout?>(R.id.llCatalogo)
         val llContinuarLeyendo = findViewById<LinearLayout?>(R.id.llContileyendo)
@@ -28,6 +26,7 @@ open class Bars : AppCompatActivity() {
         val tvBadgeNotificaciones = findViewById<TextView?>(R.id.tvBadgeNotificaciones)
         val flNotificaciones = findViewById<FrameLayout?>(R.id.flNotificaciones)
 
+        //Añadimos setOnClickListener para que si el usuario presiona una vist en la que ya está, se le notifique
         llMenuPrincipal?.setOnClickListener {
             if (this !is Menuprincipal) {
                 startActivity(Intent(this, Menuprincipal::class.java))
@@ -64,7 +63,7 @@ open class Bars : AppCompatActivity() {
         controlarBotonNotificaciones(flNotificaciones,llNotificaciones,tvBadgeNotificaciones)
 
     }
-
+    //Estas dos funciones deben estar en las clases hijas
     protected fun configurarTopBar() {
         val auth = FirebaseAuth.getInstance()
         val db = FirebaseFirestore.getInstance()
@@ -187,92 +186,7 @@ open class Bars : AppCompatActivity() {
             true
         }
     }
-    /*protected fun configurarTopBar() {
-        val auth = FirebaseAuth.getInstance()
-        val db = FirebaseFirestore.getInstance()
-
-        val ivPerfil = findViewById<ImageView?>(R.id.ivPerfilTopBar)
-        val tvNombreUsuario = findViewById<TextView?>(R.id.tvNombreUsuarioTopBar)
-        val btnCerrarSesion = findViewById<ImageButton?>(R.id.btnCerrarSesionTopBar)
-        val etBuscarLibro = findViewById<EditText?>(R.id.etBuscarLibroTopBar)
-        val ivLupa = findViewById<ImageView?>(R.id.ivLupaTopBar)
-
-        val uid = auth.currentUser?.uid
-
-        if (uid != null) {
-            db.collection("users")
-                .document(uid)
-                .get()
-                .addOnSuccessListener { doc ->
-                    val nombre = doc.getString("nombre") ?: ""
-                    val apellidos = doc.getString("apellidos") ?: ""
-
-                    tvNombreUsuario?.text = when {
-                        nombre.isNotBlank() && apellidos.isNotBlank() -> "$nombre $apellidos"
-                        nombre.isNotBlank() -> nombre
-                        else -> "Usuario"
-                    }
-                }
-                .addOnFailureListener {
-                    tvNombreUsuario?.text = "Usuario"
-                }
-        } else {
-            tvNombreUsuario?.text = "Invitado"
-        }
-
-        ivPerfil?.setOnClickListener {
-            if (this !is PerfilUsuario) {
-                startActivity(Intent(this, PerfilUsuario::class.java))
-            } else {
-                Toast.makeText(this, "Ya estás en tu perfil", Toast.LENGTH_SHORT).show()
-            }
-        }
-
-        btnCerrarSesion?.setOnClickListener {
-            AlertDialog.Builder(this)
-                .setTitle("Cerrar sesión")
-                .setMessage("¿Seguro que deseas cerrar sesión?")
-                .setPositiveButton("Sí") { _, _ ->
-                    auth.signOut()
-
-                    val intent = Intent(this, MainActivity::class.java)
-                    intent.addFlags(
-                        Intent.FLAG_ACTIVITY_CLEAR_TOP or
-                                Intent.FLAG_ACTIVITY_NEW_TASK or
-                                Intent.FLAG_ACTIVITY_CLEAR_TASK
-                    )
-
-                    startActivity(intent)
-                    finish()
-                }
-                .setNegativeButton("Cancelar", null)
-                .show()
-        }
-
-        ivLupa?.setOnClickListener {
-            val texto = etBuscarLibro?.text.toString().trim()
-
-            if (texto.length < 4) {
-                Toast.makeText(this, "Escribe al menos 4 caracteres", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-
-            buscarLibroDesdeTopBar(texto)
-        }
-
-        etBuscarLibro?.setOnEditorActionListener { _, _, _ ->
-            val texto = etBuscarLibro.text.toString().trim()
-
-            if (texto.length < 4) {
-                Toast.makeText(this, "Escribe al menos 4 caracteres", Toast.LENGTH_SHORT).show()
-                return@setOnEditorActionListener true
-            }
-
-            buscarLibroDesdeTopBar(texto)
-            true
-        }
-    }*/
-
+    //Funciones auxiares
     private fun buscarLibroDesdeTopBar(texto: String) {
         val db = FirebaseFirestore.getInstance()
         val storage = FirebaseStorage.getInstance()
@@ -328,7 +242,7 @@ open class Bars : AppCompatActivity() {
                 Toast.makeText(this, "Error buscando libro: ${e.message}", Toast.LENGTH_LONG).show()
             }
     }
-
+    //Esta función elimina acentos , espacios y convierte el texto en minúscula
     private fun normalizar(texto: String): String {
         val sinAcentos = java.text.Normalizer.normalize(
             texto,
@@ -337,7 +251,6 @@ open class Bars : AppCompatActivity() {
 
         return sinAcentos.lowercase().replace(" ", "")
     }
-
     private fun abrirUltimaLectura() {
         val uid = FirebaseAuth.getInstance().currentUser?.uid
 
@@ -367,11 +280,6 @@ open class Bars : AppCompatActivity() {
                     ?.joinToString(", ")
                     ?: ""
 
-                /*val pdfUrl = doc.getString("pdfUrl") ?: ""
-                val pdfPath = doc.getString("pdfPath") ?: ""
-                val coverPath = doc.getString("coverPath") ?: ""
-                val readingLanguage = doc.getString("readingLanguage") ?: ""*/
-
                 val pdfUrl = doc.getString("pdfUrl") ?: ""
                 val pdfPath = doc.getString("pdfPath") ?: ""
 
@@ -381,19 +289,6 @@ open class Bars : AppCompatActivity() {
 
                 val coverPath = doc.getString("coverPath") ?: ""
                 val readingLanguage = doc.getString("readingLanguage") ?: ""
-
-                /*if (pdfUrl.isNotBlank()) {
-                    abrirContinuarLeyendo(
-                        idLibro,
-                        titulo,
-                        autor,
-                        pdfUrl,
-                        pdfPath,
-                        coverPath,
-                        readingLanguage
-                    )
-                    return@addOnSuccessListener
-                }*/
 
                 if (contentType == "audio" && audioUrl.isNotBlank()) {
 
@@ -459,11 +354,10 @@ open class Bars : AppCompatActivity() {
                 Toast.makeText(this, "Error Firestore: ${e.message}", Toast.LENGTH_LONG).show()
             }
     }
-
     private fun controlarBotonNotificaciones(
         flNotificaciones: FrameLayout?,
         llNotificaciones: LinearLayout?,
-        tvBadge: TextView?
+        tvBadge: TextView? //es el punto rojo de notificacoiones
     ) {
         val uid = FirebaseAuth.getInstance().currentUser?.uid
 
@@ -499,7 +393,6 @@ open class Bars : AppCompatActivity() {
                 tvBadge?.visibility = android.view.View.GONE
             }
     }
-
     private fun abrirContinuarLeyendo(
         idLibro: String,
         titulo: String,
@@ -512,7 +405,6 @@ open class Bars : AppCompatActivity() {
         coverPath: String,
         readingLanguage: String
     ) {
-
         val intent = Intent(this, ContinuarLeyendo::class.java).apply {
 
             putExtra("idLibro", idLibro)
@@ -534,26 +426,5 @@ open class Bars : AppCompatActivity() {
 
         startActivity(intent)
     }
-    /*private fun abrirContinuarLeyendo(
-        idLibro: String,
-        titulo: String,
-        autor: String,
-        pdfUrl: String,
-        pdfPath: String,
-        coverPath: String,
-        readingLanguage: String
-    ) {
-        val intent = Intent(this, ContinuarLeyendo::class.java).apply {
-            putExtra("idLibro", idLibro)
-            putExtra("tituloLibro", titulo)
-            putExtra("autorLibro", autor)
-            putExtra("pdfUrl", pdfUrl)
-            putExtra("pdfStoragePath", pdfPath)
-            putExtra("portadaStoragePath", coverPath)
-            putExtra("portadaResId", R.drawable.logogbsinfondo)
-            putExtra("readingLanguage", readingLanguage)
-        }
 
-        startActivity(intent)
-    }*/
 }

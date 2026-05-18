@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
+//Este adapter conecta las solicitudes de traducción con el recyclerView
 class SolicitudAdapter(
     private val lista: List<SolicitudPendiente>,
     private val onClick: (SolicitudPendiente) -> Unit

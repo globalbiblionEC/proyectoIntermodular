@@ -3,14 +3,15 @@ package com.example.globalbiblion
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.os.Bundle
-import android.speech.RecognizerIntent
+import android.speech.RecognizerIntent //Para activar el reconocimiento de voz
 import android.widget.*
 import com.bumptech.glide.Glide
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import java.util.Locale
 
-class BuscarPorVoz : Bars() {
+//Vista para buscar libros por reconocimiento de voz
+class BuscarPorVoz : Bars() {//Heredamos de bars
     private lateinit var db: FirebaseFirestore
     private lateinit var storage: FirebaseStorage
 
@@ -21,7 +22,7 @@ class BuscarPorVoz : Bars() {
     private val libros =mutableListOf<Libro>()
     private val portadasStorage = mutableMapOf<String, String>()
 
-    private val codigoVoz = 100
+    private val codigoVoz = 100 //Código no número de caracteres
 
     private var navegando = false
 
@@ -41,7 +42,7 @@ class BuscarPorVoz : Bars() {
         cargarLibrosDesdeFirebase()
 
         btnVolver.setOnClickListener {
-            finish()
+            finish() //Volver hacia atrás
         }
 
 
@@ -154,12 +155,12 @@ class BuscarPorVoz : Bars() {
 
 
     private fun iniciarReconocimientoVoz() {
-        val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+        val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {//Activamos el reconocimiento de voz
             putExtra(
-                RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                RecognizerIntent.EXTRA_LANGUAGE_MODEL,//El usuario habla libremente y no frases predefinidas
                 RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
             )
-            putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault())
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault())//Se usa el idioma que tenga el usuario por defecto
             putExtra(RecognizerIntent.EXTRA_PROMPT, "Di el nombre del libro")
         }
 
@@ -170,12 +171,12 @@ class BuscarPorVoz : Bars() {
         }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) { //Para cuando el usuario termine de hablar
         super.onActivityResult(requestCode, resultCode, data)
 
         if (requestCode == codigoVoz && resultCode == RESULT_OK && data != null) {
-            val resultados = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
-            val textoVoz = resultados?.get(0) ?: ""
+            val resultados = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)//Obtenemos los resultados
+            val textoVoz = resultados?.get(0) ?: "" //Obtenemos la primera frase reconocida
 
             tvResultadoVoz.text = "Has dicho: $textoVoz"
             buscarLibroPorVoz(textoVoz)
@@ -187,7 +188,7 @@ class BuscarPorVoz : Bars() {
 
         val libroEncontrado = libros.firstOrNull { libro ->
             normalizar(libro.titulo).contains(consulta) ||
-                    consulta.contains(normalizar(libro.titulo).take(4))
+                    consulta.contains(normalizar(libro.titulo).take(4))//cogemos 4 carateres
         }
 
         if (libroEncontrado != null) {

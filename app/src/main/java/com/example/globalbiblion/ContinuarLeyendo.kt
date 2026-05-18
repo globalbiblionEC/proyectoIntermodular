@@ -1,33 +1,31 @@
 package com.example.globalbiblion
-
 import android.os.Bundle
 import android.widget.*
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import android.content.ActivityNotFoundException
 import android.content.Intent
-import android.net.Uri
-import android.graphics.BitmapFactory
+import android.net.Uri //Para abrir el PDF mediante una URL
+import android.graphics.BitmapFactory //Convierte bytes en imágenes para mostrar portadas
 import com.google.firebase.storage.FirebaseStorage
 import kotlin.jvm.java
-import android.media.MediaPlayer
+import android.media.MediaPlayer //Permite reproducir audio
 import android.view.View
-import android.widget.SeekBar
-class ContinuarLeyendo : Bars() {
-
+import android.widget.SeekBar //Barra de progreso del audio
+class ContinuarLeyendo : Bars() {//Heredamos
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseFirestore
     private lateinit var storage: FirebaseStorage
     private lateinit var ivPortadaLibro: ImageView
     private lateinit var tvTituloLibroActual: TextView
     private lateinit var btnEscribirResenia: Button
-    private lateinit var seekBarAudio: SeekBar
+    private lateinit var seekBarAudio: SeekBar //Barra de progreso
     private lateinit var btnPlayPauseAudio: Button
     private lateinit var tvModoLectura: TextView
     private lateinit var tvTiempoActual: TextView
     private lateinit var tvTiempoTotal: TextView
     private var mediaPlayer: MediaPlayer? = null
-    private val handler = android.os.Handler(android.os.Looper.getMainLooper())
+    private val handler = android.os.Handler(android.os.Looper.getMainLooper()) //Para actualizar continuamente la barra del audio
     private var audioUrl: String = ""
     private var contentType: String = ""
     private var idLibro: String = ""
@@ -37,7 +35,7 @@ class ContinuarLeyendo : Bars() {
     private var portadaResId: Int = 0
     private var audioPosition: Int = 0
 
-
+    //Esta activity es para mantener el libro o aduiolibro que esté usando el usuario
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_continuar_leyendo)
@@ -60,20 +58,20 @@ class ContinuarLeyendo : Bars() {
         tvTiempoActual = findViewById(R.id.tvTiempoActual)
         tvTiempoTotal = findViewById(R.id.tvTiempoTotal)
 
+        //Ocultamos controles de audio
         tvModoLectura.visibility = View.GONE
         seekBarAudio.visibility = View.GONE
         btnPlayPauseAudio.visibility = View.GONE
         tvTiempoActual.visibility = View.GONE
         tvTiempoTotal.visibility = View.GONE
 
+        //Variables para los Intents
         audioUrl = intent.getStringExtra("audioUrl") ?: ""
         contentType = intent.getStringExtra("contentType") ?: ""
-
         tituloLibro = intent.getStringExtra("tituloLibro") ?: "Libro actual"
         idLibro = intent.getStringExtra("idLibro") ?: ""
         pdfUrl = intent.getStringExtra("pdfUrl") ?: ""
         portadaStoragePath = intent.getStringExtra("portadaStoragePath") ?: ""
-
         portadaResId = intent.getIntExtra("portadaResId", 0)
         audioPosition = intent.getIntExtra("audioPosition", 0)
 
@@ -85,10 +83,10 @@ class ContinuarLeyendo : Bars() {
             ).show()
         }
 
-
         tvTituloLibroActual.text = tituloLibro
 
         cargarPortadaDesdeStorage()
+
         if (contentType == "audio") {
             configurarModoAudiolibro()
         }
@@ -115,7 +113,6 @@ class ContinuarLeyendo : Bars() {
             }
             startActivity(intent)
         }
-
     }
 
     private fun cargarPortadaDesdeStorage() {
@@ -127,10 +124,10 @@ class ContinuarLeyendo : Bars() {
         }
 
         storage.reference.child(portadaStoragePath)
-            .getBytes(5 * 1024 * 1024)
+            .getBytes(5 * 1024 * 1024)//Descargamos máximo 5MB
             .addOnSuccessListener { bytes ->
-                val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
-                ivPortadaLibro.setImageBitmap(bitmap)
+                val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)//Convierto bytes en imagen
+                ivPortadaLibro.setImageBitmap(bitmap)//Mostramos la portada
             }
             .addOnFailureListener {
                 if (portadaResId != 0) {
@@ -144,8 +141,6 @@ class ContinuarLeyendo : Bars() {
                 ).show()
             }
     }
-
-    // --------- ABRIR PDF DEL LIBRO DESDE FIREBASE STORAGE ---------
 
     private fun abrirPdfDesdeUrl() {
         val uri = Uri.parse(pdfUrl)
@@ -196,7 +191,7 @@ class ContinuarLeyendo : Bars() {
 
                 override fun onStopTrackingTouch(seekBar: SeekBar?) {
                     val nuevaPosicion = seekBar?.progress ?: 0
-                    mediaPlayer?.seekTo(nuevaPosicion)
+                    mediaPlayer?.seekTo(nuevaPosicion)//Movemos al audio a la nueva posición
                     tvTiempoActual.text = formatearTiempo(nuevaPosicion)
                 }
             }
@@ -216,11 +211,11 @@ class ContinuarLeyendo : Bars() {
         }
 
         if (mediaPlayer == null) {
-            mediaPlayer = MediaPlayer().apply {
+            mediaPlayer = MediaPlayer().apply {//Creamos el reproductor de audio
                 setDataSource(audioUrl)
 
                 setOnPreparedListener {
-                    seekBarAudio.max = it.duration
+                    seekBarAudio.max = it.duration //definimos la duración máxima de la barra
                     tvTiempoTotal.text = formatearTiempo(it.duration)
 
                     if (audioPosition > 0) {
@@ -303,6 +298,4 @@ class ContinuarLeyendo : Bars() {
         mediaPlayer?.release()
         mediaPlayer = null
     }
-
-
 }

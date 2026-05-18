@@ -1,5 +1,4 @@
 package com.example.globalbiblion
-
 import android.app.AlertDialog
 import android.os.Bundle
 import android.view.View
@@ -20,12 +19,10 @@ import android.net.Uri
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.firestore.Query
 
+//Esta Activity centraliza toda la gestión administrativa de la aplicación
 class PanelAdministrador : Bars() {
-
-
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseFirestore
-
     private lateinit var btnCertificados: Button
     private lateinit var btnSolicitudes: Button
     private lateinit var rvAdmin: RecyclerView
@@ -88,7 +85,6 @@ class PanelAdministrador : Bars() {
                 .show()
         }
     }
-
     private fun comprobarSiEsAdmin() {
         val uid = auth.currentUser?.uid
 
@@ -287,8 +283,6 @@ class PanelAdministrador : Bars() {
         listaSolicitudes.clear()
 
         db.collection("contribution_requests")
-            //.whereIn("status", listOf("proofreader_approved", "proofreader_rejected"))
-            //.get()
             .whereIn("status", listOf("proofreader_approved", "proofreader_rejected"))
             .orderBy("proofreadAt", Query.Direction.DESCENDING)
             .get()
@@ -316,11 +310,9 @@ class PanelAdministrador : Bars() {
                         )
                     )
                 }
-
                 rvAdmin.adapter = SolicitudAdapter(listaSolicitudes) { solicitud ->
                     mostrarDialogoSolicitud(solicitud)
                 }
-
                 progressBar.visibility = View.GONE
             }
             .addOnFailureListener {

@@ -1,5 +1,4 @@
 package com.example.globalbiblion
-
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -9,11 +8,9 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
-//import android.media.MediaPlayer
 
-
+//Esta Activity es para ver los detalles del libro que selecciione el usuario
 class LibroSeleccionado : Bars() {
-
     private lateinit var db: FirebaseFirestore
     private lateinit var storage: FirebaseStorage
     private lateinit var ivPortada: ImageView
@@ -29,10 +26,9 @@ class LibroSeleccionado : Bars() {
     private lateinit var btnLeerLibro: Button
     private lateinit var btnEscucharAudiolibro: Button
     private lateinit var btnTraducir: Button
-    private lateinit var llReviewsContainer: LinearLayout
+    private lateinit var llReviewsContainer: LinearLayout //Para mostrar las reseñas de manera dinámica
     private lateinit var btnMostrarIdiomas: Button
     private lateinit var llIdiomasDisponibles: LinearLayout
-    //private var mediaPlayer: MediaPlayer? = null
     private var audioUrl = ""
     private var idLibro = ""
     private var tituloLibro = ""
@@ -49,8 +45,6 @@ class LibroSeleccionado : Bars() {
         db = FirebaseFirestore.getInstance()
         storage = FirebaseStorage.getInstance()
 
-    //    ivPerfil = findViewById(R.id.ivPerfil)
-      //  btnVolver = findViewById(R.id.btnVolver)
         ivPortada = findViewById(R.id.ivPortadaLibroSeleccionado)
         tvTitulo = findViewById(R.id.tvTituloLibroSeleccionado)
         tvAutor = findViewById(R.id.tvAutorLibroSeleccionado)
@@ -67,7 +61,6 @@ class LibroSeleccionado : Bars() {
         llReviewsContainer = findViewById(R.id.llReviewsContainer)
         btnMostrarIdiomas = findViewById(R.id.btnMostrarIdiomas)
         llIdiomasDisponibles = findViewById(R.id.llIdiomasDisponibles)
-
 
         idLibro = intent.getStringExtra("idLibro") ?: ""
         tituloLibro = intent.getStringExtra("tituloLibro") ?: "Título"
@@ -103,7 +96,6 @@ class LibroSeleccionado : Bars() {
             guardarComoContinuarLeyendoYAbrirPdf()
         }
         btnEscucharAudiolibro.setOnClickListener {
-            //reproducirAudiolibro()
             irAContinuarLeyendoAudio()
         }
 
@@ -241,7 +233,6 @@ class LibroSeleccionado : Bars() {
 
         startActivity(Intent.createChooser(intent, "Abrir libro con"))
     }
-
 
     private fun guardarComoContinuarLeyendoYAbrirPdf() {
         val uid = FirebaseAuth.getInstance().currentUser?.uid
@@ -723,55 +714,6 @@ class LibroSeleccionado : Bars() {
             }
     }
 
-    /*private fun reproducirAudiolibro() {
-
-        if (audioUrl.isBlank()) {
-            Toast.makeText(
-                this,
-                "No hay audiolibro disponible",
-                Toast.LENGTH_LONG
-            ).show()
-            return
-        }
-
-        try {
-            if (mediaPlayer != null && mediaPlayer!!.isPlaying) {
-                mediaPlayer?.pause()
-                btnEscucharAudiolibro.text = "Escuchar"
-                return
-            }
-
-            if (mediaPlayer == null) {
-                mediaPlayer = MediaPlayer().apply {
-                    setDataSource(audioUrl)
-
-                    setOnPreparedListener {
-                        it.start()
-                        btnEscucharAudiolibro.text = "Pausar"
-                    }
-
-                    setOnCompletionListener {
-                        btnEscucharAudiolibro.text = "Escuchar"
-                    }
-
-                    prepareAsync()
-                }
-
-                Toast.makeText(this, "Cargando audiolibro...", Toast.LENGTH_SHORT).show()
-            } else {
-                mediaPlayer?.start()
-                btnEscucharAudiolibro.text = "Pausar"
-            }
-
-        } catch (e: Exception) {
-            Toast.makeText(
-                this,
-                "No se pudo reproducir el audiolibro: ${e.message}",
-                Toast.LENGTH_LONG
-            ).show()
-        }
-    }*/
-
     private fun irAContinuarLeyendoAudio() {
         if (audioUrl.isBlank()) {
             Toast.makeText(this, "No hay audiolibro disponible", Toast.LENGTH_LONG).show()
@@ -813,9 +755,4 @@ class LibroSeleccionado : Bars() {
         return (valor * resources.displayMetrics.density).toInt()
     }
 
-    /*override fun onDestroy() {
-        super.onDestroy()
-        mediaPlayer?.release()
-        mediaPlayer = null
-    }*/
 }

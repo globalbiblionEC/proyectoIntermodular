@@ -4,12 +4,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView //Para listas dinámicas
 
+//Este Adapter conecta los certificados pendiientes con el RecyclerView
 class CertificadoAdapter(
     private val lista: List<CertificadoPendiente>,
-    private val onClick: (CertificadoPendiente) -> Unit
-) : RecyclerView.Adapter<CertificadoAdapter.CertificadoViewHolder>() {
+    private val onClick: (CertificadoPendiente) -> Unit //Para poder ver los detalles del certificado
+) : RecyclerView.Adapter<CertificadoAdapter.CertificadoViewHolder>() {///El Recycler view es una lista inteligente de tarjetas
 
     class CertificadoViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val tvNombre: TextView = itemView.findViewById(R.id.tvNombre)
@@ -18,13 +19,13 @@ class CertificadoAdapter(
         val tvCertificado: TextView = itemView.findViewById(R.id.tvCertificado)
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CertificadoViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CertificadoViewHolder {//Creamos la tarejta visual
         val vista = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_certificado_pendiente, parent, false)
         return CertificadoViewHolder(vista)
     }
 
-    override fun onBindViewHolder(holder: CertificadoViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: CertificadoViewHolder, position: Int) {//Ponemos los datos en la tarjeta
         val certificado = lista[position]
 
         holder.tvNombre.text = certificado.nombreCompleto
@@ -38,5 +39,5 @@ class CertificadoAdapter(
         }
     }
 
-    override fun getItemCount(): Int = lista.size
+    override fun getItemCount(): Int = lista.size //Para decirle al RecyclerView cuántas tarjetas hacer
 }

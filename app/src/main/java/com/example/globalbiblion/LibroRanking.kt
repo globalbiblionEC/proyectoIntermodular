@@ -1,5 +1,6 @@
 package com.example.globalbiblion
 
+//Data class para los elementos que necesitamos de cada libro que se encuetra en el ranking
 data class LibroRanking(
     val id: String,
     val titulo: String,

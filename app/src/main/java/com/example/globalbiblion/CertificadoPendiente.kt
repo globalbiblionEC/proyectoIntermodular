@@ -1,5 +1,5 @@
 package com.example.globalbiblion
-
+//Data class para lo que recogemos del Certificado
 data class CertificadoPendiente(
     val uid: String,
     val nombreCompleto: String,

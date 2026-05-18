@@ -351,8 +351,27 @@ class Notificaciones : Bars() {
                         "published" ->
                             "📚 El administrador ha publicado la traducción de '$titulo'.\nTu corrección fue aceptada.\nFecha: ${formatearFecha(fecha)}"
 
-                        "changes_requested" ->
-                            "🔁 El administrador ha aceptado tu corrección de '$titulo'.\nLa traducción volverá al traductor para que suba una nueva versión.\nFecha: ${formatearFecha(fecha)}"
+                        /*"changes_requested" ->
+                            "🔁 El administrador ha aceptado tu corrección de '$titulo'.\nLa traducción volverá al traductor para que suba una nueva versión.\nFecha: ${formatearFecha(fecha)}"*/
+
+                        "changes_requested" -> {
+
+                            val proofreaderDecision =
+                                doc.getString("proofreaderDecision") ?: ""
+
+                            if (proofreaderDecision == "rejected") {
+
+                                "✅ El administrador ha aceptado tu rechazo de '$titulo'.\n" +
+                                        "La traducción volverá al traductor para que suba una nueva versión.\n" +
+                                        "Fecha: ${formatearFecha(fecha)}"
+
+                            } else {
+
+                                "⚠️ El administrador ha rechazado la publicación de '$titulo'.\n" +
+                                        "La traducción volverá al traductor para realizar cambios.\n" +
+                                        "Fecha: ${formatearFecha(fecha)}"
+                            }
+                        }
 
                         "translation_vacancy_open" ->
                             "⚠️ El administrador ha rechazado la traducción de '$titulo'.\nLa vacante se ha reabierto.\nNotas: ${notasAdmin.ifBlank { "Sin notas" }}\nFecha: ${formatearFecha(fecha)}"
@@ -737,6 +756,7 @@ class Notificaciones : Bars() {
                     .update(
                         mapOf(
                             "status" to "proofreader_approved",
+                            "proofreaderDecision" to "approved",
                             "proofreaderId" to uidCorrector,
                             "proofreaderName" to nombreCompleto,
                             "proofreadAt" to FieldValue.serverTimestamp()
@@ -833,6 +853,7 @@ class Notificaciones : Bars() {
                                     mapOf(
                                         //"status" to "changes_requested",
                                         "status" to "proofreader_rejected",
+                                        "proofreaderDecision" to "rejected",
                                         "proofreaderId" to uidCorrector,
                                         "proofreaderName" to nombreCompleto,
                                         "reviewNotes" to reviewNotesActual,
@@ -931,6 +952,7 @@ class Notificaciones : Bars() {
                     mapOf(
                         // "status" to "changes_requested",
                         "status" to "proofreader_rejected",
+                        "proofreaderDecision" to "rejected",
                         "proofreaderId" to uidCorrector,
                         "proofreaderName" to nombreCompleto,
                         "reviewNotes" to motivo,

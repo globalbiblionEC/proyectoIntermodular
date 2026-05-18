@@ -1,5 +1,4 @@
 package com.example.globalbiblion
-
 import android.os.Bundle
 import android.util.Log
 import android.view.View //Para poder mostrar los campos según el rol
@@ -10,13 +9,12 @@ import android.net.Uri
 import androidx.activity.result.contract.ActivityResultContracts
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.storage.FirebaseStorage
-import com.bumptech.glide.Glide //For images
+import com.bumptech.glide.Glide //Para imágenes
+
+//Esta Activity es para mostrar el perfil del usuario
 class PerfilUsuario : Bars() {
-    //Variables de Firebase
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseFirestore
-
-    //Variables de la interfaz de usuario
     private lateinit var tvNombre: TextView
     private lateinit var tvEmail: TextView
     private lateinit var tvRol: TextView
@@ -29,7 +27,6 @@ class PerfilUsuario : Bars() {
     private lateinit var cardSolicitudes: LinearLayout
     private lateinit var cardTraducciones: LinearLayout
     private lateinit var ivPerfil: ImageView
-
     private lateinit var btnVolver: ImageButton
     private lateinit var btnSubirCertificadoNuevo: Button
     private lateinit var storage: FirebaseStorage
@@ -86,8 +83,6 @@ class PerfilUsuario : Bars() {
         cargarContribuciones()
     }
 
-    // ------------------ INFO PERSONAL ------------------
-
     private fun cargarDatosUsuario() {
 
         val uid = auth.currentUser?.uid
@@ -115,8 +110,6 @@ class PerfilUsuario : Bars() {
                     val rol = doc.getString("rol") ?: ""
                     val idiomaNativo = doc.getString("nativeLanguage") ?: ""
                     val estadoVerificacion = doc.getString("roleVerificationStatus") ?: ""
-
-                    // NUEVO
                     val profileImageUrl = doc.getString("profileImageUrl") ?: ""
 
                     tvNombre.text =
@@ -125,7 +118,6 @@ class PerfilUsuario : Bars() {
                     tvEmail.text =
                         if (email.isNotEmpty()) email else "Email"
 
-                    // NUEVO -> cargar imagen
                     if (profileImageUrl.isNotEmpty()) {
 
                         Glide.with(this)

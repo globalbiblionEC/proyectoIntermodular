@@ -11,8 +11,8 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 
+//Esta Activity es para que los traductores puedan subir traducciones
 class SolicitudTraduccion : Bars() {
-
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseFirestore
     private lateinit var storage: FirebaseStorage
@@ -25,15 +25,13 @@ class SolicitudTraduccion : Bars() {
     private lateinit var btnSubirDocumento: Button
     private lateinit var btnVolver: ImageButton
     private var requestIdCambios = ""
-    private var targetLanguage = ""
+    private var targetLanguage = "" //Idioma destino
     private var modo = ""
     private var bookId = ""
     private var bookTitle = ""
     private var sourceLanguage = ""
     private var coverPath = ""
-
     private var requestIdAprobada = ""
-
     private val seleccionarPdfLauncher =
         registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
             if (uri != null) {
@@ -42,7 +40,6 @@ class SolicitudTraduccion : Bars() {
                 Toast.makeText(this, "No seleccionaste ningún PDF", Toast.LENGTH_SHORT).show()
             }
         }
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

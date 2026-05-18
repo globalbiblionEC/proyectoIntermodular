@@ -1,5 +1,4 @@
 package com.example.globalbiblion
-
 import android.os.Bundle
 import android.content.Intent
 import android.widget.*
@@ -9,20 +8,17 @@ import com.google.firebase.storage.FirebaseStorage
 import com.bumptech.glide.Glide
 import com.google.firebase.firestore.FieldValue
 
+//Esta activity es el centro principal de la aplicación
 class Menuprincipal : Bars () {
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseFirestore
     private lateinit var storage: FirebaseStorage
     private val libros=mutableListOf<Libro>()
     private val portadasStorage=mutableMapOf<String,String>()
-
     private lateinit var gridBiblioteca: LinearLayout
     private lateinit var tvNombreUsuarioTopBar: TextView
     private lateinit var etBuscarLibroTopBar: EditText
     private lateinit var ivLupaTopBar: ImageView
-
-    private var libroActual: Libro? =null
-
     private lateinit var tvTituloContinuar: TextView
     private lateinit var tvAutorContinuar: TextView
     private lateinit var llContiLeyendo: LinearLayout
@@ -31,7 +27,7 @@ class Menuprincipal : Bars () {
     private lateinit var llTop1Ranking: LinearLayout
     private lateinit var llTop5Ranking: LinearLayout
     private lateinit var llAudiolibros: LinearLayout
-
+    private var libroActual: Libro? =null
     private var navegando = false
     private var portadaActualPath = ""
     private var pdfActualUrl = ""
@@ -98,8 +94,6 @@ class Menuprincipal : Bars () {
             buscarPor4Letras(texto)
             true
         }
-
-
         cargarDatosDesdeFirebase()
         cargarRankingLibros()
         cargarAudiolibros()

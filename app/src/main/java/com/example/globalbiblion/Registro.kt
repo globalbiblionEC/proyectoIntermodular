@@ -258,8 +258,21 @@ class Registro : AppCompatActivity() {
             return
         }
 
-        if (contrasenia1.length < 6) {
+       /* if (contrasenia1.length < 6) {
             etContrasenia.error = "Por favor lector, mínimo 6 caracteres"
+            etContrasenia.requestFocus()
+            return
+        }*/
+
+        if (contrasenia1.length < 6) {
+            etContrasenia.error = "La contraseña debe tener mínimo 6 caracteres"
+            etContrasenia.requestFocus()
+            return
+        }
+
+        if (!contrasenia1.matches(Regex(".*[!@#\$%^&*()_+=|<>?{}\\[\\]~-].*"))) {
+            etContrasenia.error =
+                "La contraseña debe contener al menos un carácter especial"
             etContrasenia.requestFocus()
             return
         }

@@ -11,10 +11,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 
 class iniciarSesion : AppCompatActivity() {
 
-    // Firebase Auth
     private lateinit var auth: FirebaseAuth //Para la autenticación del usuario
-
-    // Elementos que ve el usuario
     private lateinit var etCorreo: EditText
     private lateinit var etContrasenia: EditText
     private lateinit var btnIniciarSesion: MaterialButton //Usamos material button para hacerlo más personalizable
@@ -23,16 +20,13 @@ class iniciarSesion : AppCompatActivity() {
     private var btnIdiomas: LinearLayout? = null
     private lateinit var db: FirebaseFirestore
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_iniciar_sesion)
 
-        // Inicializar Firebase Auth
         auth = FirebaseAuth.getInstance()
         db = FirebaseFirestore.getInstance()
 
-        //Find views by id
         etCorreo = findViewById(R.id.etCorreo)
         etContrasenia = findViewById(R.id.etContrasenia)
         btnIniciarSesion = findViewById(R.id.btnIniciarSesion)

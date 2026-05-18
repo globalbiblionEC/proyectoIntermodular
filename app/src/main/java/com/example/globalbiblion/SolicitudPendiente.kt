@@ -1,5 +1,6 @@
 package com.example.globalbiblion
 
+//Data Class para definir los elementos de cada registro de solicitud pendiente
 data class SolicitudPendiente(
     val id: String,
     val bookTitle: String,

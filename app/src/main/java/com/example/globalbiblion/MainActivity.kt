@@ -1,18 +1,17 @@
 package com.example.globalbiblion
-//--------------VERSION 32-------------
+//--------------VERSION 33-------------
 import android.content.Intent
-import android.os.Bundle
+import android.os.Bundle //Para el ciclo de vida de la app
 import android.widget.Button
 import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
 
+//Esta Activity es el punto de entrada de la aplicación
 class MainActivity : AppCompatActivity() {
-
     private lateinit var btnIniciarSesion: Button
     private lateinit var btnRegistrarse: Button
     private lateinit var btnInvitado: Button
-    //Colocamos linearLayout porque es un botón con imagen
     private lateinit var btnIdiomas: LinearLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -24,7 +23,6 @@ class MainActivity : AppCompatActivity() {
         btnInvitado=findViewById(R.id.btnInvitado)
         btnIdiomas=findViewById(R.id.btnIdiomas)
 
-        //Set on click listeners
         btnIdiomas.setOnClickListener {
             try {
                 //Intent implicito que ira a la configuración del telefono del usuario

@@ -3,7 +3,7 @@ package com.example.globalbiblion
 import android.os.Bundle
 import android.content.Intent
 import android.graphics.Color
-import android.view.Gravity
+import android.view.Gravity //Alinea los elementos de una vista
 import android.widget.*
 import com.bumptech.glide.Glide
 import com.google.firebase.auth.FirebaseAuth
@@ -11,26 +11,24 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 
-class EscribirResenia : Bars() {//BottomBar child
-
+//Esta Activity es para que el usuario escriba una reseña de un libro
+class EscribirResenia : Bars() {//Heredamos
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseFirestore
     private lateinit var storage: FirebaseStorage
-
     private lateinit var ivPerfil: ImageView
     private lateinit var btnVolver: ImageButton
     private lateinit var ivPortadaLibro: ImageView
     private lateinit var tvTituloLibro: TextView
     private lateinit var tvAutorLibro: TextView
     private lateinit var tvRatingLibro: TextView
-    private lateinit var ratingBarResena: RatingBar
+    private lateinit var ratingBarResena: RatingBar //Para las estrellas
     private lateinit var etComentario: EditText
     private lateinit var btnPublicarResena: Button
     private lateinit var llMisResenas: LinearLayout
     private lateinit var llBiblioteca: LinearLayout
     private lateinit var llContileyendo: LinearLayout
     private lateinit var tvNombreUsuarioPerfil: TextView
-
     private var idLibro = ""
     private var tituloLibro = ""
     private var autorLibro = ""
@@ -38,8 +36,7 @@ class EscribirResenia : Bars() {//BottomBar child
     private var pdfUrl = ""
     private var pdfStoragePath = ""
     private var portadaResId = 0
-
-    private var reviewIdEditando: String? = null
+    private var reviewIdEditando: String? = null//Para saber si el usuario esta editando una reseña existente
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -138,7 +135,7 @@ class EscribirResenia : Bars() {//BottomBar child
                 tituloLibro = doc.getString("title") ?: tituloLibro
 
                 val authors = doc.get("authors") as? List<*>
-                autorLibro = authors
+                autorLibro = authors //Convertimos la lista de autores en un texto
                     ?.mapNotNull { it as? String }
                     ?.joinToString(", ")
                     ?.takeIf { it.isNotBlank() }
@@ -186,7 +183,7 @@ class EscribirResenia : Bars() {//BottomBar child
             return
         }
 
-        btnPublicarResena.isEnabled = false
+        btnPublicarResena.isEnabled = false //Inhabilitamos el botón si el usuario no ha colocado las estrellas y la reseña
 
         db.collection("users")
             .document(uid)
@@ -233,7 +230,7 @@ class EscribirResenia : Bars() {//BottomBar child
         db.collection("books")
             .document(idLibro)
             .collection("reviews")
-            .document(uid)
+            .document(uid)//Esto hace que cada ususario solo tenga 1 reseña por libro
             .get()
             .addOnSuccessListener { doc ->
                 llMisResenas.removeAllViews()

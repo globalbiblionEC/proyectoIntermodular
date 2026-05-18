@@ -1,5 +1,6 @@
 package com.example.globalbiblion
 
+//Data class de los elementos que necesitamos por cada registro del historial
 data class HistorialAdmin(
     val id: String,
     val tipo: String, // Certificado o Solicitud
