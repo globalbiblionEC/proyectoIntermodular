@@ -438,15 +438,6 @@ open class Bars : AppCompatActivity() {
 
                 storage.reference.child(pdfPath).downloadUrl
                     .addOnSuccessListener { pdfUri ->
-                        /*abrirContinuarLeyendo(
-                            idLibro,
-                            titulo,
-                            autor,
-                            pdfUri.toString(),
-                            pdfPath,
-                            coverPath,
-                            readingLanguage
-                        )*/
                         abrirContinuarLeyendo(
                             idLibro = idLibro,
                             titulo = titulo,

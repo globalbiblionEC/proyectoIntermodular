@@ -32,6 +32,9 @@
             android:id="@+id/ivPerfilTopBar"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:background="@drawable/bg_circle_profile"
+            android:outlineProvider="background"
+            android:clipToOutline="true"
             android:contentDescription="@string/perfil"
             android:scaleType="centerCrop"
             android:src="@drawable/usuarioleyendocfmenuprinc" />
