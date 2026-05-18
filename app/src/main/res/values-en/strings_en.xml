@@ -21,7 +21,7 @@
     <string name="rep_contrasenia">Repeat password</string>
     <string name="guardar">Save</string>
     <string name="buscar_libro">Search Book</string>
-    <string name="contileyen">Continue reading</string>
+    <string name="contileyen">Continue</string>
     <string name="portada">Cover</string>
     <string name="titulo">Title</string>
     <string name="autor">Author</string>
@@ -58,7 +58,7 @@
     <string name="historial_actualizacion">Update history</string>
     <string name="ultima_actualizacion">Last update\nDate</string>
     <string name="portada_libro_continuar">Continue book cover</string>
-    <string name="continuar_lectura">Continue reading</string>
+    <string name="continuar_lectura">Continue</string>
     <string name="top_1_mejor">TOP 1 - Highest rated</string>
     <string name="top_5_mejor">TOP 5 - Highest rated</string>
     <string name="notficaciones">Notifications</string>

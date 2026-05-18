@@ -125,10 +125,10 @@
                     android:id="@+id/btnEscuchar"
                     android:layout_width="wrap_content"
                     android:layout_height="42dp"
-                    android:backgroundTint="#C8C8C8"
+                    android:backgroundTint="#F2C94C"
                     android:text="@string/para_escuchar"
                     android:textAllCaps="false"
-                    android:textColor="@android:color/white"
+                    android:textColor="#1E3A5F"
                     android:textSize="16sp" />
 
                 <Button

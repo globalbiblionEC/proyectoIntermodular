@@ -7,6 +7,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import com.bumptech.glide.Glide
+import com.google.firebase.firestore.FieldValue
 
 class Menuprincipal : Bars () {
     private lateinit var auth: FirebaseAuth
@@ -365,66 +366,6 @@ class Menuprincipal : Bars () {
                 }
             }
     }
-    /*private fun cargarDatosDesdeFirebase() {
-        val uid = auth.currentUser?.uid ?: return
-        val audioUrl = doc.getString("audioUrl") ?: ""
-        val contentType = doc.getString("contentType") ?: ""
-        val audioPosition = doc.getLong("audioPosition")?.toInt() ?: 0
-
-        audioActualUrl = audioUrl
-        contentTypeActual = contentType
-        audioPositionActual = audioPosition
-
-        db.collection("readings")
-            .document(uid)
-            .get()
-            .addOnSuccessListener { doc ->
-                if (!doc.exists()) return@addOnSuccessListener
-
-                val id = doc.getString("idLibro") ?: return@addOnSuccessListener
-                val titulo = doc.getString("title") ?: "Libro actual"
-                val authors = doc.get("authors") as? List<String>
-                val autor = if (!authors.isNullOrEmpty()) {
-                    authors.joinToString(", ")
-                } else {
-                    ""
-                }
-
-                val pdfPath = doc.getString("pdfPath") ?: ""
-                val pdfUrl = doc.getString("pdfUrl") ?: ""
-                val coverPath = doc.getString("coverPath") ?: ""
-                val idioma = doc.getString("readingLanguage") ?: ""
-
-                portadaActualPath = coverPath
-                pdfActualUrl = pdfUrl
-                idiomaActualLectura = idioma
-
-                libroActual = Libro(
-                    id,
-                    titulo,
-                    autor,
-                    pdfPath,
-                    0,
-                    R.drawable.logogbsinfondo
-                )
-
-                tvTituloContinuar.text = titulo
-                tvAutorContinuar.text = autor
-
-                if (coverPath.isNotBlank()) {
-                    storage.reference.child(coverPath).downloadUrl
-                        .addOnSuccessListener { uri ->
-                            Glide.with(this)
-                                .load(uri.toString())
-                                .placeholder(R.drawable.logogbsinfondo)
-                                .error(R.drawable.logogbsinfondo)
-                                .into(ivPortadaLibroActual)
-                        }
-                } else {
-                    ivPortadaLibroActual.setImageResource(R.drawable.logogbsinfondo)
-                }
-            }
-    }*/
 
     private fun irAContinuarLeyendo() {
         val libro = libroActual ?: run {
@@ -714,6 +655,7 @@ class Menuprincipal : Bars () {
         return contenedor
     }
 
+
     private fun cargarAudiolibros() {
 
         db.collection("books")
@@ -724,21 +666,30 @@ class Menuprincipal : Bars () {
 
                 for (doc in snapshot.documents) {
 
-                    val translations =
-                        doc.get("translations") as? Map<*, *>
+                    val audioUrlDirecto = doc.getString("audioUrl") ?: ""
+                    val audioPathDirecto = doc.getString("audioPath") ?: ""
 
-                    var tieneAudio = false
+                    val translations = doc.get("translations") as? Map<*, *>
 
-                    if (translations != null) {
+                    var audioEncontrado = audioUrlDirecto
+                    var audioPathEncontrado = audioPathDirecto
+                    var tieneAudio = audioUrlDirecto.isNotBlank() || audioPathDirecto.isNotBlank()
+
+                    if (!tieneAudio && translations != null) {
 
                         for ((_, value) in translations) {
 
-                            val idiomaData = value as? Map<*, *>
+                            val idiomaData = value as? Map<*, *> ?: continue
 
-                            val audioUrl =
-                                idiomaData?.get("audioUrl")?.toString() ?: ""
+                            val audioUrlTranslation =
+                                idiomaData["audioUrl"]?.toString() ?: ""
 
-                            if (audioUrl.isNotBlank()) {
+                            val audioPathTranslation =
+                                idiomaData["audioPath"]?.toString() ?: ""
+
+                            if (audioUrlTranslation.isNotBlank() || audioPathTranslation.isNotBlank()) {
+                                audioEncontrado = audioUrlTranslation
+                                audioPathEncontrado = audioPathTranslation
                                 tieneAudio = true
                                 break
                             }
@@ -747,26 +698,98 @@ class Menuprincipal : Bars () {
 
                     if (!tieneAudio) continue
 
+                    val authors = doc.get("authors") as? List<*>
+                    val autor = authors
+                        ?.mapNotNull { it as? String }
+                        ?.joinToString(", ")
+                        ?: "Autor desconocido"
+
                     val libro = Libro(
                         doc.id,
                         doc.getString("title") ?: "Sin título",
-                        (
-                                doc.get("authors") as? List<*>
-                                )?.joinToString(", ") ?: "Autor",
+                        autor,
                         doc.getString("pdfPath") ?: "",
                         0,
                         R.drawable.logogbsinfondo
                     )
 
+                    val coverPath = doc.getString("coverPath") ?: ""
+
                     val vista = crearVistaLibroBiblioteca(libro)
 
                     vista.setOnClickListener {
-                        irALibroSeleccionado(libro)
+
+                        if (audioEncontrado.isNotBlank()) {
+
+                            irAContinuarLeyendoAudioDesdeMenu(
+                                libro = libro,
+                                audioUrl = audioEncontrado,
+                                coverPath = coverPath
+                            )
+
+                        } else if (audioPathEncontrado.isNotBlank()) {
+
+                            storage.reference.child(audioPathEncontrado)
+                                .downloadUrl
+                                .addOnSuccessListener { uri ->
+
+                                    irAContinuarLeyendoAudioDesdeMenu(
+                                        libro = libro,
+                                        audioUrl = uri.toString(),
+                                        coverPath = coverPath
+                                    )
+                                }
+                                .addOnFailureListener { e ->
+                                    Toast.makeText(
+                                        this,
+                                        "No se pudo cargar el audiolibro: ${e.message}",
+                                        Toast.LENGTH_LONG
+                                    ).show()
+                                }
+                        }
                     }
 
                     llAudiolibros.addView(vista)
                 }
             }
+    }
+
+    private fun irAContinuarLeyendoAudioDesdeMenu(
+        libro: Libro,
+        audioUrl: String,
+        coverPath: String
+    ) {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid
+
+        val datos = hashMapOf(
+            "idLibro" to libro.idLibro,
+            "title" to libro.titulo,
+            "authors" to libro.autor.split(",").map { it.trim() },
+            "coverPath" to coverPath,
+            "audioUrl" to audioUrl,
+            "contentType" to "audio",
+            "audioPosition" to 0,
+            "updatedAt" to FieldValue.serverTimestamp()
+        )
+
+        if (uid != null) {
+            db.collection("readings")
+                .document(uid)
+                .set(datos)
+        }
+
+        val intent = Intent(this, ContinuarLeyendo::class.java).apply {
+            putExtra("idLibro", libro.idLibro)
+            putExtra("tituloLibro", libro.titulo)
+            putExtra("autorLibro", libro.autor)
+            putExtra("portadaStoragePath", coverPath)
+            putExtra("portadaResId", libro.portadaResId)
+            putExtra("audioUrl", audioUrl)
+            putExtra("contentType", "audio")
+            putExtra("audioPosition", 0)
+        }
+
+        startActivity(intent)
     }
     private fun dp(valor: Int): Int {
         return (valor * resources.displayMetrics.density).toInt()
