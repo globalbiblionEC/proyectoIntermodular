@@ -15,6 +15,7 @@ import android.text.TextWatcher
 import androidx.activity.result.contract.ActivityResultContracts
 import com.google.firebase.storage.FirebaseStorage
 import android.view.View
+import com.bumptech.glide.Glide
 
 
 class Registro : AppCompatActivity() {
@@ -70,7 +71,11 @@ class Registro : AppCompatActivity() {
                     Intent.FLAG_GRANT_READ_URI_PERMISSION
                 )
 
-                ivUsuario.setImageURI(uri)
+                //ivUsuario.setImageURI(uri)
+                Glide.with(this)
+                    .load(uri)
+                    .circleCrop()
+                    .into(ivUsuario)
 
                 Toast.makeText(this, "Imagen seleccionada", Toast.LENGTH_SHORT).show()
             } else {
