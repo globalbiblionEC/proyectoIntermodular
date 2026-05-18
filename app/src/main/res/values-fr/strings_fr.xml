@@ -270,4 +270,5 @@
     <string name="error_url_imagen">Erreur lors de l’obtention de l’URL de l’image : %1$s</string>
 
     <string name="error_subir_imagen">Erreur lors du téléversement de l’image : %1$s</string>
+    <string name="exportar_mis_datos">exporter mes données</string>
 </resources>

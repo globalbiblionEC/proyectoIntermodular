@@ -252,6 +252,8 @@
                         android:textSize="13sp" />
                 </LinearLayout>
 
+
+
                 <!-- TRADUCCIONES -->
                 <LinearLayout
                     android:id="@+id/cardTraducciones"
@@ -310,6 +312,17 @@
                 </LinearLayout>
 
             </LinearLayout>
+
+            <Button
+                android:id="@+id/btnExportarDatos"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="32dp"
+                android:layout_marginEnd="32dp"
+                android:layout_marginBottom="32dp"
+                android:backgroundTint="#1E3A5F"
+                android:text="@string/exportar_mis_datos"
+                android:textColor="@android:color/white" />
 
         </LinearLayout>
     </ScrollView>

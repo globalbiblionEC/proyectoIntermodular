@@ -57,6 +57,8 @@ dependencies {
     implementation("com.google.firebase:firebase-storage")
     //Glide para optimizar la carga de imagenes
     implementation("com.github.bumptech.glide:glide:4.16.0")
+    //Para exportar los datos del usuario
+    implementation("com.google.firebase:firebase-functions-ktx")
 
 
     testImplementation(libs.junit)

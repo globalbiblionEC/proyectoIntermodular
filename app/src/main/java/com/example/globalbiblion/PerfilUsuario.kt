@@ -1,6 +1,6 @@
 package com.example.globalbiblion
+import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.View //Para poder mostrar los campos según el rol
 import android.widget.*
 import com.google.firebase.auth.FirebaseAuth
@@ -10,6 +10,12 @@ import androidx.activity.result.contract.ActivityResultContracts
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.storage.FirebaseStorage
 import com.bumptech.glide.Glide //Para imágenes
+import com.google.firebase.functions.ktx.functions
+import com.google.firebase.ktx.Firebase
+import android.util.Log
+import com.google.firebase.functions.FirebaseFunctionsException
+import android.os.Handler
+import android.os.Looper
 
 //Esta Activity es para mostrar el perfil del usuario
 class PerfilUsuario : Bars() {
@@ -29,6 +35,7 @@ class PerfilUsuario : Bars() {
     private lateinit var ivPerfil: ImageView
     private lateinit var btnVolver: ImageButton
     private lateinit var btnSubirCertificadoNuevo: Button
+    private lateinit var btnExportarDatos: Button
     private lateinit var storage: FirebaseStorage
     private var uriCertificadoNuevo: Uri? = null
     private val seleccionarNuevoCertificado =
@@ -62,6 +69,7 @@ class PerfilUsuario : Bars() {
         tvNumeroSolicitudes = findViewById(R.id.tvNumeroSolicitudes)
         tvNumeroTraducciones = findViewById(R.id.tvNumeroTraducciones)
         btnSubirCertificadoNuevo = findViewById(R.id.btnSubirCertificadoNuevo)
+        btnExportarDatos = findViewById(R.id.btnExportarDatos)
         ivPerfil= findViewById(R.id.ivPerfilTopBar)
 
         btnSubirCertificadoNuevo.visibility = View.GONE
@@ -76,6 +84,9 @@ class PerfilUsuario : Bars() {
         }
         btnSubirCertificadoNuevo.setOnClickListener {
             seleccionarNuevoCertificado.launch("application/pdf")
+        }
+        btnExportarDatos.setOnClickListener {
+            exportarDatosUsuario()
         }
 
         // Cargar datos desde Firebase
@@ -337,13 +348,27 @@ class PerfilUsuario : Bars() {
                     }
             }
             .addOnFailureListener { e ->
-                Toast.makeText(
-                    this,
-                    "Error al subir certificado: ${e.message}",
-                    Toast.LENGTH_LONG
-                ).show()
+
+                if (e is FirebaseFunctionsException) {
+                    Log.e("EXPORTAR_DATOS", "Código: ${e.code}", e)
+                    Log.e("EXPORTAR_DATOS", "Detalles: ${e.details}")
+                    Log.e("EXPORTAR_DATOS", "Mensaje: ${e.message}")
+
+                    Toast.makeText(
+                        this,
+                        "Error al exportar datos: ${e.code} - ${e.message}",
+                        Toast.LENGTH_LONG
+                    ).show()
+                } else {
+                    Log.e("EXPORTAR_DATOS", "Error desconocido", e)
+
+                    Toast.makeText(
+                        this,
+                        "Error al exportar datos: ${e.message}",
+                        Toast.LENGTH_LONG
+                    ).show()
             }
-    }
+    }}
 
     private fun obtenerNombreRol(rol: String): String {
         return when (rol) {
@@ -353,5 +378,119 @@ class PerfilUsuario : Bars() {
             "admin" -> "Administrador"
             else -> rol
         }
+    }
+
+    /*private fun exportarDatosUsuario() {
+
+        val user = auth.currentUser
+
+        Log.d("EXPORTAR_DATOS", "UID: ${user?.uid}")
+        Log.d("EXPORTAR_DATOS", "EMAIL: ${user?.email}")
+
+        if (user == null) {
+            Toast.makeText(this, "Debes iniciar sesión", Toast.LENGTH_LONG).show()
+            return
+        }
+
+        Toast.makeText(this, "Generando exportación...", Toast.LENGTH_SHORT).show()
+
+        val functions = Firebase.functions("europe-west1")
+
+        functions
+            .getHttpsCallable("exportar_datos_usuario")
+            .call()
+            .addOnSuccessListener { result ->
+
+                Log.d("EXPORTAR_DATOS", "Respuesta completa: ${result.data}")
+
+                val datos = result.data as? Map<*, *>
+                val urlDescarga = datos?.get("urlDescarga")?.toString() ?: ""
+
+                if (urlDescarga.isNotBlank()) {
+                    Toast.makeText(this, "Exportación generada correctamente", Toast.LENGTH_LONG).show()
+
+                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(urlDescarga))
+                    startActivity(intent)
+                } else {
+                    Toast.makeText(this, "No se pudo obtener la descarga", Toast.LENGTH_LONG).show()
+                }
+            }
+            .addOnFailureListener { e ->
+
+                Log.e("EXPORTAR_DATOS", "Error completo al llamar la función", e)
+
+                if (e is com.google.firebase.functions.FirebaseFunctionsException) {
+                    Log.e("EXPORTAR_DATOS", "Código: ${e.code}")
+                    Log.e("EXPORTAR_DATOS", "Detalles: ${e.details}")
+                    Log.e("EXPORTAR_DATOS", "Mensaje: ${e.message}")
+
+                    Toast.makeText(
+                        this,
+                        "Error: ${e.code} - ${e.message}",
+                        Toast.LENGTH_LONG
+                    ).show()
+                } else {
+                    Toast.makeText(
+                        this,
+                        "Error al exportar datos: ${e.message}",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            }
+    }*/
+    private fun exportarDatosUsuario() {
+
+        Toast.makeText(this, "Generando exportación...", Toast.LENGTH_SHORT).show()
+
+        val functions = Firebase.functions("us-central1")
+
+        Log.d("EXPORTAR_DATOS", "Llamando a exportar_datos_usuario")
+        Log.d("EXPORTAR_DATOS", "UID actual: ${auth.currentUser?.uid}")
+        Log.d("EXPORTAR_DATOS", "Email actual: ${auth.currentUser?.email}")
+
+        var respondio = false
+
+        Handler(Looper.getMainLooper()).postDelayed({
+            if (!respondio) {
+                Log.e("EXPORTAR_DATOS", "La función no respondió después de 20 segundos")
+                Toast.makeText(
+                    this,
+                    "La exportación está tardando demasiado",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }, 20000)
+
+        functions
+            .getHttpsCallable("exportar_datos_usuario")
+            .call()
+            .addOnSuccessListener { result ->
+
+                respondio = true
+
+                Log.d("EXPORTAR_DATOS", "Respuesta completa: ${result.data}")
+
+                val datos = result.data as? Map<*, *>
+                val urlDescarga = datos?.get("urlDescarga")?.toString() ?: ""
+
+                if (urlDescarga.isNotBlank()) {
+                    Toast.makeText(this, "Exportación generada correctamente", Toast.LENGTH_LONG).show()
+                    startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(urlDescarga)))
+                } else {
+                    Toast.makeText(this, "No se pudo obtener la descarga", Toast.LENGTH_LONG).show()
+                }
+            }
+            .addOnFailureListener { e ->
+
+                respondio = true
+
+                Log.e("EXPORTAR_DATOS", "Error completo al exportar", e)
+
+                Toast.makeText(
+                    this,
+                    "Error al exportar datos: ${e.message}",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
     }
 }

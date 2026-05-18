@@ -266,4 +266,5 @@
     <string name="error_url_imagen">Error obtaining image URL: %1$s</string>
 
     <string name="error_subir_imagen">Error uploading image: %1$s</string>
+    <string name="exportar_mis_datos">Export my data</string>
 </resources>
