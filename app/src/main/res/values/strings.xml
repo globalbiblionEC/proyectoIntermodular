@@ -92,4 +92,182 @@
     <string name="datos_cert">Datos certificado</string>
     <string name="estado">Estado</string>
     <string name="tipo">Tipo</string>
+
+    <!--TOASTS-->
+    <string name="toast_ya_biblioteca">Querido lector, ya estás en la biblioteca</string>
+    <string name="toast_ya_busqueda_voz">Ya estás en búsqueda por voz</string>
+    <string name="toast_ya_notificaciones">Ya estás en notificaciones</string>
+    <string name="toast_ya_perfil">Ya estás en tu perfil</string>
+    <string name="dialog_cerrar_sesion_titulo">Cerrar sesión</string>
+    <string name="dialog_cerrar_sesion_mensaje">¿Seguro que deseas cerrar sesión?</string>
+    <string name="si">Sí</string>
+    <string name="cancelar">Cancelar</string>
+    <string name="toast_minimo_4_caracteres">Escribe al menos 4 caracteres</string>
+    <string name="toast_libro_no_encontrado">No se ha encontrado el libro con:</string>
+    <string name="toast_libro_sin_pdf">Este libro no tiene PDF</string>
+    <string name="toast_debes_iniciar_sesion">Debes iniciar sesión</string>
+    <string name="toast_sin_lectura_guardada">No tienes ninguna lectura guardada</string>
+    <string name="toast_pdf_no_encontrado">No se encontró el PDF guardado</string>
+    <string name="autor_desconocido">Autor desconocido</string>
+    <string name="libro_actual">Libro actual</string>
+    <string name="sin_titulo">Sin título</string>
+    <string name="error_cargando_libros">Error cargando libros: %1$s</string>
+    <string name="error_obtener_pdf">Error al obtener PDF: %1$s</string>
+    <string name="error_busqueda_libro">Error buscando libro:</string>
+    <string name="error_pdf">Error PDF:</string>
+    <string name="error_firestore">Error Firestore:</string>
+    <string name="prompt_nombre_libro">Di el nombre del libro</string>
+    <string name="error_busqueda_voz_dispositivo">Tu dispositivo no permite búsqueda por voz</string>
+    <string name="has_dicho">Has dicho: %1$s</string>
+    <string name="toast_libro_no_encontrado_voz">No se encontró ningún libro con: %1$s</string>
+    <string name="toast_id_libro_vacio">Aviso: idLibro viene vacío, no se podrá guardar la valoración</string>
+    <string name="toast_pdf_url_no_encontrada">No se ha encontrado la URL del PDF</string>
+    <string name="toast_error_portada_storage">No se pudo cargar la portada desde Firebase Storage</string>
+    <string name="chooser_abrir_libro">Abrir libro con</string>
+    <string name="toast_no_app_pdf">No hay ninguna app para abrir PDFs</string>
+    <string name="toast_no_audiolibro">No hay audiolibro disponible</string>
+    <string name="btn_reproducir">Reproducir</string>
+    <string name="btn_pausar">Pausar</string>
+    <string name="toast_cargando_audiolibro">Cargando audiolibro...</string>
+    <string name="content_type_audio">audio</string>
+    <string name="toast_debes_login_resenia">Debes iniciar sesión para escribir una reseña</string>
+    <string name="toast_error_id_libro_vacio">Error: idLibro vacío</string>
+    <string name="toast_selecciona_puntuacion">Selecciona una puntuación</string>
+    <string name="error_escribe_resenia">Escribe tu reseña</string>
+    <string name="toast_resenia_guardada">Reseña guardada</string>
+    <string name="toast_error_guardar">Error al guardar: %1$s</string>
+    <string name="toast_error_obtener_usuario">Error al obtener usuario: %1$s</string>
+    <string name="sin_resenias_libro">Todavía no has escrito reseñas de este libro.</string>
+    <string name="toast_error_cargar_resenias">Error al cargar reseñas: %1$s</string>
+    <string name="content_desc_editar_resenia">Editar reseña</string>
+    <string name="btn_actualizar_opinion">Actualizar opinión</string>
+    <string name="estado_validado_aprobado">Validado / Aprobado</string>
+    <string name="estado_rechazado">Rechazado</string>
+    <string name="estado_pendiente">Pendiente</string>
+    <string name="error_introduce_correo">Introduce tu correo</string>
+    <string name="error_introduce_contrasenia">Introduce tu contraseña</string>
+    <string name="toast_inicio_correcto">Inicio de sesión correcto</string>
+    <string name="toast_credenciales_erroneas">Credenciales erróneas.</string>
+    <string name="toast_usuario_no_identificado">No se pudo identificar al usuario</string>
+    <string name="rol_admin">admin</string>
+    <string name="toast_error_comprobar_rol">Error al comprobar el rol</string>
+    <string name="btn_ver_idiomas">Ver idiomas disponibles ▼</string>
+    <string name="btn_ocultar_idiomas">Ocultar idiomas ▲</string>
+    <string name="toast_libro_no_existe">No existe el libro con id: %1$s</string>
+    <string name="sinopsis_no_disponible">Sinopsis no disponible</string>
+    <string name="label_genero">GÉNERO\n%1$s</string>
+    <string name="label_valoracion">VALORACIÓN\n%1$s/5</string>
+    <string name="label_idioma">IDIOMA\n%1$s</string>
+    <string name="label_resenias">RESEÑAS\n%1$d</string>
+    <string name="label_creado">Creado\n%1$s</string>
+    <string name="label_valoracion_media">Valoración media\n%1$s/5</string>
+    <string name="error_cargar_info_libro">No se pudo cargar la información del libro: %1$s</string>
+    <string name="sin_resenias">Sin reseñas todavía</string>
+    <string name="sin_comentario">Sin comentario</string>
+    <string name="toast_login_traducir">Debes iniciar sesión para traducir</string>
+    <string name="toast_solo_traductores">Solo los traductores pueden traducir libros</string>
+    <string name="toast_traductor_no_verificado">Tu cuenta de traductor aún no está verificada</string>
+    <string name="rol_translator">translator</string>
+    <string name="estado_verified">verified</string>
+    <string name="toast_sin_idioma_nativo">No tienes idioma nativo registrado</string>
+    <string name="toast_libro_ya_idioma">Este libro ya está disponible en tu idioma</string>
+    <string name="modo_subir_traduccion">subir_traduccion</string>
+    <string name="toast_error_permisos">Error comprobando permisos</string>
+    <string name="sin_idiomas_disponibles">No hay idiomas disponibles</string>
+    <string name="btn_leer_en">Leer en %1$s</string>
+    <string name="toast_pdf_no_encontrado_idioma">No se encontró el PDF en %1$s</string>
+    <string name="toast_ruta_pdf_no_encontrada">No se encontró la ruta del PDF</string>
+    <string name="english_language">English</string>
+    <string name="toast_portada_no_cargada">No se pudo cargar la portada del libro</string>
+    <string name="toast_no_pdf_seleccionado">No seleccionaste ningún PDF</string>
+    <string name="error_cargar_notificaciones">Error al cargar notificaciones</string>
+    <string name="corrector_default">Corrector</string>
+    <string name="traductor_default">Traductor</string>
+    <string name="sin_motivo_indicado">Sin motivo indicado</string>
+    <string name="sin_notas">Sin notas</string>
+    <string name="fecha_desconocida">Fecha desconocida</string>
+    <string name="toast_subiendo_certificado">Subiendo certificado...</string>
+    <string name="toast_certificado_subido">Certificado subido. Queda pendiente de revisión.</string>
+    <string name="error_actualizar_usuario">Error al actualizar usuario: %1$s</string>
+    <string name="error_subir_certificado">Error al subir certificado: %1$s</string>
+    <string name="rol_proofreader">proofreader</string>
+    <string name="estado_pending_review">pending_review</string>
+    <string name="estado_prevalidated">prevalidated</string>
+    <string name="estado_rejected">rejected</string>
+    <string name="estado_published">published</string>
+    <string name="estado_changes_requested">changes_requested</string>
+    <string name="estado_waiting_for_proofreader">waiting_for_proofreader</string>
+    <string name="estado_translation_vacancy_open">translation_vacancy_open</string>
+    <string name="estado_proofreader_approved">proofreader_approved</string>
+    <string name="estado_proofreader_rejected">proofreader_rejected</string>
+    <string name="decision_rejected">rejected</string>
+    <string name="decision_approved">approved</string>
+    <string name="toast_no_traducciones_pendientes">No tienes traducciones pendientes de corregir.</string>
+    <string name="btn_ver_pdf_traducido">Ver PDF traducido</string>
+    <string name="btn_validar_traduccion">Validar traducción</string>
+    <string name="btn_rechazar_subir_correccion">Rechazar y subir corrección</string>
+    <string name="toast_traduccion_validada">Traducción validada. Pasará al panel del administrador.</string>
+    <string name="error_validar_traduccion">Error al validar: %1$s</string>
+    <string name="hint_motivo_rechazo">Motivo del rechazo opcional</string>
+    <string name="dialog_rechazar_traduccion">Rechazar traducción</string>
+    <string name="dialog_rechazar_traduccion_msg">Puedes escribir un motivo, subir un PDF corregido, o ambas cosas.</string>
+    <string name="btn_subir_pdf_corregido">Subir PDF corregido</string>
+    <string name="btn_rechazar_sin_pdf">Rechazar sin PDF</string>
+    <string name="toast_motivo_obligatorio">Debes escribir un motivo si no subes PDF</string>
+    <string name="toast_no_solicitud">No se encontró la solicitud</string>
+    <string name="toast_subiendo_correccion">Subiendo corrección...</string>
+    <string name="toast_correccion_subida">Corrección subida. El traductor recibirá la notificación.</string>
+    <string name="error_actualizar_solicitud">Error al actualizar solicitud: %1$s</string>
+    <string name="error_subir_correccion">Error al subir corrección: %1$s</string>
+    <string name="toast_traduccion_rechazada">Traducción rechazada. El traductor recibirá la notificación.</string>
+    <string name="toast_pdf_correccion_no_encontrado">No se encontró el PDF de corrección</string>
+    <string name="error_pdf_correccion">Error al abrir PDF de corrección: %1$s</string>
+    <string name="sin_notificaciones">No tienes notificaciones.</string>
+    <string name="tus_notificaciones">Tus notificaciones</string>
+    <string name="sin_comentario_indicado">Sin comentario indicado</string>
+    <string name="btn_ver_pdf_corrector">Ver PDF del corrector</string>
+    <string name="btn_subir_traduccion_corregida">Subir traducción corregida</string>
+    <string name="modo_subir_cambios">subir_cambios</string>
+    <string name="dialog_correccion_solicitada">Corrección solicitada</string>
+    <string name="dialog_correccion_pendiente">Corrección pendiente</string>
+    <string name="btn_corregir_traduccion">Corregir traducción</string>
+    <string name="btn_rechazar_comentario_pdf">Rechazar / añadir comentario o PDF</string>
+    <string name="toast_no_abrir_pdf">No se pudo abrir el PDF</string>
+    <string name="btn_abrir_pdf_con">Abrir PDF con</string>
+    <string name="toast_debes_iniciar_sesion_perfil">Debes iniciar sesión para ver tu perfil</string>
+
+        <string name="toast_certificado_pdf_seleccionado">Certificado PDF seleccionado</string>
+        <string name="toast_no_imagen_seleccionada">No seleccionaste ninguna imagen</string>
+        <string name="toast_imagen_seleccionada">Imagen seleccionada</string>
+
+        <string name="rol_reader">reader</string>
+
+        <string name="language_spanish">Spanish</string>
+        <string name="language_french">French</string>
+        <string name="language_portuguese">Portuguese</string>
+
+        <string name="error_introduce_nombre">Introduce tu nombre</string>
+        <string name="error_correo_no_valido">Correo no válido</string>
+        <string name="error_correos_no_coinciden">Los correos no coinciden</string>
+
+        <string name="error_password_minimo">La contraseña debe tener mínimo 6 caracteres</string>
+        <string name="error_password_especial">La contraseña debe contener al menos un carácter especial</string>
+        <string name="error_password_no_coinciden">Las contraseñas no coinciden</string>
+
+        <string name="toast_subir_certificado_pdf">Debes subir un certificado PDF</string>
+
+        <string name="error_registro">Error al registrarse: %1$s</string>
+        <string name="error_uid">Error: no se pudo obtener el UID</string>
+
+        <string name="estado_not_required">not_required</string>
+
+        <string name="toast_registro_correcto">Registro correcto. ¡Bienvenido/a!</string>
+
+        <string name="error_guardar_usuario">Usuario creado, pero error al guardar datos: %1$s</string>
+
+        <string name="error_url_imagen">Error obteniendo URL de imagen: %1$s</string>
+
+        <string name="error_subir_imagen">Error al subir imagen: %1$s</string>
+
+
 </resources>

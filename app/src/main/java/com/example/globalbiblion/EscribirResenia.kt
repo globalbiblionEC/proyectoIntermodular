@@ -160,12 +160,12 @@ class EscribirResenia : Bars() {//Heredamos
         val uid = auth.currentUser?.uid
 
         if (uid == null) {//If is a guest, he cant review
-            Toast.makeText(this, "Debes iniciar sesión para escribir una reseña", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, getString(R.string.toast_debes_login_resenia), Toast.LENGTH_LONG).show()
             return
         }
 
         if (idLibro.isBlank()) {
-            Toast.makeText(this, "Error: idLibro vacío", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, getString(R.string.toast_error_id_libro_vacio), Toast.LENGTH_LONG).show()
             return
         }
 
@@ -173,12 +173,12 @@ class EscribirResenia : Bars() {//Heredamos
         val rating = ratingBarResena.rating.toInt()
 
         if (rating <= 0) {
-            Toast.makeText(this, "Selecciona una puntuación", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.toast_selecciona_puntuacion), Toast.LENGTH_SHORT).show()
             return
         }
 
         if (comentario.isEmpty()) {
-            etComentario.error = "Escribe tu reseña"
+            etComentario.error = getString(R.string.escribir_resenia)
             etComentario.requestFocus()
             return
         }
@@ -209,7 +209,7 @@ class EscribirResenia : Bars() {//Heredamos
                     .addOnSuccessListener {
                         limpiarFormulario()
                         cargarMisResenas()
-                        Toast.makeText(this, "Reseña guardada", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, getString(R.string.toast_resenia_guardada), Toast.LENGTH_SHORT).show()
                         btnPublicarResena.isEnabled = true
                     }
                     .addOnFailureListener { e ->
@@ -237,7 +237,7 @@ class EscribirResenia : Bars() {//Heredamos
 
                 if (!doc.exists()) {
                     val tv = TextView(this)
-                    tv.text = "Todavía no has escrito reseñas de este libro."
+                    tv.text = getString(R.string.sin_resenias_libro)
                     tv.textSize = 14f
                     tv.setTextColor(Color.BLACK)
                     llMisResenas.addView(tv)
@@ -293,7 +293,7 @@ class EscribirResenia : Bars() {//Heredamos
             reviewIdEditando = reviewId
             etComentario.setText(comment)
             ratingBarResena.rating = rating.toFloat()
-            btnPublicarResena.text = "Actualizar opinión"
+            btnPublicarResena.text = getString(R.string.btn_actualizar_opinion)
         }
 
         filaSuperior.addView(tvInfo)
@@ -315,7 +315,7 @@ class EscribirResenia : Bars() {//Heredamos
         reviewIdEditando = null
         etComentario.setText("")
         ratingBarResena.rating = 0f
-        btnPublicarResena.text = "Dejar mi opinión"
+        btnPublicarResena.text = getString(R.string.dejar_opinion)
     }
     private fun cargarNombreUsuario() {
         val uid = auth.currentUser?.uid ?: return
@@ -336,11 +336,11 @@ class EscribirResenia : Bars() {//Heredamos
 
                     tvNombreUsuarioPerfil.text = nombreCompleto
                 } else {
-                    tvNombreUsuarioPerfil.text = "Usuario"
+                    tvNombreUsuarioPerfil.text = getString(R.string.usuario)
                 }
             }
             .addOnFailureListener {
-                tvNombreUsuarioPerfil.text = "Usuario"
+                tvNombreUsuarioPerfil.text = getString(R.string.usuario)
             }
     }
 }

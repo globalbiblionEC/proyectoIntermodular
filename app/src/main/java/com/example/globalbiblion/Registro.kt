@@ -17,7 +17,7 @@ import com.google.firebase.storage.FirebaseStorage
 import android.view.View
 import com.bumptech.glide.Glide
 
-
+//Esta Activity es para el registro del usuario
 class Registro : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseFirestore //db por database
@@ -57,7 +57,7 @@ class Registro : AppCompatActivity() {
                 )
                 Toast.makeText(this, "Certificado PDF seleccionado", Toast.LENGTH_SHORT).show()
             } else {
-                Toast.makeText(this, "No seleccionaste ningún PDF", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.toast_no_pdf_seleccionado), Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -178,7 +178,7 @@ class Registro : AppCompatActivity() {
                     btnUploadCertificate.visibility = View.GONE
                     certificateUri = null
                     certificatePath = ""
-                    btnUploadCertificate.text = "Certificado"
+                    btnUploadCertificate.text = getString(R.string.certificado)
                 }
             }
 
@@ -257,12 +257,6 @@ class Registro : AppCompatActivity() {
             etRepetirCorreo.requestFocus()
             return
         }
-
-       /* if (contrasenia1.length < 6) {
-            etContrasenia.error = "Por favor lector, mínimo 6 caracteres"
-            etContrasenia.requestFocus()
-            return
-        }*/
 
         if (contrasenia1.length < 6) {
             etContrasenia.error = "La contraseña debe tener mínimo 6 caracteres"

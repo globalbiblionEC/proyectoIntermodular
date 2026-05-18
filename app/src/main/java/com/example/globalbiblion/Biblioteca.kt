@@ -44,7 +44,7 @@ class Biblioteca : Bars (){//Heredamos de Bars
 
                 for (doc in snapshot.documents) {//Recorremos cada elemento de la colección books
                     val idLibro = doc.id
-                    val titulo = doc.getString("title") ?: "Sin título"
+                    val titulo = doc.getString("title") ?: getString(R.string.sin_titulo)
 
                     val authors = doc.get("authors") as? List<*>
                     val autor = authors

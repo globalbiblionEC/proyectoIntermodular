@@ -61,7 +61,7 @@ class BuscarPorVoz : Bars() {//Heredamos de bars
 
                 for (doc in snapshot.documents) {
                     val idLibro = doc.id
-                    val titulo = doc.getString("title") ?: "Sin título"
+                    val titulo = doc.getString("title") ?: getString(R.string.sin_titulo)
 
                     val authors = doc.get("authors") as? List<*>
                     val autor = authors
@@ -161,13 +161,13 @@ class BuscarPorVoz : Bars() {//Heredamos de bars
                 RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
             )
             putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault())//Se usa el idioma que tenga el usuario por defecto
-            putExtra(RecognizerIntent.EXTRA_PROMPT, "Di el nombre del libro")
+            putExtra(RecognizerIntent.EXTRA_PROMPT, getString(R.string.prompt_nombre_libro))
         }
 
         try {
             startActivityForResult(intent, codigoVoz)
         } catch (e: ActivityNotFoundException) {
-            Toast.makeText(this, "Tu dispositivo no permite búsqueda por voz", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, getString(R.string.error_busqueda_voz_dispositivo), Toast.LENGTH_LONG).show()
         }
     }
 

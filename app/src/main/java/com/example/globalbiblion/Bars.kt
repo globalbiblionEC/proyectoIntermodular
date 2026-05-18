@@ -31,7 +31,7 @@ open class Bars : AppCompatActivity() {//Clase reutilizable para las Ativities q
             if (this !is Menuprincipal) {
                 startActivity(Intent(this, Menuprincipal::class.java))
             }else{
-                Toast.makeText(this, "Querido lector, ya estás en la biblioteca", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, R.string.toast_ya_biblioteca, Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -49,14 +49,14 @@ open class Bars : AppCompatActivity() {//Clase reutilizable para las Ativities q
             if (this !is BuscarPorVoz) {
                 startActivity(Intent(this, BuscarPorVoz::class.java))
             } else {
-                Toast.makeText(this, "Ya estás en búsqueda por voz", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.toast_ya_busqueda_voz), Toast.LENGTH_SHORT).show()
             }        }
 
         llNotificaciones?.setOnClickListener {
             if (this !is Notificaciones) {
                 startActivity(Intent(this, Notificaciones::class.java))
             } else {
-                Toast.makeText(this, "Ya estás en notificaciones", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.toast_ya_notificaciones), Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -88,7 +88,7 @@ open class Bars : AppCompatActivity() {//Clase reutilizable para las Ativities q
                     tvNombreUsuario?.text = when {
                         nombre.isNotBlank() && apellidos.isNotBlank() -> "$nombre $apellidos"
                         nombre.isNotBlank() -> nombre
-                        else -> "Usuario"
+                        else -> getString(R.string.usuario)
                     }
 
                     val profileImageUrl = doc.getString("profileImageUrl") ?: ""
@@ -127,10 +127,10 @@ open class Bars : AppCompatActivity() {//Clase reutilizable para las Ativities q
                     }
                 }
                 .addOnFailureListener {
-                    tvNombreUsuario?.text = "Usuario"
+                    tvNombreUsuario?.text = getString(R.string.usuario)
                 }
         } else {
-            tvNombreUsuario?.text = "Invitado"
+            tvNombreUsuario?.text = getString(R.string.invitado)
             ivPerfil?.setImageResource(R.drawable.usuarioleyendocf)
         }
 
@@ -138,7 +138,7 @@ open class Bars : AppCompatActivity() {//Clase reutilizable para las Ativities q
             if (this !is PerfilUsuario) {
                 startActivity(Intent(this, PerfilUsuario::class.java))
             } else {
-                Toast.makeText(this, "Ya estás en tu perfil", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.toast_ya_perfil), Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -167,7 +167,7 @@ open class Bars : AppCompatActivity() {//Clase reutilizable para las Ativities q
             val texto = etBuscarLibro?.text.toString().trim()
 
             if (texto.length < 4) {
-                Toast.makeText(this, "Escribe al menos 4 caracteres", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.toast_minimo_4_caracteres), Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
@@ -178,7 +178,7 @@ open class Bars : AppCompatActivity() {//Clase reutilizable para las Ativities q
             val texto = etBuscarLibro.text.toString().trim()
 
             if (texto.length < 4) {
-                Toast.makeText(this, "Escribe al menos 4 caracteres", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.toast_minimo_4_caracteres), Toast.LENGTH_SHORT).show()
                 return@setOnEditorActionListener true
             }
 
@@ -219,7 +219,7 @@ open class Bars : AppCompatActivity() {//Clase reutilizable para las Ativities q
                 val coverPath = libroEncontrado.getString("coverPath") ?: ""
 
                 if (pdfPath.isBlank()) {
-                    Toast.makeText(this, "Este libro no tiene PDF", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, getString(R.string.toast_libro_sin_pdf), Toast.LENGTH_SHORT).show()
                     return@addOnSuccessListener
                 }
 
@@ -255,7 +255,7 @@ open class Bars : AppCompatActivity() {//Clase reutilizable para las Ativities q
         val uid = FirebaseAuth.getInstance().currentUser?.uid
 
         if (uid == null) {
-            Toast.makeText(this, "Debes iniciar sesión", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.toast_debes_iniciar_sesion), Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -267,7 +267,7 @@ open class Bars : AppCompatActivity() {//Clase reutilizable para las Ativities q
             .get()
             .addOnSuccessListener { doc ->
                 if (!doc.exists()) {
-                    Toast.makeText(this, "No tienes ninguna lectura guardada", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, getString(R.string.toast_sin_lectura_guardada), Toast.LENGTH_SHORT).show()
                     return@addOnSuccessListener
                 }
 
@@ -327,7 +327,7 @@ open class Bars : AppCompatActivity() {//Clase reutilizable para las Ativities q
                 }
 
                 if (pdfPath.isBlank()) {
-                    Toast.makeText(this, "No se encontró el PDF guardado", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, getString(R.string.toast_pdf_no_encontrado), Toast.LENGTH_SHORT).show()
                     return@addOnSuccessListener
                 }
 

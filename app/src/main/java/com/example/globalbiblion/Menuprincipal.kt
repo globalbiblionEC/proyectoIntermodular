@@ -78,7 +78,7 @@ class Menuprincipal : Bars () {
         ivLupaTopBar.setOnClickListener {
             val texto = etBuscarLibroTopBar.text.toString().trim()
             if (texto.length < 4) {
-                Toast.makeText(this, "Escribe al menos 4 caracteres", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.toast_minimo_4_caracteres), Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
             buscarPor4Letras(texto)
@@ -87,7 +87,7 @@ class Menuprincipal : Bars () {
         etBuscarLibroTopBar.setOnEditorActionListener { _, _, _ ->
             val texto = etBuscarLibroTopBar.text.toString().trim()
             if (texto.length < 4) {
-                Toast.makeText(this, "Escribe al menos 4 caracteres", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.toast_minimo_4_caracteres), Toast.LENGTH_SHORT).show()
                 return@setOnEditorActionListener true
             }
 
@@ -109,7 +109,7 @@ class Menuprincipal : Bars () {
 
                 for (doc in snapshot.documents) {
                     val idLibro = doc.id
-                    val titulo = doc.getString("title") ?: "Sin título"
+                    val titulo = doc.getString("title") ?: getString(R.string.sin_titulo)
 
                     val authors = doc.get("authors") as? List<*>
                     val autor = authors
@@ -475,7 +475,7 @@ class Menuprincipal : Bars () {
             }
             .addOnFailureListener {
                 navegando = false
-                Toast.makeText(this, "No se pudo cargar la portada del libro", Toast.LENGTH_LONG).show()
+                Toast.makeText(this,"No se pudo cargar la portada del libro", Toast.LENGTH_LONG).show()
             }
     }
     private fun cargarRankingLibros() {

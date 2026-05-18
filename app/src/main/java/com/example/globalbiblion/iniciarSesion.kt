@@ -58,7 +58,7 @@ class iniciarSesion : AppCompatActivity() {
                     if (task.isSuccessful) {//Si está todo bien, realizamos el if
                         Toast.makeText(
                             this,
-                            "Inicio de sesión correcto",
+                            getString(R.string.toast_inicio_correcto),
                             Toast.LENGTH_SHORT
                         ).show()
                         comprobarRolUsuario()
@@ -66,7 +66,7 @@ class iniciarSesion : AppCompatActivity() {
                         // Error de autenticación
                         Toast.makeText(
                             this,
-                            "Credenciales erróneas. ",
+                            getString(R.string.toast_credenciales_erroneas),
                             Toast.LENGTH_LONG
                         ).show()
                     }
@@ -97,7 +97,7 @@ class iniciarSesion : AppCompatActivity() {
         val uid = auth.currentUser?.uid
 
         if (uid == null) {
-            Toast.makeText(this, "No se pudo identificar al usuario", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.toast_usuario_no_identificado), Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -121,7 +121,7 @@ class iniciarSesion : AppCompatActivity() {
                 }
             }
             .addOnFailureListener {
-                Toast.makeText(this, "Error al comprobar el rol", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.toast_error_comprobar_rol), Toast.LENGTH_SHORT).show()
             }
     }
 }

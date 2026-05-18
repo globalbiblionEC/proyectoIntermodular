@@ -43,16 +43,17 @@ class Notificaciones : Bars() {
                 uriCertificadoNuevo = uri
                 subirNuevoCertificado(uri)
             } else {
-                Toast.makeText(this, "No seleccionaste ningún PDF", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.toast_no_pdf_seleccionado), Toast.LENGTH_SHORT).show()
             }
         }
+
 
     private val seleccionarPdfCorreccion =
         registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
             if (uri != null) {
                 subirPdfCorreccion(uri)
             } else {
-                Toast.makeText(this, "No seleccionaste ningún PDF", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.toast_no_pdf_seleccionado), Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -99,12 +100,12 @@ class Notificaciones : Bars() {
         val uid = auth.currentUser?.uid
 
         if (uid == null) {
-            Toast.makeText(this, "Debes iniciar sesión", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.toast_debes_iniciar_sesion), Toast.LENGTH_SHORT).show()
             finish()
             return
         }
 
-        tvNotificaciones.text = "Cargando notificaciones..."
+        tvNotificaciones.text = getString(R.string.cargando_notficaciones)
         llAvisosCorrector.removeAllViews()
 
         val listaNotificaciones = mutableListOf<NotificacionesItem>()
@@ -175,7 +176,7 @@ class Notificaciones : Bars() {
                 cargarNotificacionesSolicitudes(uid, listaNotificaciones, ultimaLectura)
             }
             .addOnFailureListener {
-                tvNotificaciones.text = "Error al cargar notificaciones"
+                tvNotificaciones.text = getString(R.string.error_cargar_notificaciones)
             }
     }
 
@@ -503,81 +504,6 @@ class Notificaciones : Bars() {
                 )
             }
     }
-
-    /*private fun cargarNombreUsuario() {
-
-        val uid = auth.currentUser?.uid ?: return
-
-        db.collection("users")
-            .document(uid)
-            .get()
-            .addOnSuccessListener { doc ->
-
-                val nombre = doc.getString("nombre") ?: ""
-                val apellidos = doc.getString("apellidos") ?: ""
-
-                val profileImageUrl =
-                    doc.getString("profileImageUrl") ?: ""
-
-                tvNombreUsuario.text = when {
-
-                    nombre.isNotEmpty() && apellidos.isNotEmpty() ->
-                        "$nombre $apellidos"
-
-                    nombre.isNotEmpty() ->
-                        nombre
-
-                    else ->
-                        "Usuario"
-                }
-
-                // FOTO PERFIL
-                if (profileImageUrl.isNotEmpty()) {
-
-                    Glide.with(this)
-                        .load(profileImageUrl)
-                        .placeholder(R.drawable.usuarioleyendocfmenuprinc)
-                        .error(R.drawable.usuarioleyendocfmenuprinc)
-                        .circleCrop()
-                        .into(ivPerfil)
-
-                } else {
-
-                    ivPerfil.setImageResource(
-                        R.drawable.usuarioleyendocfmenuprinc
-                    )
-                }
-            }
-            .addOnFailureListener {
-
-                tvNombreUsuario.text = "Usuario"
-
-                ivPerfil.setImageResource(
-                    R.drawable.usuarioleyendocfmenuprinc
-                )
-            }
-    }*/
-    /*private fun cargarNombreUsuario() {
-        val uid = auth.currentUser?.uid ?: return
-
-        db.collection("users")
-            .document(uid)
-            .get()
-            .addOnSuccessListener { doc ->
-                val nombre = doc.getString("nombre") ?: ""
-                val apellidos = doc.getString("apellidos") ?: ""
-
-                tvNombreUsuario.text = when {
-                    nombre.isNotEmpty() && apellidos.isNotEmpty() -> "$nombre $apellidos"
-                    nombre.isNotEmpty() -> nombre
-                    else -> "Usuario"
-                }
-            }
-            .addOnFailureListener {
-                tvNombreUsuario.text = "Usuario"
-            }
-    }*/
-
     private fun subirNuevoCertificado(uri: Uri) {
         val uid = auth.currentUser?.uid
 
@@ -716,19 +642,19 @@ class Notificaciones : Bars() {
         tvInfo.setTextColor(android.graphics.Color.BLACK)
 
         val btnVerPdf = Button(this)
-        btnVerPdf.text = "Ver PDF traducido"
+        btnVerPdf.text = getString(R.string.btn_ver_pdf_traducido)
         btnVerPdf.setOnClickListener {
             abrirPdf(translationUrl)
         }
 
         val btnAceptar = Button(this)
-        btnAceptar.text = "Validar traducción"
+        btnAceptar.text = getString(R.string.btn_validar_traduccion)
         btnAceptar.setOnClickListener {
             aceptarCorreccion(requestId, uidCorrector)
         }
 
         val btnRechazar = Button(this)
-        btnRechazar.text = "Rechazar y subir corrección"
+        btnRechazar.text = getString(R.string.btn_rechazar_subir_correccion)
         btnRechazar.setOnClickListener {
             pedirMotivoYSubirCorreccion(requestId)
         }
@@ -765,7 +691,7 @@ class Notificaciones : Bars() {
                     .addOnSuccessListener {
                         Toast.makeText(
                             this,
-                            "Traducción validada. Pasará al panel del administrador.",
+                           getString(R.string.toast_traduccion_validada),
                             Toast.LENGTH_LONG
                         ).show()
 
@@ -785,32 +711,32 @@ class Notificaciones : Bars() {
 
     private fun pedirMotivoYSubirCorreccion(requestId: String) {
         val input = EditText(this)
-        input.hint = "Motivo del rechazo opcional"
+        input.hint = getString(R.string.hint_motivo_rechazo)
         input.minLines = 3
 
         android.app.AlertDialog.Builder(this)
-            .setTitle("Rechazar traducción")
-            .setMessage("Puedes escribir un motivo, subir un PDF corregido, o ambas cosas.")
+            .setTitle(getString(R.string.dialog_rechazar_traduccion))
+            .setMessage(getString(R.string.dialog_rechazar_traduccion_msg))
             .setView(input)
-            .setPositiveButton("Subir PDF corregido") { _, _ ->
+            .setPositiveButton(getString(R.string.btn_subir_pdf_corregido)) { _, _ ->
                 requestIdCorreccionActual = requestId
                 reviewNotesActual = input.text.toString().trim()
                 seleccionarPdfCorreccion.launch("application/pdf")
             }
-            .setNegativeButton("Rechazar sin PDF") { _, _ ->
+            .setNegativeButton(getString(R.string.btn_rechazar_sin_pdf)) { _, _ ->
                 val motivo = input.text.toString().trim()
 
                 if (motivo.isEmpty()) {
                     Toast.makeText(
                         this,
-                        "Debes escribir un motivo si no subes PDF",
+                        getString(R.string.toast_motivo_obligatorio),
                         Toast.LENGTH_LONG
                     ).show()
                 } else {
                     rechazarSinPdf(requestId, motivo)
                 }
             }
-            .setNeutralButton("Cancelar", null)
+            .setNeutralButton(getString(R.string.cancelar), null)
             .show()
     }
 
@@ -818,19 +744,19 @@ class Notificaciones : Bars() {
         val uidCorrector = auth.currentUser?.uid
 
         if (uidCorrector == null) {
-            Toast.makeText(this, "Debes iniciar sesión", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.toast_debes_iniciar_sesion), Toast.LENGTH_SHORT).show()
             return
         }
 
         if (requestIdCorreccionActual.isBlank()) {
-            Toast.makeText(this, "No se encontró la solicitud", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.toast_no_solicitud), Toast.LENGTH_SHORT).show()
             return
         }
 
         val rutaCorreccion = "contribution_uploads/$requestIdCorreccionActual/correccion.pdf"
         val ref = storage.reference.child(rutaCorreccion)
 
-        Toast.makeText(this, "Subiendo corrección...", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, getString(R.string.toast_subiendo_correccion), Toast.LENGTH_SHORT).show()
 
         ref.putFile(uri)
             .addOnSuccessListener {
@@ -884,7 +810,7 @@ class Notificaciones : Bars() {
 
                                         Toast.makeText(
                                             this,
-                                            "Corrección subida. El traductor recibirá la notificación.",
+                                            getString(R.string.toast_correccion_subida),
                                             Toast.LENGTH_LONG
                                         ).show()
 
@@ -916,7 +842,7 @@ class Notificaciones : Bars() {
 
     private fun abrirPdf(urlPdf: String) {
         if (urlPdf.isBlank()) {
-            Toast.makeText(this, "No se encontró el PDF", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, getString(R.string.toast_pdf_no_encontrado), Toast.LENGTH_LONG).show()
             return
         }
 
@@ -927,9 +853,9 @@ class Notificaciones : Bars() {
         }
 
         try {
-            startActivity(Intent.createChooser(intent, "Abrir PDF con"))
+            startActivity(Intent.createChooser(intent, getString(R.string.btn_abrir_pdf_con)))
         } catch (e: Exception) {
-            Toast.makeText(this, "No se pudo abrir el PDF", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, getString(R.string.toast_no_abrir_pdf), Toast.LENGTH_LONG).show()
         }
     }
 
@@ -1005,7 +931,7 @@ class Notificaciones : Bars() {
 
     private fun abrirPdfDesdeStorage(rutaPdf: String) {
         if (rutaPdf.isBlank()) {
-            Toast.makeText(this, "No se encontró el PDF de corrección", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, getString(R.string.toast_pdf_correccion_no_encontrado), Toast.LENGTH_LONG).show()
             return
         }
 
@@ -1030,11 +956,11 @@ class Notificaciones : Bars() {
         }
 
         if (ordenadas.isEmpty()) {
-            tvNotificaciones.text = "No tienes notificaciones."
+            tvNotificaciones.text = getString(R.string.sin_notificaciones)
             return
         }
 
-        tvNotificaciones.text = "Tus notificaciones"
+        tvNotificaciones.text =getString(R.string.tus_notificaciones)
 
         for (notificacion in ordenadas) {
             llAvisosCorrector.addView(crearCardNotificacion(notificacion))
@@ -1119,7 +1045,7 @@ class Notificaciones : Bars() {
 
         if (correctionUrl.isNotBlank() || correctionPath.isNotBlank()) {
             val btnVerPdf = Button(this)
-            btnVerPdf.text = "Ver PDF del corrector"
+            btnVerPdf.text = getString(R.string.btn_ver_pdf_corrector)
             btnVerPdf.isAllCaps = false
 
             btnVerPdf.setOnClickListener {
@@ -1134,7 +1060,7 @@ class Notificaciones : Bars() {
         }
 
         val btnSubirNueva = Button(this)
-        btnSubirNueva.text = "Subir traducción corregida"
+        btnSubirNueva.text = getString(R.string.btn_subir_traduccion_corregida)
         btnSubirNueva.isAllCaps = false
 
         btnSubirNueva.setOnClickListener {

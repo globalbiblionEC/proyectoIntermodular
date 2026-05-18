@@ -78,7 +78,7 @@ class ContinuarLeyendo : Bars() {//Heredamos
         if (idLibro.isBlank()) {
             Toast.makeText(
                 this,
-                "Aviso: idLibro viene vacío, no se podrá guardar la valoración",
+                getString(R.string.toast_id_libro_vacio),
                 Toast.LENGTH_LONG
             ).show()
         }
@@ -97,7 +97,7 @@ class ContinuarLeyendo : Bars() {//Heredamos
             } else {
                 Toast.makeText(
                     this,
-                    "No se ha encontrado la URL del PDF",
+                    getString(R.string.toast_pdf_url_no_encontrada),
                     Toast.LENGTH_LONG
                 ).show()
             }
@@ -136,7 +136,7 @@ class ContinuarLeyendo : Bars() {//Heredamos
 
                 Toast.makeText(
                     this,
-                    "No se pudo cargar la portada desde Firebase Storage",
+                    getString(R.string.toast_error_portada_storage),
                     Toast.LENGTH_LONG
                 ).show()
             }
@@ -152,11 +152,11 @@ class ContinuarLeyendo : Bars() {//Heredamos
         }
 
         try {
-            startActivity(Intent.createChooser(intent, "Abrir libro con"))
+            startActivity(Intent.createChooser(intent, getString(R.string.chooser_abrir_libro)))
         } catch (e: ActivityNotFoundException) {
             Toast.makeText(
                 this,
-                "No hay ninguna app para abrir PDFs",
+                getString(R.string.toast_no_app_pdf),
                 Toast.LENGTH_LONG
             ).show()
         }
@@ -200,7 +200,7 @@ class ContinuarLeyendo : Bars() {//Heredamos
 
     private fun reproducirOPausarAudio() {
         if (audioUrl.isBlank()) {
-            Toast.makeText(this, "No hay audiolibro disponible", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, getString(R.string.toast_no_audiolibro), Toast.LENGTH_LONG).show()
             return
         }
 
@@ -225,22 +225,22 @@ class ContinuarLeyendo : Bars() {//Heredamos
                     }
 
                     it.start()
-                    btnPlayPauseAudio.text = "Pausar"
+                    btnPlayPauseAudio.text = getString(R.string.btn_pausar)
                     actualizarBarraAudio()
                 }
 
                 setOnCompletionListener {
-                    btnPlayPauseAudio.text = "Reproducir"
+                    btnPlayPauseAudio.text = getString(R.string.btn_reproducir)
                     seekBarAudio.progress = 0
                 }
 
                 prepareAsync()
             }
 
-            Toast.makeText(this, "Cargando audiolibro...", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.toast_cargando_audiolibro), Toast.LENGTH_SHORT).show()
         } else {
             mediaPlayer?.start()
-            btnPlayPauseAudio.text = "Pausar"
+            btnPlayPauseAudio.text = getString(R.string.btn_pausar)
             actualizarBarraAudio()
         }
     }

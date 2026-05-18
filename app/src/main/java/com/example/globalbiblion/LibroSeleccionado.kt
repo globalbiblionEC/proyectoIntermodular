@@ -81,10 +81,10 @@ class LibroSeleccionado : Bars() {
         btnMostrarIdiomas.setOnClickListener {
             if (llIdiomasDisponibles.visibility == android.view.View.VISIBLE) {
                 llIdiomasDisponibles.visibility = android.view.View.GONE
-                btnMostrarIdiomas.text = "Ver idiomas disponibles ▼"
+                btnMostrarIdiomas.text =getString(R.string.btn_ver_idiomas)
             } else {
                 llIdiomasDisponibles.visibility = android.view.View.VISIBLE
-                btnMostrarIdiomas.text = "Ocultar idiomas ▲"
+                btnMostrarIdiomas.text =getString(R.string.btn_ocultar_idiomas)
             }
         }
 
@@ -157,7 +157,7 @@ class LibroSeleccionado : Bars() {
                     ?.takeIf { it.isNotBlank() }
                     ?: autorLibro
 
-                val descripcion = doc.getString("description") ?: "Sinopsis no disponible"
+                val descripcion = doc.getString("description") ?: getString(R.string.sinopsis_no_disponible)
 
                 portadaStoragePath = doc.getString("coverPath") ?: portadaStoragePath
                 pdfStoragePath = doc.getString("pdfPath") ?: pdfStoragePath
@@ -221,7 +221,7 @@ class LibroSeleccionado : Bars() {
 
     private fun abrirPdf() {
         if (pdfUrl.isBlank()) {
-            Toast.makeText(this, "No se ha encontrado la URL del PDF", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, getString(R.string.toast_pdf_url_no_encontrada), Toast.LENGTH_LONG).show()
             return
         }
 
@@ -296,7 +296,7 @@ class LibroSeleccionado : Bars() {
 
                 if (result.isEmpty) {
                     val tvSinResenas = TextView(this)
-                    tvSinResenas.text = "Sin reseñas todavía"
+                    tvSinResenas.text = getString(R.string.sin_resenias)
                     tvSinResenas.textSize = 14f
                     tvSinResenas.setPadding(16, 12, 16, 12)
                     llReviewsContainer.addView(tvSinResenas)
@@ -367,7 +367,7 @@ class LibroSeleccionado : Bars() {
         val uid = FirebaseAuth.getInstance().currentUser?.uid
 
         if (uid == null) {
-            Toast.makeText(this, "Debes iniciar sesión para traducir", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.toast_login_traducir), Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -381,12 +381,12 @@ class LibroSeleccionado : Bars() {
                 val idiomaTraductor = userDoc.getString("nativeLanguage") ?: ""
 
                 if (rol != "translator") {
-                    Toast.makeText(this, "Solo los traductores pueden traducir libros", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this, getString(R.string.toast_solo_traductores), Toast.LENGTH_LONG).show()
                     return@addOnSuccessListener
                 }
 
                 if (estado != "verified") {
-                    Toast.makeText(this, "Tu cuenta de traductor aún no está verificada", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this, getString(R.string.toast_traductor_no_verificado), Toast.LENGTH_LONG).show()
                     return@addOnSuccessListener
                 }
 
@@ -402,14 +402,14 @@ class LibroSeleccionado : Bars() {
                             ?: listOf(idiomaOriginal)
 
                         if (idiomaTraductor.isBlank()) {
-                            Toast.makeText(this, "No tienes idioma nativo registrado", Toast.LENGTH_LONG).show()
+                            Toast.makeText(this, getString(R.string.toast_sin_idioma_nativo), Toast.LENGTH_LONG).show()
                             return@addOnSuccessListener
                         }
 
                         if (listaIdiomas.contains(idiomaTraductor)) {
                             Toast.makeText(
                                 this,
-                                "Este libro ya está disponible en tu idioma",
+                                getString(R.string.toast_libro_ya_idioma),
                                 Toast.LENGTH_LONG
                             ).show()
                         } else {
@@ -425,7 +425,7 @@ class LibroSeleccionado : Bars() {
                     }
             }
             .addOnFailureListener {
-                Toast.makeText(this, "Error comprobando permisos", Toast.LENGTH_LONG).show()
+                Toast.makeText(this, getString(R.string.toast_error_permisos), Toast.LENGTH_LONG).show()
             }
     }
 
@@ -452,7 +452,7 @@ class LibroSeleccionado : Bars() {
 
         if (idiomas.isEmpty()) {
             val tv = TextView(this)
-            tv.text = "No hay idiomas disponibles"
+            tv.text = getString(R.string.sin_idiomas_disponibles)
             tv.textSize = 14f
             tv.setTextColor(android.graphics.Color.DKGRAY)
             tv.setPadding(12, 12, 12, 12)
@@ -557,7 +557,7 @@ class LibroSeleccionado : Bars() {
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
 
-        startActivity(Intent.createChooser(intent, "Abrir libro con"))
+        startActivity(Intent.createChooser(intent, getString(R.string.chooser_abrir_libro)))
     }
 
     private fun guardarContinuarLeyendoPorIdioma(
@@ -716,7 +716,7 @@ class LibroSeleccionado : Bars() {
 
     private fun irAContinuarLeyendoAudio() {
         if (audioUrl.isBlank()) {
-            Toast.makeText(this, "No hay audiolibro disponible", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, getString(R.string.toast_no_audiolibro), Toast.LENGTH_LONG).show()
             return
         }
 
