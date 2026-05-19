@@ -262,7 +262,7 @@ class Registro : AppCompatActivity() {
             return
         }
 
-        if (!contrasenia1.matches(Regex(".*[!@#\$%^&*()_+=|<>?{}\\[\\]~-].*"))) {
+        if (!contrasenia1.matches(Regex(".*[.!@#\$%^&*()_+=|<>?{}\\[\\]~-].*"))) {
             etContrasenia.error =
                 "La contraseña debe contener al menos un carácter especial"
             etContrasenia.requestFocus()
