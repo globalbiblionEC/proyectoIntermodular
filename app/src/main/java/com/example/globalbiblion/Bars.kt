@@ -52,11 +52,6 @@ open class Bars : AppCompatActivity() {//Clase reutilizable para las Ativities q
         }
 
         llMicrofono?.setOnClickListener {
-            /*if (this !is BuscarPorVoz) {
-                startActivity(Intent(this, BuscarPorVoz::class.java))
-            } else {
-                Toast.makeText(this, getString(R.string.toast_ya_busqueda_voz), Toast.LENGTH_SHORT).show()
-            }    */
             iniciarReconocimientoVozDesdeBottomBar()
         }
 

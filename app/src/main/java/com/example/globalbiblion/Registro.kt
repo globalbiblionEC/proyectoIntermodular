@@ -61,7 +61,7 @@ class Registro : AppCompatActivity() {
             }
         }
 
-    private val seleccionarImagenLauncher =
+    private val seleccionarImagenLauncher =//Aca guardamos la URI de la imagen de perfil
         registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
             if (uri != null) {
                 profileImageUri = uri
@@ -70,9 +70,7 @@ class Registro : AppCompatActivity() {
                     uri,
                     Intent.FLAG_GRANT_READ_URI_PERMISSION
                 )
-
-                //ivUsuario.setImageURI(uri)
-                Glide.with(this)
+                Glide.with(this) //Mostramos la imagen de perfil en la pantalla
                     .load(uri)
                     .circleCrop()
                     .into(ivUsuario)
@@ -117,7 +115,7 @@ class Registro : AppCompatActivity() {
             seleccionarPdfLauncher.launch(arrayOf("application/pdf"))
         }
         btnUploadProfileImage.setOnClickListener {
-            seleccionarImagenLauncher.launch(arrayOf("image/*"))
+            seleccionarImagenLauncher.launch(arrayOf("image/*"))//Abrimos la galería del usuario
         }
         btnRegistrar = findViewById(R.id.btnRegistrar)
         btnVolver = findViewById(R.id.btnVolver)
@@ -344,43 +342,6 @@ class Registro : AppCompatActivity() {
                             Toast.makeText(
                                 this,
                                 "Usuario creado, pero error al guardar datos: ${e.message}",
-                                Toast.LENGTH_LONG
-                            ).show()
-                            btnRegistrar.isEnabled = true
-                        }
-                }
-
-               fun subirImagenPerfil() {
-                    val uriImagen = profileImageUri
-
-                    if (uriImagen == null) {
-                        guardarUsuarioEnFirestore()
-                        return
-                    }
-
-                    profileImagePath = "users/$uid/profile/profile.jpg"
-                    val refImagen = storage.reference.child(profileImagePath)
-
-                    refImagen.putFile(uriImagen)
-                        .addOnSuccessListener {
-                            refImagen.downloadUrl
-                                .addOnSuccessListener { downloadUri ->
-                                    profileImageUrl = downloadUri.toString()
-                                    guardarUsuarioEnFirestore()
-                                }
-                                .addOnFailureListener { e ->
-                                    Toast.makeText(
-                                        this,
-                                        "Error obteniendo URL de imagen: ${e.message}",
-                                        Toast.LENGTH_LONG
-                                    ).show()
-                                    btnRegistrar.isEnabled = true
-                                }
-                        }
-                        .addOnFailureListener { e ->
-                            Toast.makeText(
-                                this,
-                                "Error al subir imagen: ${e.message}",
                                 Toast.LENGTH_LONG
                             ).show()
                             btnRegistrar.isEnabled = true
