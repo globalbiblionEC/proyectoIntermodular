@@ -1,4 +1,4 @@
-package com.example.globalbiblion
+/*package com.example.globalbiblion
 
 import android.content.ActivityNotFoundException
 import android.content.Intent
@@ -243,4 +243,4 @@ class BuscarPorVoz : Bars() {//Heredamos de bars
     private fun dp(valor: Int): Int {
         return (valor * resources.displayMetrics.density).toInt()
     }
-}
+}*/

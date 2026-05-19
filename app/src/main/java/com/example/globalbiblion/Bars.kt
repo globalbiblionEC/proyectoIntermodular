@@ -13,8 +13,13 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import androidx.appcompat.app.AlertDialog
 import com.bumptech.glide.Glide //Para cargar y mostrar imagenes desde URLs o Firebase
+import android.app.Activity
+import android.content.ActivityNotFoundException
+import android.speech.RecognizerIntent
+import java.util.Locale
 
 open class Bars : AppCompatActivity() {//Clase reutilizable para las Ativities que usan top y bottom bar
+    private val codigoVozBottomBar = 200
 
     //Esta función debe estar en las clases hijas
     protected fun configurarBottomBar() {
@@ -25,6 +30,7 @@ open class Bars : AppCompatActivity() {//Clase reutilizable para las Ativities q
         val llNotificaciones = findViewById<LinearLayout?>(R.id.llNotificaciones)
         val tvBadgeNotificaciones = findViewById<TextView?>(R.id.tvBadgeNotificaciones)
         val flNotificaciones = findViewById<FrameLayout?>(R.id.flNotificaciones)
+
 
         //Añadimos setOnClickListener para que si el usuario presiona una vist en la que ya está, se le notifique
         llMenuPrincipal?.setOnClickListener {
@@ -46,11 +52,13 @@ open class Bars : AppCompatActivity() {//Clase reutilizable para las Ativities q
         }
 
         llMicrofono?.setOnClickListener {
-            if (this !is BuscarPorVoz) {
+            /*if (this !is BuscarPorVoz) {
                 startActivity(Intent(this, BuscarPorVoz::class.java))
             } else {
                 Toast.makeText(this, getString(R.string.toast_ya_busqueda_voz), Toast.LENGTH_SHORT).show()
-            }        }
+            }    */
+            iniciarReconocimientoVozDesdeBottomBar()
+        }
 
         llNotificaciones?.setOnClickListener {
             if (this !is Notificaciones) {
@@ -425,6 +433,40 @@ open class Bars : AppCompatActivity() {//Clase reutilizable para las Ativities q
         }
 
         startActivity(intent)
+    }
+
+    private fun iniciarReconocimientoVozDesdeBottomBar() {
+        val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+            putExtra(
+                RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
+            )
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault())
+            putExtra(RecognizerIntent.EXTRA_PROMPT, "Di el nombre del libro")
+        }
+
+        try {
+            startActivityForResult(intent, codigoVozBottomBar)
+        } catch (e: ActivityNotFoundException) {
+            Toast.makeText(
+                this,
+                "Tu dispositivo no tiene búsqueda por voz disponible",
+                Toast.LENGTH_LONG
+            ).show()
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == codigoVozBottomBar && resultCode == Activity.RESULT_OK && data != null) {
+            val resultados = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
+            val textoVoz = resultados?.firstOrNull()?.trim() ?: ""
+
+            if (textoVoz.isNotBlank()) {
+                buscarLibroDesdeTopBar(textoVoz)
+            }
+        }
     }
 
 }
